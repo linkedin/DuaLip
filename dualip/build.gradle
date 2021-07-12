@@ -1,0 +1,33 @@
+import org.gradle.util.VersionNumber
+
+plugins {
+  // Apply the scala plugin to add support for Scala
+  id 'scala'
+}
+
+def sparkVersion = findProperty("sparkVersion") ?: "2.3.0"
+def scalaVersion = findProperty("scalaVersion") ?: "2.11"
+
+println ("Building with scala: ${scalaVersion}, spark: ${sparkVersion}")
+
+dependencies {
+
+  compileOnly("org.apache.spark:spark-core_${scalaVersion}:${sparkVersion}")
+  compileOnly("org.apache.spark:spark-sql_${scalaVersion}:${sparkVersion}")
+
+  implementation("com.twitter:algebird-core_${scalaVersion}:0.13.5")
+  implementation("org.scalanlp:breeze_${scalaVersion}:0.13.2")
+  implementation("com.github.scopt:scopt_${scalaVersion}:3.7.0")
+
+  testImplementation("org.apache.spark:spark-core_${scalaVersion}:${sparkVersion}")
+  testImplementation("org.apache.spark:spark-sql_${scalaVersion}:${sparkVersion}")
+  testImplementation("org.testng:testng:6.10")
+
+  testRuntimeOnly("com.fasterxml.jackson.core:jackson-databind:2.6.7.1")
+}
+
+test {
+  useTestNG()
+}
+
+archivesBaseName = "${project.name}_2.11"
