@@ -1,7 +1,7 @@
-Dualip: Dual Decomposition based Linear Program Solver Documentation
+DuaLip: Dual Decomposition based Linear Program Solver Documentation
 ====================================================================
 
-DuaLiP is an extreme-scale Linear Program (LP) solver based on Apache Spark. It solves structured LP problems of the following form arising from web-applications:
+DuaLip is an extreme-scale Linear Program (LP) solver based on Apache Spark. It solves structured LP problems of the following form arising from web-applications:
 
 .. math::
   \begin{array}{ll}
@@ -13,7 +13,7 @@ DuaLiP is an extreme-scale Linear Program (LP) solver based on Apache Spark. It 
 where :math:`x = (x_1, ..., x_I)` is the full vector of optimization variables, :math:`x_i` is the vector of optimization
 variables associated with one :math:`i`, and :math:`A,b,c` and :math:`C_i` are user-supplied data.
 
-It is a distributed solver that solves a perturbation of the LP problem at scale via gradient-based algorithms on the smooth dual of the perturbed LP with computational guarantees. Dualip can easily scale to problems in trillions of variables.
+It is a distributed solver that solves a perturbation of the LP problem at scale via gradient-based algorithms on the smooth dual of the perturbed LP with computational guarantees. DuaLip can easily scale to problems in trillions of variables.
 
 This library was created by `Yao Pan
 <https://www.linkedin.com/in/panyaopy/>`_, `Kinjal Basu
@@ -26,7 +26,7 @@ This library was created by `Yao Pan
 **Code available on** `GitHub 
 <https://github.com/linkedin/dualip>`_.
 
-Citing Dualip
+Citing DuaLip
 ------------------
 
 If you are using Dualip for your work, we encourage you to
@@ -35,12 +35,12 @@ If you are using Dualip for your work, we encourage you to
 * Put a star on GitHub |github-star|
 
 
-.. |github-star| image:: https://img.shields.io/github/stars/oxfordcontrol/osqp.svg?style=social&label=Star
+.. |github-star| image:: https://img.shields.io/github/stars/linkedin?style=social
   :target: https://github.com/linkedin/dualip
 
 
 **We are looking forward to hearing your success stories with Dualip!** Please `share them with us
-<dualip@linkedin.com>`_.
+<ask_lp@linkedin.com>`_.
 
 Features
 ------------------
@@ -61,7 +61,7 @@ Features
 
     Each of these components is highly flexible and can be easily customized to add new solvers, or new types of projections for different constraints sets :math:`\mathcal{C}_i`. New formulations can also be added by appropriately stitching together these different components.
 
-#. Detects Infeasibility
+#. Infeasibility Detection
     We have incorporated simple checks on infeasibility (see Appendix D of `our paper <https://arxiv.org/abs/2103.05277>`_). This helps the end user to appropriately tweak the problem space.
 
 #. Extensive Logging
@@ -111,9 +111,9 @@ Copyright
 Copyright 2021 LinkedIn Corporation All Rights Reserved.
 Licensed under the BSD 2-Clause License (the "License"). See License in the project root for license information.
 
-Contributions
+Contributing
 ------------------
-If you would like to contribute to this project, please review the instructions :ref:`here <contributions>`.
+If you would like to contribute to this project, please review the instructions :ref:`here <contribution>`.
 
 Bug reports and support
 -----------------------
@@ -121,11 +121,11 @@ Please report any issues via the `Github issue tracker <https://github.com/linke
 
 Acknowledgments
 ------------------
-Implementations of some methods in DuaLip were inspired by other open-source libraries. Discussions with several LinkedIn employees influenced aspects of this library. A full list of acknowledgements can be found :ref:`here <acknowledgements>`.
+Implementations of some methods in DuaLip were inspired by other open-source libraries. Discussions with several LinkedIn employees influenced various aspects of this library. A full list of acknowledgements can be found :ref:`here <acknowledgements>`.
 
 References
 ------------------
-DuaLip has been created on the basis of the following research paper. If you cite DuaLip, please use the following:
+DuaLip has been created on the basis of the following research papers. If you cite DuaLip, please use the following:
 
         .. code:: latex
 

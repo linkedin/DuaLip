@@ -1,6 +1,6 @@
-.. _contributions :
+.. _contribution :
 
-Contributions
+Contributing
 =============
 
 Agreement
@@ -37,4 +37,4 @@ Tips for Getting Your Pull Request Accepted
 
 #. Make sure all new features are tested and the tests pass.
 #. Bug fixes must include a test case demonstrating the error that it fixes.
-#. Open an issue first and seek advice for your change before submitting a pull request. Large features which have never been discussed are unlikely to be accepted. **You have been warned.**
+#. Open an issue first and seek advice for your change before submitting a pull request. Large features which have never been discussed are unlikely to be accepted. 

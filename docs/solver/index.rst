@@ -1,6 +1,6 @@
 .. _solver :
 
-The Dualip Solver
+The DuaLip Solver
 =================
 
 Problem Statement
@@ -11,7 +11,7 @@ In a typical recommender system problem, we denote users by :math:`i = 1, \ldots
 :math:`x_{ik}` can be the probability of displaying item :math:`k` to user :math:`i`. The vectorized version is denoted by 
 :math:`x = (x_1, ..., x_I)` where :math:`x_i = (x_{i1}, ..., x_{iK})`. 
 
-Dualip solves Linear Programs (LPs) of the following form:
+DuaLip solves Linear Programs (LPs) of the following form:
 
 .. math::
   \begin{array}{ll}
@@ -20,7 +20,7 @@ Dualip solves Linear Programs (LPs) of the following form:
     & x_i \in \mathcal{C}_i \;\; \text{for all}\; = 1,\ldots, I
   \end{array}
 
-where :math:`A_{m \times n}` is the constraint matrix, :math:`b_{m \times 1}` is the constraint vector and the :math:`\mathcal{C}_i` are uniformly
+where :math:`A_{m \times n}` is the constraint matrix, :math:`b_{m \times 1}` is the constraint vector and :math:`\mathcal{C}_i` are uniformly
 compact polytopes. :math:`x \in \mathbb{R}^n` is the vector of optimization variables, where :math:`n = IK`. 
 
 .. _probsolution :
@@ -28,9 +28,9 @@ compact polytopes. :math:`x \in \mathbb{R}^n` is the vector of optimization vari
 Problem Solution
 ----------------
 
-We briefly outline the solution mechanism here. For more details please see `Basu et. al (2020)
+We briefly outline the solution mechanism here. For more details, please see `Basu et. al (2020)
 <http://proceedings.mlr.press/v119/basu20a/basu20a.pdf>`_.
-To solve the problem we introduce the perturbed problem
+To solve the problem, we introduce the perturbed problem:
 
 .. math::
   \begin{array}{ll}
@@ -39,8 +39,8 @@ To solve the problem we introduce the perturbed problem
     & x_i \in \mathcal{C}_i \;\; \text{for all}\; = 1,\ldots, I
   \end{array}
 
-where :math:`\gamma > 0` controls the tradeoff of between problem approximation and the smoothness of the dual objective function.
-To make the above problem amenable to first order methods, we consider the Lagrangian dual,
+where :math:`\gamma > 0` controls the tradeoff between problem approximation and the smoothness of the dual objective function.
+To make the above problem amenable to first order methods, we consider the Lagrangian dual:
 
 .. math::
     g_{\gamma}(\lambda) = \min_{x \in \mathcal C} ~~ \left\{ c^T x + \frac{\gamma}{2} x^T x + \lambda^T(Ax-b) \right\},
@@ -68,7 +68,7 @@ where :math:`\Pi_{\mathcal{C}_i}(\cdot)` is the Euclidean projection operator on
 parts of :math:`A` and :math:`c` corresponding to :math:`x_i`. Based on this we use a first-order gradient method as the main optimizer to
 solve the problem. It can also be shown that the solution obeys certain bounds to the true solution :math:`g_0(\lambda)` and 
 in fact the exact solution of the LP can be obtained if :math:`\gamma` is small enough. 
-For more details, we refer to `Basu et. al (2020)
+For more details, please refer to `Basu et. al (2020)
 <http://proceedings.mlr.press/v119/basu20a/basu20a.pdf>`_.
 
 
@@ -148,7 +148,7 @@ The intuition behind this is as follows:
 Infeasible problems
 -------------------
 
-Dualip is able to detect if the problem is primal infeasible. If the primal problem is infeasible,
+DuaLip is able to detect if the problem is primal infeasible. If the primal problem is infeasible,
 
 .. math::
     g_\gamma^* = \max_{\lambda\ge 0} g_\gamma(\lambda) = \infty.
