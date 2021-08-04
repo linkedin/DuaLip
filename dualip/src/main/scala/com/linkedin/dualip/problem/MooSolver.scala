@@ -31,7 +31,8 @@ package com.linkedin.dualip.problem
 import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.blas.VectorOperations.toBSV
 import com.linkedin.dualip.projection.{Projection, SimplexProjection, UnitBoxProjection}
-import com.linkedin.dualip.solver._
+import com.linkedin.dualip.solver.{DistributedRegularizedObjective, DualPrimalDifferentiableObjective, 
+  DualPrimalObjectiveLoader, PartialPrimalStats}
 import com.linkedin.dualip.util.{DataFormat, IOUtility, InputPaths, ProjectionType}
 import com.linkedin.dualip.util.ProjectionType._
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
@@ -41,10 +42,10 @@ import org.apache.spark.storage.StorageLevel
  * A MOO block of data. A vertical slice of design matrix, specifically the variables in the same simplex constraint sum x <= 1
  * We need to keep this data together because we need to do a simplex projection on it.
  *
- * Column (variable0 indices in "a" and "c" are relative, that is, variable is uniquely identified by
+ * Column (variable indices in "a" and "c" are relative, that is, variable is uniquely identified by
  * a combination of block id and internal id.
  *
- * internal representation is optimized for the operations that algorithm implements and data characteristics:
+ * Internal representation is optimized for the operations that algorithm implements and data characteristics:
  * in particular, dense constraints matrix with few rows.
  *
  * @param id - unique identifier of the block, i.e. impression id for some problems

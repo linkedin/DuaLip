@@ -24,22 +24,22 @@ This library was created by `Yao Pan
 <https://www.linkedin.com/in/sathiya-keerthi-selvaraj-ba963414/>`_ from LinkedIn.
 
 **Code available on** `GitHub 
-<https://github.com/linkedin/dualip>`_.
+<https://github.com/linkedin/DuaLip>`_.
 
 Citing DuaLip
 ------------------
 
-If you are using Dualip for your work, we encourage you to
+If you are using DuaLip for your work, we encourage you to
 
 * :ref:`Cite the related papers <citing>`
 * Put a star on GitHub |github-star|
 
 
 .. |github-star| image:: https://img.shields.io/github/stars/linkedin?style=social
-  :target: https://github.com/linkedin/dualip
+  :target: https://github.com/linkedin/DuaLip
 
 
-**We are looking forward to hearing your success stories with Dualip!** Please `share them with us
+**We are looking forward to hearing your success stories with DuaLip!** Please `share them with us
 <ask_lp@linkedin.com>`_.
 
 Features
@@ -48,7 +48,7 @@ Features
 .. glossary::
 
 #. Extreme Scale
-    Dualip is specifically developed to tackle problems arising in web-applications that usually have hundreds of millions of users and millions of items, pushing the number of optimization variables in the trillions range (if not more). It uses a dual decomposition technique to be able to scale to such large problems. For details see the :ref:`solution <probsolution>` and for a wide range of applications see `Ramanath et. al. (2021) <https://arxiv.org/abs/2103.05277>`_ and `Basu et. al (2020) <http://proceedings.mlr.press/v119/basu20a/basu20a.pdf>`_.
+    DuaLip is specifically developed to tackle problems arising in web-applications that usually have hundreds of millions of users and millions of items, pushing the number of optimization variables in the trillions range (if not more). It uses a dual decomposition technique to be able to scale to such large problems. For details see the :ref:`solution <probsolution>` and for a wide range of applications see `Ramanath et. al. (2021) <https://arxiv.org/abs/2103.05277>`_ and `Basu et. al (2020) <http://proceedings.mlr.press/v119/basu20a/basu20a.pdf>`_.
 
 #. Efficient
     Although we follow first-order gradient methods to solve the problem, we implement several highly efficient algorithms for each of the component steps. See the :ref:`solver <solver>` for more details. This allows us to scale up 20x over a naive implementation. Please see `Ramanath et. al. (2021) <https://arxiv.org/abs/2103.05277>`_ for a comparative study.

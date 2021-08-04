@@ -28,7 +28,7 @@ the `guidelines for disclosure
 <https://www.linkedin.com/help/linkedin/answer/62924>`_.  Reports should
 be encrypted using PGP `public key
 <https://www.linkedin.com/help/linkedin/answer/79676>`_ and sent to `security@linkedin.com
-<mailto:security@linkedin.com?subject=Vulnerability%20in%20Github%20LinkedIn/dualip%20-%20%3Csummary%3E>`_
+<mailto:security@linkedin.com?subject=Vulnerability%20in%20Github%20LinkedIn/DuaLip%20-%20%3Csummary%3E>`_
 preferably with the title
 "Vulnerability in Github LinkedIn/DuaLip - <short summary>".
 

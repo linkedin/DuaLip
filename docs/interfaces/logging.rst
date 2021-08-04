@@ -11,7 +11,7 @@ The solver logs all the parameter information before execution:
 .. code:: text
 
 	------------------------------------------------------------------------
-	                          Dualip v1.0     2021
+	                          DuaLip v1.0     2021
 	             Dual Decomposition based Linear Program Solver
 	------------------------------------------------------------------------
 	Settings:
@@ -71,7 +71,7 @@ Sample log
 .. code:: text
 
 	------------------------------------------------------------------------
-	                          Dualip v1.0     2021
+	                          DuaLip v1.0     2021
 	             Dual Decomposition based Linear Program Solver
 	------------------------------------------------------------------------
 	Settings:

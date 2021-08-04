@@ -18,9 +18,9 @@ How to translate the problem mathematically?
 To translate this problem mathematically, let us begin with some notations. Define
 
 * :math:`x_{ik}`: Probability of sending the k-th email or notification to the i-th user.
-* :math:`c_{ik}`: Probability of user visit the site if this email/notification is sent.
-* :math:`p_{ik}`: Probability of user click this email/notification.
-* :math:`r_{ik}`: Probability of user disable/unsubscribe this email/notification.
+* :math:`c_{ik}`: Probability of i-th user visits the site if k-th email/notification is sent.
+* :math:`p_{ik}`: Probability of i-th user clicks k-th email/notification.
+* :math:`r_{ik}`: Probability of i-th user disables/unsubscribes k-th email/notification.
 
 The optimization problem can be written as:
 

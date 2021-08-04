@@ -48,30 +48,10 @@ case class IndexValuePair(index: Int, value: Double)
  *   - initial value of lambda
  *   - output parameters
  * and runs the solver
- *
- * todo: add saving of primal
  */
 object LPSolverDriver {
 
   val logger: Logger = Logger.getLogger(getClass)
-
-  /**
-   * Load initial lambda value for warm restarts
-   * @param path
-   * @param format
-   * @param size - the vector is sparse, so we need to provide its dimensionality
-   * @param spark
-   * @return
-   */
-  def loadInitialLambda(path: String, format: DataFormat, size: Int)(implicit spark: SparkSession): BSV[Double] = {
-    import spark.implicits._
-    val (idx, vals) = readDataFrame(path, format).as[IndexValuePair]
-      .collect()
-      .sortBy(_.index)
-      .map(x => (x.index, x.value))
-      .unzip
-    new BSV(idx, vals, size)
-  }
 
   /**
    * Save solution. The method saves logs, some statistics of the solution and the dual variable
@@ -108,6 +88,24 @@ object LPSolverDriver {
     val violationDF = objectiveValue.constraintsSlack.activeIterator.toList.toDF("index", "value")
     saveDataFrame(violationDF, violationPath, outputFormat, Option(1))
     primal.foreach(saveDataFrame(_, primalPath, outputFormat))
+  }
+
+  /**
+   * Load initial lambda value for warm restarts
+   * @param path
+   * @param format
+   * @param size - the vector is sparse, so we need to provide its dimensionality
+   * @param spark
+   * @return
+   */
+  def loadInitialLambda(path: String, format: DataFormat, size: Int)(implicit spark: SparkSession): BSV[Double] = {
+    import spark.implicits._
+    val (idx, vals) = readDataFrame(path, format).as[IndexValuePair]
+      .collect()
+      .sortBy(_.index)
+      .map(x => (x.index, x.value))
+      .unzip
+    new BSV(idx, vals, size)
   }
 
   /**
@@ -194,6 +192,9 @@ object LPSolverDriver {
     }
   }
 
+  /**
+   * Run the solver with a fixed gamma and given optimizer, as opposed to adpative smoothing algorithm.
+   */
   def singleRun(driverParams: LPSolverDriverParams, inputParams: InputPaths, args: Array[String], fastSolver: Option[DualPrimalGradientMaximizer])
     (implicit spark: SparkSession): DualPrimalDifferentiableComputationResult = {
 
@@ -226,7 +227,7 @@ object LPSolverDriver {
       val inputParams = InputPathParamsParser.parseArgs(args)
 
       println("-----------------------------------------------------------------------")
-      println("                      Dualip v1.0     2021")
+      println("                      DuaLip v1.0     2021")
       println("            Dual Decomposition based Linear Program Solver")
       println("-----------------------------------------------------------------------")
       println("Settings:")
