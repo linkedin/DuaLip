@@ -233,15 +233,9 @@ object LPSolverDriver {
       printCommandLineArgs(args)
       println("")
       print("Optimizer: ")
-
-  	  val greedyObjective = loadObjectiveFunction(driverParams.objectiveClass, 0, Greedy, args)
-  	  val g0 = greedyObjective.calculate(BSV.zeros[Double](greedyObjective.dualDimensionality), mutable.Map(), 1)
-  		  .dualObjectiveExact
-  	  print(f"Starting objective g0(0): ${g0}%.6f")
-  	  val solution = singleRun(driverParams, inputParams, args, None)
-  	  val gLambdaBar = greedyObjective.calculate(solution.lambda, mutable.Map(), 1).dualObjectiveExact
-  	  print(f"Objective improved from g0(0): ${g0}%.6f to g0(λ): ${gLambdaBar}%.6f")
-
+  	  
+  	  singleRun(driverParams, inputParams, args, None)
+  	  
     } catch {
       case other: Exception => sys.error("Got an exception: " + other)
     } finally {
@@ -305,7 +299,6 @@ object InputPathParamsParser {
 
       opt[String]("input.ACblocksPath") required() action { (x, c) => c.copy(ACblocksPath = x) }
       opt[String]("input.vectorBPath") required() action { (x, c) => c.copy(vectorBPath = x) }
-      opt[String]("input.metadataPath") required() action { (x, c) => c.copy(metadataPath = x) }
       opt[String]("input.format") required() action { (x, c) => c.copy(format = DataFormat.withName(x)) }
     }
 

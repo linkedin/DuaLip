@@ -152,6 +152,7 @@ Get and build the code
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 .. code:: bash
 
+  git clone https://github.com/linkedin/DuaLip.git
   ./gradlew build
 
 Get the dataset
@@ -162,8 +163,8 @@ To download the 20M `MovieLens dataset <https://grouplens.org/datasets/movielens
 
   curl -O https://files.grouplens.org/datasets/movielens/ml-20m.zip
   unzip ml-20m.zip
-  mkdir data
-  mv rating.csv data/
+  mkdir data/ml-20m/data
+  mv ml-20m/rating.csv data/ml-20m/data
 
 Then use MatchingDataGenerator to convert the dataset to the format solver take: 
 
@@ -200,7 +201,6 @@ The solver can be run locally with spark-submit:
   --driver.projectionType simplexInequality \
   --input.ACblocksPath data/movielens/data \
   --input.vectorBPath data/movielens/budget \
-  --input.metadataPath data/movielens/metaData \
   --input.format avro \
   --matching.slateSize 1 \
   --optimizer.solverType LBFGSB \

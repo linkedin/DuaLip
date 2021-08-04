@@ -32,6 +32,7 @@ import breeze.linalg.{SparseVector, min}
 import breeze.numerics.abs
 import breeze.optimize.{DiffFunction, LBFGS => GenericLBFGS}
 import breeze.optimize.FirstOrderMinimizer.State
+import breeze.util.Implicits._
 
 import com.linkedin.dualip.util.IOUtility.{iterationLog, time}
 import com.linkedin.dualip.util.{OptimizerState, Status}
@@ -78,6 +79,7 @@ class LBFGS(
     // LBFGS calls this function once before starting the optimization routine to initialize state,
     // we start from 0 and check convergence after iteration 1 to ensure we don't naively converge
     var i: Int = 0
+    var trueIter: Int = 0 // this is a true iteration of the algorithm 
     var status: Status = Status.Running
 
     val parameters: String = f"LBFGS solver\nprimalUpperBound: ${f.getPrimalUpperBound}%.8e, " +
@@ -93,7 +95,8 @@ class LBFGS(
       def calculate(x: SparseVector[Double]): (Double, SparseVector[Double]) = {
 
         iLog.clear()
-        iLog += ("iter" -> f"${i}%5d")
+        iLog += ("gradientCall" -> f"${i}%5d")
+        iLog += ("iter" -> f"${trueIter}%5d")
 
         // compute function at current dual value
         val result: DualPrimalDifferentiableComputationResult = time({
@@ -130,7 +133,11 @@ class LBFGS(
         }
       }
     }
-    val result: State[SparseVector[Double], _, _] = lbfgs.minimizeAndReturnState(gradient, initialValue)
+    val result: State[SparseVector[Double], _, _] = lbfgs.iterations(gradient, initialValue)
+      .map { state =>
+          trueIter += 1
+          state
+        }.last
     val iterationMsg: String = s"Total  LBFGS iterations: ${result.iter}\n"
     print(iterationMsg)
     log ++ iterationMsg

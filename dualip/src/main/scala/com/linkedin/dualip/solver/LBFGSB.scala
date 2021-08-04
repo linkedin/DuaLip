@@ -32,6 +32,7 @@ import breeze.linalg.{DenseVector, SparseVector}
 import breeze.numerics.{abs, inf}
 import breeze.optimize.FirstOrderMinimizer.State
 import breeze.optimize.{DiffFunction, LBFGSB => GenericLBFGSB}
+import breeze.util.Implicits._
 
 import com.linkedin.dualip.util.IOUtility.{iterationLog, time}
 import com.linkedin.dualip.util.{OptimizerState, Status}
@@ -78,6 +79,7 @@ class LBFGSB(
     // LBFGS calls this function once before starting the optimization routine to initialize state,
     // we start from 0 and check convergence after iteration 1 to ensure we don't naively converge
     var i: Int = 0
+    var trueIter: Int = 0 // this is a true iteration of the algorithm
     var status: Status = Status.Running
 
     val parameters: String = f"LBFGSB solver\nprimalUpperBound: ${f.getPrimalUpperBound}%.8e, maxIter: ${maxIter}, " +
@@ -94,7 +96,8 @@ class LBFGSB(
       def calculate(x: DenseVector[Double]): (Double, DenseVector[Double]) = {
 
         iLog.clear()
-        iLog += ("iter" -> f"${i}%5d")
+        iLog += ("gradientCall" -> f"${i}%5d")
+        iLog += ("iter" -> f"${trueIter}%5d")
 
         // compute function at current dual value
         val result: DualPrimalDifferentiableComputationResult = time({
@@ -108,7 +111,6 @@ class LBFGSB(
         if (i > 1) {
           assert(lastResult != null, "last result should have been computed in the previous iteration")
           if (result.slackMetadata.maxSlack < slackTolerance && (i - lastResultAtIter) > holdConvergenceForIter) {
-          //if ((i - lastResultAtIter) > holdConvergenceForIter) { // replace above line with this for Eclipse comparison
             status = Status.Converged
           }
         }
@@ -133,7 +135,11 @@ class LBFGSB(
       }
     }
     try {
-      val result: State[DenseVector[Double], _, _] = lbfgs.minimizeAndReturnState(gradient, initialValue.toDenseVector)
+      val result: State[DenseVector[Double], _, _] = lbfgs.iterations(gradient, initialValue.toDenseVector)
+        .map { state =>
+          trueIter += 1
+          state
+        }.last
       val iterationMsg: String = s"Total LBFGS iterations: ${result.iter}\n"
       print(iterationMsg)
       log ++ iterationMsg
