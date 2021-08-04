@@ -143,12 +143,6 @@ class MooSolverDualObjectiveFunction(
 }
 
 /**
- * Special parameter only for MOO optimizer
- * @param simplexBucketSize the number of MOO constraints in the problem
- */
-case class MooObjectiveParams(simplexBucketSize: Option[Int] = None)
-
-/**
  * This companion object encapsulates all data/objective loading specifics for MOO use case
  */
 object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
@@ -162,7 +156,7 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
     import spark.implicits._
 
     val budget = IOUtility.readDataFrame(inputPaths.vectorBPath, inputPaths.format)
-      .map{case Row(_c0: Int, _c1: Double) => (_c0, _c1) }
+      .map{case Row(_c0: Number, _c1: Number) => (_c0.intValue(), _c1.doubleValue()) }
       .collect
 
     val itemIds = budget.toMap.keySet
@@ -199,23 +193,6 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
 }
 
 /**
- * Parameters parser
- */
-object MooParamsParser {
-  def parseArgs(args: Array[String]): MooObjectiveParams = {
-    val parser = new scopt.OptionParser[MooObjectiveParams]("Moo params parser") {
-      override def errorOnUnknownArgument = false
-      opt[Int]("moo.simplexBucketSize") optional() action { (x, c) => c.copy(simplexBucketSize = Option(x)) }
-    }
-
-    parser.parse(args, MooObjectiveParams()) match {
-      case Some(params) => params
-      case _ => throw new IllegalArgumentException(s"Parsing the command line arguments ${args.mkString(", ")} failed")
-    }
-  }
-}
-
-/**
   * Input parameter parser. These are generic input parameters that are shared by most solvers now.
   */
 object InputPathParamsParser {
@@ -225,7 +202,6 @@ object InputPathParamsParser {
 
       opt[String]("input.ACblocksPath") required() action { (x, c) => c.copy(ACblocksPath = x) }
       opt[String]("input.vectorBPath") required() action { (x, c) => c.copy(vectorBPath = x) }
-      opt[String]("input.metadataPath") required() action { (x, c) => c.copy(metadataPath = x) }
       opt[String]("input.format") required() action { (x, c) => c.copy(format = DataFormat.withName(x)) }
     }
 

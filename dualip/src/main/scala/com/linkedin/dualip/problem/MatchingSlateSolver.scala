@@ -90,7 +90,7 @@ class MatchingSolverDualObjectiveFunction(
    /**
    * Convert slates (primal solution) into sufficient statistics of the solution.
    * @param lambda
-   *  @return
+   * @return
    */
   override def getPrimalStats(lambda: BSV[Double]): Dataset[PartialPrimalStats] = {
     getPrimal(lambda).flatMap { case (id, slates) =>

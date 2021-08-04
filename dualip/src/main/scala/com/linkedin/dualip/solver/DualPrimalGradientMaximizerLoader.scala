@@ -39,6 +39,8 @@ object DualPrimalGradientMaximizerLoader {
     val params = DualPrimalGradientMaximizerParamsParser.parseArgs(args)
     import params._
     val solver: DualPrimalGradientMaximizer = solverType match {
+      case OptimizerType.LBFGSB => new LBFGSB(maxIter = maxIter, dualTolerance = dualTolerance, slackTolerance = slackTolerance)
+      case OptimizerType.LBFGS => new LBFGS(alpha = alpha, maxIter = maxIter, dualTolerance = dualTolerance, slackTolerance = slackTolerance)
       case OptimizerType.AGD => new AcceleratedGradientDescent(maxIter = maxIter, dualTolerance = dualTolerance, slackTolerance = slackTolerance)
     }
     solver
