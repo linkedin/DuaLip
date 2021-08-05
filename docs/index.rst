@@ -70,9 +70,6 @@ Features
 #. Warm start
     We allow the user to input an initial estimate of the dual solution, if she is familiar with the problem space. This allows for very efficient solving of the overall problem.
 
-#. Autotuning
-    We have implemented an autotuning mechanism, that automatically selects and adaptively changes the smoothness parameter to achieve faster convergence. In most situations, users may not know how to choose a value for this parameter and we alleviate this issue completely.
-
 Usage
 ------------------
 Building the Library
