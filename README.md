@@ -33,10 +33,9 @@ See [License](LICENSE) in the project root for license information.
 ## Features
 
 ### Extreme Scale
-Dualip is specifically developed to tackle problems arising in web-applications that usually have hundreds of millions of users 
-and millions of items, pushing the number of optimization variables in the trillions range (if not more). It uses a dual 
-decomposition technique to be able to scale to such large problems. For details and 
-for a wide range of applications see [Ramanath et. al. (2021)](https://arxiv.org/pdf/2103.05277.pdf) and [Basu et. al. (2020)](http://proceedings.mlr.press/v119/basu20a/basu20a.pdf).
+DuaLip is specifically developed to tackle problems arising in web applications that usually have hundreds of millions of users
+and millions of items, pushing the number of optimization variables into the trillions range (if not more). It uses a dual 
+decomposition technique to be able to scale to such large problems. For details and a wide range of applications, see [Ramanath et. al. (2021)](https://arxiv.org/pdf/2103.05277.pdf) and [Basu et. al. (2020)](http://proceedings.mlr.press/v119/basu20a/basu20a.pdf).
 
 ### Efficient
 Although we follow first-order gradient methods to solve the problem, we implement several highly efficient algorithms 
@@ -55,8 +54,7 @@ for different constraints sets `C_i`. New formulations can also be added by appr
  
 
 ### Detects Infeasibility
-We have incorporated simple checks on infeasibility (see Appendix D of [our paper](https://arxiv.org/abs/2103.05277)). This helps the end user to appropriately tweak 
-her problem space.    
+We have incorporated simple checks on infeasibility (see Appendix D of [our paper](https://arxiv.org/abs/2103.05277)). This helps the end user to appropriately tweak their problem space.    
 
 ### Extensive Logging
 We have added extensive logging to help users understand whether the solver has converged to a good approximate solution. 
@@ -64,10 +62,6 @@ We have added extensive logging to help users understand whether the solver has 
 ### Warm start
 We allow the user to input an initial estimate of the dual solution, if she is familiar with the problem space. This 
 allows for very efficient solving of the overall problem.
-
-### Autotuning
-We have implemented an autotuning mechanism, that automatically selects and adaptively changes the smoothness parameter
-to achieve faster convergence. In most situations, users may not know how to choose a value for this parameter, and we alleviate this issue completely.
  
 For more details of these features please see the full [wiki](). 
 
