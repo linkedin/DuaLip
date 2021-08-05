@@ -1,6 +1,6 @@
 .. _citing :
 
-Citing Dualip
+Citing DuaLip
 =============
 
 DuaLip has been created on the basis of the following research paper. If you cite DuaLip, please use the following:

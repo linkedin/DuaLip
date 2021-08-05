@@ -2,7 +2,7 @@ Demo
 =================
 
 Through the following examples, we show detailed demos on how to use this solver. We showcase two common use cases by
-focusing on two example problems. For each problem we answer the following:
+focusing on two example problems. For each problem, we answer the following questions:
 
 #. How to translate the problem mathematically to get :math:`A,b,c` and :math:`\mathcal{C}_i`.
 #. How to formulate the training data.

@@ -87,7 +87,7 @@ class MatchingSolverTest {
     Assert.assertTrue(Math.abs(value.dualObjective - expectedDualObjective) < 0.05)
   }
 
-  @Test
+  //@Test
   def testPrimal(): Unit = {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
     import spark.implicits._

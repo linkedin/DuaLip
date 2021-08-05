@@ -31,7 +31,8 @@ package com.linkedin.dualip.problem
 import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.projection.{GreedyProjection, SimplexProjection, UnitBoxProjection}
 import com.linkedin.dualip.slate.{DataBlock, SingleSlotOptimizer, Slate, SlateOptimizer}
-import com.linkedin.dualip.solver.{DistributedRegularizedObjective, DualPrimalDifferentiableObjective, DualPrimalObjectiveLoader, PartialPrimalStats}
+import com.linkedin.dualip.solver.{DistributedRegularizedObjective, DualPrimalDifferentiableObjective, DualPrimalObjectiveLoader, 
+  PartialPrimalStats}
 import com.linkedin.dualip.util.{IOUtility, InputPaths}
 import com.linkedin.dualip.util.ProjectionType._
 import com.twitter.algebird.{Max, Tuple5Semigroup}
@@ -90,7 +91,7 @@ class MatchingSolverDualObjectiveFunction(
    /**
    * Convert slates (primal solution) into sufficient statistics of the solution.
    * @param lambda
-   *  @return
+   * @return
    */
   override def getPrimalStats(lambda: BSV[Double]): Dataset[PartialPrimalStats] = {
     getPrimal(lambda).flatMap { case (id, slates) =>
@@ -150,10 +151,10 @@ class MatchingSolverDualObjectiveFunction(
 }
 
 /**
- * Special parameter only for Matching optimizer
+ * Special parameters only for Matching optimizer
  * @param enableHighDimOptimization - spark optimization parameter for gradient computation
  *                                    set to true for very high dimensional lambdas (maybe >100K or 1M).
- *                                    and if each iteration is to slow or driver crashes.
+ *                                    and if each iteration is too slow or driver crashes.
  *                                    Default value is false
  */
 case class MatchingSolverParams(slateSize: Int = 1, enableHighDimOptimization: Boolean = false)
@@ -192,8 +193,7 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
         blocks = blocks.withColumn(field, lit(null))
       }
     }
-    val data = blocks.withColumnRenamed("memberId","id")
-      .as[DataBlock]
+    val data = blocks.as[DataBlock]
       .repartition(spark.sparkContext.defaultParallelism)
       .persist(StorageLevel.MEMORY_ONLY)
 
@@ -201,8 +201,8 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
   }
 
   /**
-   * Code to initialize slate optimizer. Currently the available slate optimizers are hardcoded,
-   * consider an option to provide custom optimizer
+   * Code to initialize slate optimizer. 
+   * todo: Currently the available slate optimizers are hardcoded, consider an option to provide custom optimizer
    * @param gamma - gamma regularization (some optimizers require it)
    * @param slateSize - slate size
    * @param projectionType - one of available projections (simplex, unitbox, et.c.)
@@ -249,10 +249,7 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
   }
 
   /**
-   * Utility method
-   * @param data
-   * @param size
-   * @return
+   * Utility method to convert array represented sparse vector to breeze sparse vector
    */
   def toBSV(data: Array[(Int, Double)], size: Int): BSV[Double] = {
     val (indices, values) = data.sortBy { case (index, _) => index }.unzip

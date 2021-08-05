@@ -86,11 +86,11 @@ Usage Examples
 Currently the library supports two different solvers:
 
 1. :code:`MooSolver`: This solves multi-objective optimization problems, which include a
-few global or cohort-level constraints and is characterized by small number of rows 
+few global or cohort-level constraints and are characterized by small number of rows 
 in :math:`A` (usually less than one hundred) 
 
 2. :code:`MatchingSolver`: This solves matching problems, where we have a large number of 
-per-item constraints. The number of rows of :math:`A` here is quite large and can range upto
+per-item constraints. The number of rows of :math:`A` here is quite large and can range up to
 1 million.
 
 Both the solvers support a wide range of constraints :math:`\mathcal{C}_i` as seen `here

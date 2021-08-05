@@ -1,26 +1,26 @@
 A Multi-Objective Optimization Problem
 ============================================
-Multi-objective optimization problems (MOO) are optimization problems where more than one objective function needs to be optimized simultaneously. MOO appears frequently in machine learning and web applications where trade-offs between conflicting objective are needed. For example, balancing multiple business metrics in a ranking or recommendation system. MOO can be framed by considering one of the objectives as primary and others as constraints.
+Multi-objective optimization problems (MOO) are optimization problems where more than one objective function needs to be optimized simultaneously. MOO appears frequently in machine learning and web applications where trade-offs between conflicting objectives are needed. For example, balancing multiple business metrics in a ranking or recommendation system. MOO can be framed by considering one of the objectives as primary and others as constraints.
 
 An example problem
 ------------------
 We consider `volume optimization <https://www.kdd.org/kdd2016/papers/files/adf0710-guptaA.pdf>`_ as an example to demonstrate how to solve a Multi-Objective Optimization Problem. 
 A core problem in any internet industry is to send out emails and notifications to the users,
 either for marketing purposes, for gaining user attention, or to bring users back to the platform. They help in the
-quick distribution of information, but too many emails or notifications are not preferable as they may lead bad user
+quick distribution of information, but too many emails or notifications are not preferable as they may lead to bad user
 experience.
 
-The problem to be solved can be stated as: given a set of email/notificaiton, find a strategy of sending/dropping to maximize the overall session, 
+The problem to be solved can be stated as: given a set of emails/notificaitons, find a strategy of sending/dropping to maximize the overall session, 
 such that the total number of emails or notifications that are sent is bounded, the overall click rate is above a threshold and the total disable rate is bounded as well.
 
 How to translate the problem mathematically?
 --------------------------------------------
 To translate this problem mathematically, let us begin with some notations. Define
 
-* :math:`x_{ik}`: Probability of sending the j-th email or notification to the i-th user.
-* :math:`c_{ik}`: Probability of user visit the site if this email/notification is sent.
-* :math:`p_{ik}`: Probability of user click this email/notification.
-* :math:`r_{ik}`: Probability of user disable/unsubscribe this email/notification.
+* :math:`x_{ik}`: Probability of sending the k-th email or notification to the i-th user.
+* :math:`c_{ik}`: Probability of i-th user visits the site if k-th email/notification is sent.
+* :math:`p_{ik}`: Probability of i-th user clicks k-th email/notification.
+* :math:`r_{ik}`: Probability of i-th user disables/unsubscribes k-th email/notification.
 
 The optimization problem can be written as:
 
@@ -48,7 +48,7 @@ We can further frame this using vector and matrix notation.
 #. The constraint vector :math:`b` is :math:`\\(c_1, -c_2, c_3)`.
 #. The objective vector :math:`c` is vectorized version of :math:`c_{ik}`.
 
-By changing the maximization to a minimization problem, this now become the standard LP format:
+By changing the maximization to a minimization problem, this now becomes the standard LP format:
 
 .. math::
   \begin{array}{ll}
@@ -139,7 +139,6 @@ The solver can be run locally with spark-submit:
 	--driver.projectionType simplex \
 	--input.ACblocksPath data/moo/data.json \
 	--input.vectorBPath data/moo/budget.json \
-	--input.metadataPath data/moo/metaData \
 	--input.format json \
 	--optimizer.solverType LBFGSB \
 	--optimizer.dualTolerance 1E-8 \

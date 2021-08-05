@@ -31,7 +31,8 @@ package com.linkedin.dualip.problem
 import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.blas.VectorOperations.toBSV
 import com.linkedin.dualip.projection.{Projection, SimplexProjection, UnitBoxProjection}
-import com.linkedin.dualip.solver._
+import com.linkedin.dualip.solver.{DistributedRegularizedObjective, DualPrimalDifferentiableObjective, 
+  DualPrimalObjectiveLoader, PartialPrimalStats}
 import com.linkedin.dualip.util.{DataFormat, IOUtility, InputPaths, ProjectionType}
 import com.linkedin.dualip.util.ProjectionType._
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
@@ -41,10 +42,10 @@ import org.apache.spark.storage.StorageLevel
  * A MOO block of data. A vertical slice of design matrix, specifically the variables in the same simplex constraint sum x <= 1
  * We need to keep this data together because we need to do a simplex projection on it.
  *
- * Column (variable0 indices in "a" and "c" are relative, that is, variable is uniquely identified by
+ * Column (variable indices in "a" and "c" are relative, that is, variable is uniquely identified by
  * a combination of block id and internal id.
  *
- * internal representation is optimized for the operations that algorithm implements and data characteristics:
+ * Internal representation is optimized for the operations that algorithm implements and data characteristics:
  * in particular, dense constraints matrix with few rows.
  *
  * @param id - unique identifier of the block, i.e. impression id for some problems
@@ -143,12 +144,6 @@ class MooSolverDualObjectiveFunction(
 }
 
 /**
- * Special parameter only for MOO optimizer
- * @param simplexBucketSize the number of MOO constraints in the problem
- */
-case class MooObjectiveParams(simplexBucketSize: Option[Int] = None)
-
-/**
  * This companion object encapsulates all data/objective loading specifics for MOO use case
  */
 object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
@@ -162,7 +157,7 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
     import spark.implicits._
 
     val budget = IOUtility.readDataFrame(inputPaths.vectorBPath, inputPaths.format)
-      .map{case Row(_c0: Int, _c1: Double) => (_c0, _c1) }
+      .map{case Row(_c0: Number, _c1: Number) => (_c0.intValue(), _c1.doubleValue()) }
       .collect
 
     val itemIds = budget.toMap.keySet
@@ -199,23 +194,6 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
 }
 
 /**
- * Parameters parser
- */
-object MooParamsParser {
-  def parseArgs(args: Array[String]): MooObjectiveParams = {
-    val parser = new scopt.OptionParser[MooObjectiveParams]("Moo params parser") {
-      override def errorOnUnknownArgument = false
-      opt[Int]("moo.simplexBucketSize") optional() action { (x, c) => c.copy(simplexBucketSize = Option(x)) }
-    }
-
-    parser.parse(args, MooObjectiveParams()) match {
-      case Some(params) => params
-      case _ => throw new IllegalArgumentException(s"Parsing the command line arguments ${args.mkString(", ")} failed")
-    }
-  }
-}
-
-/**
   * Input parameter parser. These are generic input parameters that are shared by most solvers now.
   */
 object InputPathParamsParser {
@@ -225,7 +203,6 @@ object InputPathParamsParser {
 
       opt[String]("input.ACblocksPath") required() action { (x, c) => c.copy(ACblocksPath = x) }
       opt[String]("input.vectorBPath") required() action { (x, c) => c.copy(vectorBPath = x) }
-      opt[String]("input.metadataPath") required() action { (x, c) => c.copy(metadataPath = x) }
       opt[String]("input.format") required() action { (x, c) => c.copy(format = DataFormat.withName(x)) }
     }
 
