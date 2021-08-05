@@ -63,7 +63,7 @@ We have added extensive logging to help users understand whether the solver has 
 We allow the user to input an initial estimate of the dual solution, if she is familiar with the problem space. This 
 allows for very efficient solving of the overall problem.
  
-For more details of these features please see the full [wiki](). 
+For more details of these features please see the full [wiki](https://linkedin.github.io/DuaLip/). 
 
 ## Usage
 
@@ -92,7 +92,7 @@ $SPARK_HOME/bin/spark-shell --jars target/dualip_2.11.jar
 ```
 
 ### Usage Examples
-For detailed example usage, please see the [Getting Started]() wiki.
+For detailed example usage, please see the [Getting Started](https://linkedin.github.io/DuaLip/get_started/index.html) wiki.
 
 ## Contributions
 If you would like to contribute to this project, please review the instructions [here](contributions.md).
