@@ -14,6 +14,8 @@ allprojects {
     println ("Building with scala: ${scalaVersion}, spark: ${sparkVersion}")
 
     group = "com.linkedin.dualip"
+    
+    project.version = "1.0.0"
 
     repositories {
         mavenCentral()
