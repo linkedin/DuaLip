@@ -303,7 +303,7 @@ object InputPathParamsParser {
       opt[String]("input.format") required() action { (x, c) => c.copy(format = DataFormat.withName(x)) }
     }
 
-    parser.parse(args, InputPaths("", "", "", DataFormat.AVRO)) match {
+    parser.parse(args, InputPaths("", "", DataFormat.AVRO)) match {
       case Some(params) => params
       case _ => throw new IllegalArgumentException(s"Parsing the command line arguments ${args.mkString(", ")} failed")
     }

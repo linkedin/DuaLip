@@ -31,3 +31,5 @@ test {
 }
 
 archivesBaseName = "${project.name}_2.11"
+
+apply from: "$rootDir/gradle/java-publication.gradle"
