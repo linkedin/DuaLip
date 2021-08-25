@@ -1,4 +1,10 @@
+<p align="center">
+   <img src="https://github.com/linkedin/DuaLip/blob/master/logo.jpg" height="300">
+</p>
+   
 # DuaLip: Dual Decomposition based Linear Program Solver
+[![Build Status](https://github.com/linkedin/DuaLip/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/linkedin/DuaLip/actions/workflows/ci.yml?query=branch%3Amain+event%3Apush)
+[![Release](https://img.shields.io/github/v/release/linkedin/DuaLip)](https://github.com/linkedin/DuaLip/releases/)
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](LICENSE)
 
 DuaLip is an **extreme-scale** Linear Program (LP) solver based on Apache Spark. It solves structured LP 
