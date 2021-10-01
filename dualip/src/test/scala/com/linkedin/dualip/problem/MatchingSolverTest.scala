@@ -25,11 +25,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
- 
+
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
-import com.linkedin.dualip.projection.{GreedyProjection, SimplexProjection}
+import com.linkedin.dualip.projection.{BoxCutProjection, GreedyProjection, SimplexProjection}
 import com.linkedin.dualip.slate.{DataBlock, SingleSlotOptimizer, SlateOptimizer}
 import com.linkedin.dualip.solver.AcceleratedGradientDescent
 import com.linkedin.spark.common.lib.TestUtils
@@ -130,4 +130,24 @@ class MatchingSolverTest {
     }
     Assert.assertTrue(Math.abs(value.dualObjective - expectedDualObjective) < 0.01)
   }
+
+  @Test
+  def testBoxCutSolver(): Unit = {
+    implicit val spark: SparkSession = TestUtils.createSparkSession()
+    import spark.implicits._
+    spark.sparkContext.setLogLevel("warn")
+
+    val gamma = 1E-6
+    val slateOptimizer: SlateOptimizer = new SingleSlotOptimizer(gamma, new BoxCutProjection(1000))
+    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(Array(0.7, 0.7, 0.7, 0.7, 0.7)), slateOptimizer, gamma, enableHighDimOptimization)
+
+    val optimizer = new AcceleratedGradientDescent(maxIter = 200)
+
+    val initialLambda = BSV.fill(5)(0.1)
+    val (lambda, value, _) = optimizer.maximize(f, initialLambda)
+    (0 to 4).foreach { i =>
+      Assert.assertTrue(Math.abs(lambda(i) - 1.0) < 0.01)
+    }
+  }
 }
+

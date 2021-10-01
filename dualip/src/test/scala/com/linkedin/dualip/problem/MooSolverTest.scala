@@ -25,7 +25,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
- 
+
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}

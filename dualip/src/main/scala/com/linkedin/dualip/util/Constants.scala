@@ -25,7 +25,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
- 
+
 package com.linkedin.dualip.util
 
 /**
@@ -56,8 +56,11 @@ object OptimizerType extends Enumeration {
 object ProjectionType extends Enumeration {
   type ProjectionType = Value
   val Greedy = Value("greedy")    // Pick the item with the largest reward for each data block
+  val SecondPrice = Value("secondPrice") // Used for greedy allocation in a multi-slot case
   val Simplex = Value("simplex")  // As defined in SimplexProjection, \sum_j x_j = 1
   val SimplexInequality = Value("simplexInequality")  // As defined in SimplexProjection, \sum_j x_j <= 1
+  val BoxCut = Value("boxCut")  // As defined in BoxSimplexProjection, \sum_j x_j = k
+  val BoxCutInequality = Value("boxCutInequality")  // As defined in BoxSimplexProjection, \sum_j x_j <= k
   val UnitBox = Value("unitBox")  // As defined in UnitBoxProjection, 0 <= x_j <= 1
 }
 
