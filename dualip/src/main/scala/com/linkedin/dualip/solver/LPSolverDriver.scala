@@ -148,11 +148,11 @@ object LPSolverDriver {
 
     val activeConstraints = VectorOperations.countNonZeros(lambda)
     // Print end of iteration information
-    val finalLogMessage = "Status:" + state.status + "\n" +
-      "Total number of iterations: " + state.iterations + "\n" +
-      "Primal: " + objectiveValue.primalObjective.toString + "\n" +
-      "Dual: " + objectiveValue.dualObjective.toString + "\n" +
-      "Number of Active Constraints: " + activeConstraints.toString
+    val finalLogMessage = f"Status: ${state.status}\n" +
+      f"Total number of iterations: ${state.iterations}\n" +
+      f"Primal: ${objectiveValue.primalObjective}%.8e\n" +
+      f"Dual: ${objectiveValue.dualObjective}%.8e\n" +
+      f"Number of Active Constraints: ${activeConstraints}"
     println(finalLogMessage)
 
     // optionally save primal (in case the solver supports it)
