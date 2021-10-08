@@ -33,7 +33,7 @@ import com.linkedin.dualip.projection.{GreedyProjection, SimplexProjection, Unit
 import com.linkedin.dualip.slate.{DataBlock, SingleSlotOptimizer, Slate, SlateOptimizer}
 import com.linkedin.dualip.solver.{DistributedRegularizedObjective, DualPrimalDifferentiableObjective, DualPrimalObjectiveLoader, 
   PartialPrimalStats}
-import com.linkedin.dualip.util.{IOUtility, InputPaths}
+import com.linkedin.dualip.util.{IOUtility, InputPathParamsParser, InputPaths}
 import com.linkedin.dualip.util.ProjectionType._
 import com.twitter.algebird.{Max, Tuple5Semigroup}
 import org.apache.spark.broadcast.Broadcast
@@ -96,7 +96,7 @@ class MatchingSolverDualObjectiveFunction(
   override def getPrimalStats(lambda: BSV[Double]): Dataset[PartialPrimalStats] = {
     getPrimal(lambda).flatMap { case (id, slates) =>
       slates.map { slate =>
-        PartialPrimalStats(slate.costs.toMap, slate.objective, slate.x * slate.x)
+        PartialPrimalStats(slate.costs.toArray, slate.objective, slate.x * slate.x)
       }
     }
   }

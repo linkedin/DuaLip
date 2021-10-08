@@ -29,8 +29,8 @@
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
-import com.linkedin.dualip.solver.AcceleratedGradientDescent
-import com.linkedin.dualip.util.ProjectionType
+import com.linkedin.dualip.solver.LBFGSB
+import com.linkedin.dualip.util.{MapReduceArray, MapReduceDataset, ProjectionType}
 import com.linkedin.spark.common.lib.TestUtils
 import org.apache.spark.sql.SparkSession
 import org.testng.Assert
@@ -50,9 +50,9 @@ class MooSolverTest {
     Array(0.243720785295591,   0.578941531083547,  0.737497533927672,  0.833785757608712,  0.91751586268656, 0.0))
 
   val c = Array(-1.0, -1.0, -1.0, -1.0, -1.0, 0)
-  val data = (0 to 9).map(i => MooDataBlock(i, Array(a(i)), c))
+  val data = (0 to 9).map(i => MooDataBlock(i, Array(a(i)), c, -1))
   val b = Array(0.419003697729204)
-  val infeasbile_b = Array(-1.0)
+  val infeasible_b = Array(-1.0)
 
   // True values for this problem can be computed theoretically
   val expectedLambda = 7.114157
@@ -64,12 +64,25 @@ class MooSolverTest {
     import spark.implicits._
     spark.sparkContext.setLogLevel("warn")
 
-    val f = new MooSolverDualObjectiveFunction(spark.createDataset(data), BSV(b),1e-6, ProjectionType.Simplex)
+    val f = new MooSolverDualObjectiveFunction(MapReduceDataset[MooDataBlock](spark.createDataset(data)), BSV(b),1e-6, ProjectionType.Simplex)
 
-    val optimizer = new AcceleratedGradientDescent()
+    val optimizer = new LBFGSB()
     val (lambda, value, _) = optimizer.maximize(f, BSV.fill(1)(0.1))
-    Assert.assertTrue(Math.abs(lambda(0) - expectedLambda) < 1e-3)
-    Assert.assertTrue(Math.abs(value.dualObjective - expectedDualObjective) < 1e-3)
+    Assert.assertTrue(Math.abs(lambda(0) - expectedLambda) < 1e-5)
+    Assert.assertTrue(Math.abs(value.dualObjective - expectedDualObjective) < 1e-5)
+  }
+
+  @Test
+  def testParallelSolver(): Unit = {
+    implicit val spark: SparkSession = TestUtils.createSparkSession()
+    spark.sparkContext.setLogLevel("warn")
+
+    val f = new MooSolverDualObjectiveFunction(MapReduceArray[MooDataBlock](data.toArray), BSV(b),1e-6, ProjectionType.Simplex, true)
+
+    val optimizer = new LBFGSB()
+    val (lambda, value, _) = optimizer.maximize(f, BSV.fill(1)(0.1))
+    Assert.assertTrue(Math.abs(lambda(0) - expectedLambda) < 1e-5)
+    Assert.assertTrue(Math.abs(value.dualObjective - expectedDualObjective) < 1e-5)
   }
 
   @Test
@@ -78,10 +91,24 @@ class MooSolverTest {
     import spark.implicits._
     spark.sparkContext.setLogLevel("warn")
 
-    val f = new MooSolverDualObjectiveFunction(spark.createDataset(data), BSV(infeasbile_b),1e-6, ProjectionType.Simplex)
+    val f = new MooSolverDualObjectiveFunction(MapReduceDataset[MooDataBlock](spark.createDataset(data)), BSV(infeasible_b),1e-6, ProjectionType.Simplex)
 
-    val optimizer = new AcceleratedGradientDescent()
+    val optimizer = new LBFGSB()
     val (_, value, _) = optimizer.maximize(f, BSV.fill(1)(0.1))
+    Assert.assertTrue(f.checkInfeasibility(value))
+    Assert.assertTrue(value.dualObjective > f.getPrimalUpperBound)
+  }
+
+  @Test
+  def testInfeasibleParallelSolver(): Unit = {
+    implicit val spark: SparkSession = TestUtils.createSparkSession()
+    spark.sparkContext.setLogLevel("warn")
+
+    val f = new MooSolverDualObjectiveFunction(MapReduceArray[MooDataBlock](data.toArray), BSV(infeasible_b),1e-6, ProjectionType.Simplex, true)
+
+    val optimizer = new LBFGSB()
+    val (_, value, _) = optimizer.maximize(f, BSV.fill(1)(0.1))
+    Assert.assertTrue(f.checkInfeasibility(value))
     Assert.assertTrue(f.checkInfeasibility(value))
     Assert.assertTrue(value.dualObjective > f.getPrimalUpperBound)
   }
