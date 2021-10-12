@@ -25,8 +25,8 @@ via gradient-based algorithms on the smooth dual of the perturbed LP with
 computational guarantees. Dualip can easily scale to problems in trillions of variables. 
 
 This library was created by [Yao Pan](https://www.linkedin.com/in/panyaopy/), [Kinjal Basu](https://www.linkedin.com/in/kinjalbasu/), 
-[Rohan Ramanath](https://www.linkedin.com/in/rohanramanath/), [Konstantin Salomatin](https://www.linkedin.com/in/ksalomatin/), [Amol Ghoting](https://www.linkedin.com/in/amolghoting/) and
-[Sathiya Keerthi](https://www.linkedin.com/in/sathiya-keerthi-selvaraj-ba963414/) from LinkedIn.
+[Rohan Ramanath](https://www.linkedin.com/in/rohanramanath/), [Konstantin Salomatin](https://www.linkedin.com/in/ksalomatin/), [Amol Ghoting](https://www.linkedin.com/in/amolghoting/), [Sathiya Keerthi](https://www.linkedin.com/in/sathiya-keerthi-selvaraj-ba963414/) and 
+[Miao Cheng](https://www.linkedin.com/in/miaoch/) from LinkedIn.
 
 ## Copyright
 

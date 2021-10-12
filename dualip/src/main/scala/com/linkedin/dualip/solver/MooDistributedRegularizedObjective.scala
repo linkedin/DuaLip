@@ -29,23 +29,12 @@
 package com.linkedin.dualip.solver
 
 import breeze.linalg.SparseVector
-import com.linkedin.dualip.blas.VectorOperations.toBSV
-import com.linkedin.dualip.util.SolverUtility
+import com.linkedin.dualip.problem.MatchingSolverDualObjectiveFunction.toBSV
+import com.linkedin.dualip.util.{MapReduceCollectionWrapper, SolverUtility}
 import com.linkedin.dualip.util.SolverUtility.SlackMetadata
 import com.twitter.algebird.Tuple3Semigroup
 import org.apache.spark.sql.{Dataset, SparkSession}
 import scala.collection.mutable
-
-/**
-  * Data encapsulates sufficient statistics of partial (distributed) primal solution,
-  * necessary for gradient computation.
-  * Note, the actual primal is not returned because it is not necessary for optimization
-  *       and its format may be problem-specific (e.g. slate optimization case).
-  * @param ax - Ax vector (contribution of this segment into constraints), in sparse format
-  * @param cx - contribution to objective (without the regularization term)
-  * @param xx - (x dot x) to compute solution norm
-  */
-case class PartialPrimalStats(ax: Array[(Int, Double)], cx: Double, xx: Double)
 
 /**
   * Partial implementation of common objective logic. It takes care of spark
@@ -60,7 +49,7 @@ case class PartialPrimalStats(ax: Array[(Int, Double)], cx: Double, xx: Double)
   *
   * @param spark - spark session
   */
-abstract class DistributedRegularizedObjective(b: SparseVector[Double], gamma: Double, enableHighDimOptimization: Boolean = false)
+abstract class MooDistributedRegularizedObjective(b: SparseVector[Double], gamma: Double, enableHighDimOptimization: Boolean = false)
   (implicit spark: SparkSession) extends DualPrimalDifferentiableObjective with Serializable {
   import spark.implicits._
 
@@ -76,20 +65,19 @@ abstract class DistributedRegularizedObjective(b: SparseVector[Double], gamma: D
   override def calculate(lambda: SparseVector[Double], log: mutable.Map[String, String], verbosity: Int): DualPrimalDifferentiableComputationResult = {
     // compute and aggregate gradients and objective value
     val partialGradients = getPrimalStats(lambda)
-    // choose between two implementations of gradient aggregator: they yield similar results
-    // but different efficiency
+    // choose between two implementations of gradient aggregator: they yield similar results but different efficiency
     val (ax, cx, xx) = if(enableHighDimOptimization) {
-      twoStepGradientAggregator(partialGradients, lambda.size)
+      twoStepGradientAggregator(partialGradients.value.asInstanceOf[Dataset[PartialPrimalStats]], lambda.size)
     } else {
       oneStepGradientAggregator(partialGradients)
     }
 
-    val axMinusB = toBSV(ax, b.size) - b // (Ax - b)
+    val axMinusB = toBSV(ax.toArray, b.size) - b // (Ax - b)
     val gradient = axMinusB // gradient is equal to the slack (Ax - b)
     val unregularizedDualObjective = (lambda dot axMinusB) + cx // λ * (Ax -  b) + cx
     val dualObjective = unregularizedDualObjective + xx * gamma / 2.0 // λ * (Ax -  b) + cx + x * x * gamma / 2
 
-    // compute some extra values
+    // compute some extra values, i.e. the primal objective and slack metadata
     val primalObjective = cx +  xx * gamma / 2.0
     val slackMetadata: SlackMetadata = SolverUtility.getSlack(lambda.toArray, axMinusB.toArray, b.toArray)
 
@@ -100,6 +88,7 @@ abstract class DistributedRegularizedObjective(b: SparseVector[Double], gamma: D
     log += ("feasibility" -> f"${slackMetadata.feasibility}%.6e")
     log += ("λ(Ax-b)" -> f"${lambda dot gradient}%.6e")
     log += ("γ||x||^2/2" -> f"${xx * gamma / 2.0}%.6e")
+    log ++= extraLogging(axMinusB, lambda)
 
     if (verbosity >= 1) {
       log += ("max_pos_slack" -> f"${slackMetadata.maxPosSlack}%.6e")
@@ -107,6 +96,15 @@ abstract class DistributedRegularizedObjective(b: SparseVector[Double], gamma: D
       log += ("abs_slack_sum" -> f"$absoluteConstraintsViolation%.6e")
     }
     DualPrimalDifferentiableComputationResult(lambda, dualObjective, unregularizedDualObjective, gradient, primalObjective, axMinusB, slackMetadata)
+  }
+
+  /**
+   * To add additional custom logging of Ax-b vector, one may want to log individual important constraints
+   * @param axMinusB
+   * @return
+   */
+  def extraLogging(axMinusB: SparseVector[Double], lambda: SparseVector[Double]): Map[String, String] = {
+    Map.empty
   }
 
   /**
@@ -121,15 +119,13 @@ abstract class DistributedRegularizedObjective(b: SparseVector[Double], gamma: D
     * @param primalStats the partial primal statistics
     * @return
     */
-  def oneStepGradientAggregator(primalStats: Dataset[PartialPrimalStats])
-    (implicit sparkSession: SparkSession): (Array[(Int, Double)], Double, Double) = {
-    import sparkSession.implicits._
+  def oneStepGradientAggregator(primalStats: MapReduceCollectionWrapper[PartialPrimalStats]): (Array[(Int, Double)], Double, Double) = {
     // component-wise aggregator for partially computed sums of (ax, cx, xx)
     // cx and xx are just doubles.
     // ax is a vector, we represent it in sparse format as Map[Int, Double] because there is
     // a convenient aggregator for Maps.
     val aggregator = new Tuple3Semigroup[Map[Int, Double], Double, Double]
-    val (ax, cx, xx) = primalStats.map { stats =>
+    val (ax, cx,xx) = primalStats.map { stats =>
       (stats.ax.toMap, stats.cx, stats.xx)
     }.reduce(aggregator.plus(_, _))
     (ax.toArray, cx, xx)
@@ -152,7 +148,7 @@ abstract class DistributedRegularizedObjective(b: SparseVector[Double], gamma: D
       var cxAgg: Double = 0D
       var xxAgg: Double = 0D
       partitionIterator.foreach { stats =>
-        val ax = stats.ax.toArray
+        val ax = stats.ax
         var i = 0
         while( i < ax.length )
         {
@@ -181,5 +177,5 @@ abstract class DistributedRegularizedObjective(b: SparseVector[Double], gamma: D
     * @param lambda the dual variable
     * @return
     */
-  def getPrimalStats(lambda: SparseVector[Double]): Dataset[PartialPrimalStats]
+  def getPrimalStats(lambda: SparseVector[Double]): MapReduceCollectionWrapper[PartialPrimalStats]
 }

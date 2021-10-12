@@ -31,7 +31,7 @@ package com.linkedin.dualip.solver
 import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.problem.MatchingSolverDualObjectiveFunction.toBSV
 import com.linkedin.dualip.blas.VectorOperations
-import com.linkedin.dualip.util.{DataFormat, InputPaths, ProjectionType, SolverUtility}
+import com.linkedin.dualip.util.{DataFormat, ProjectionType, SolverUtility}
 import com.linkedin.dualip.util.DataFormat.{AVRO, DataFormat}
 import com.linkedin.dualip.util.IOUtility.{printCommandLineArgs, readDataFrame, saveDataFrame, saveLog}
 import com.linkedin.dualip.util.ProjectionType.{Greedy, ProjectionType, Simplex}
@@ -49,16 +49,37 @@ case class IndexValuePair(index: Int, value: Double)
  *   - initial value of lambda
  *   - output parameters
  * and runs the solver
+ *
+ * todo: add saving of primal
  */
 object LPSolverDriver {
 
   val logger: Logger = Logger.getLogger(getClass)
 
   /**
+   * Load initial lambda value for warm restarts
+   * @param path
+   * @param format
+   * @param size - the vector is sparse, so we need to provide its dimensionality
+   * @param spark
+   * @return
+   */
+  def loadInitialLambda(path: String, format: DataFormat, size: Int)(implicit spark: SparkSession): BSV[Double] = {
+    import spark.implicits._
+    val (idx, vals) = readDataFrame(path, format).as[IndexValuePair]
+      .collect()
+      .sortBy(_.index)
+      .map(x => (x.index, x.value))
+      .unzip
+    new BSV(idx, vals, size)
+  }
+
+  /**
    * Save solution. The method saves logs, some statistics of the solution and the dual variable
    * Note: primal is optional because not all problems support it yet
    *       The schema of the primal depends on the problem.
    * @param outputPath
+   * @param outputFormat
    * @param lambda
    * @param objectiveValue
    * @param primal
@@ -92,24 +113,6 @@ object LPSolverDriver {
   }
 
   /**
-   * Load initial lambda value for warm restarts
-   * @param path
-   * @param format
-   * @param size - the vector is sparse, so we need to provide its dimensionality
-   * @param spark
-   * @return
-   */
-  def loadInitialLambda(path: String, format: DataFormat, size: Int)(implicit spark: SparkSession): BSV[Double] = {
-    import spark.implicits._
-    val (idx, vals) = readDataFrame(path, format).as[IndexValuePair]
-      .collect()
-      .sortBy(_.index)
-      .map(x => (x.index, x.value))
-      .unzip
-    new BSV(idx, vals, size)
-  }
-
-  /**
    * Optionally load initial lambda, otherwise initialize with zeros
    * @param initialLambdaPath
    * @param lambdaFormat
@@ -128,6 +131,7 @@ object LPSolverDriver {
    * @param solver
    * @param initialLambda
    * @param driverParams
+   * @param parallelMode
    * @param spark
    */
   def solve(
@@ -241,6 +245,41 @@ object LPSolverDriver {
     results
   }
 
+  /**
+   * Entry point to spark job
+   * @param args
+   */
+  def main(args: Array[String]): Unit = {
+
+    implicit val spark = SparkSession
+      .builder()
+      .appName(getClass.getSimpleName)
+      .getOrCreate()
+
+    try {
+      val driverParams = LPSolverDriverParamsParser.parseArgs(args)
+
+      println("-----------------------------------------------------------------------")
+      println("                      DuaLip v1.0     2021")
+      println("            Dual Decomposition based Linear Program Solver")
+      println("-----------------------------------------------------------------------")
+      println("Settings:")
+      printCommandLineArgs(args)
+      println("")
+      print("Optimizer: ")
+
+      if (driverParams.autotune) {
+        autotune(driverParams, args)
+      } else {
+        singleRun(driverParams, args, None)
+      }
+
+    } catch {
+      case other: Exception => sys.error("Got an exception: " + other)
+    } finally {
+      spark.stop()
+    }
+  }
 
   /**
    * Implementation of the adaptive smoothing algorithm mentioned in the DuaLip paper.
@@ -305,53 +344,19 @@ object LPSolverDriver {
       iter += 1
     }
   }
-
-  /**
-   * Entry point to spark job
-   * @param args
-   */
-  def main(args: Array[String]): Unit = {
-
-    implicit val spark = SparkSession
-      .builder()
-      .appName(getClass.getSimpleName)
-      .getOrCreate()
-
-    try {
-      val driverParams = LPSolverDriverParamsParser.parseArgs(args)
-      val inputParams = InputPathParamsParser.parseArgs(args)
-
-      println("-----------------------------------------------------------------------")
-      println("                      DuaLip v1.0     2021")
-      println("            Dual Decomposition based Linear Program Solver")
-      println("-----------------------------------------------------------------------")
-      println("Settings:")
-      printCommandLineArgs(args)
-      println("")
-      print("Optimizer: ")
-
-      if (driverParams.autotune) {
-        autotune(driverParams, args)
-      } else {
-        singleRun(driverParams, args, None)
-      }
-
-    } catch {
-      case other: Exception => sys.error("Got an exception: " + other)
-    } finally {
-      spark.stop()
-    }
-  }
 }
 
 /**
- * @param initialLambdaPath  Optional path to initialize dual variables for algorithm restarts
- * @param gamma              Coefficient for quadratic objective regularizer, used by most objectives
- * @param objectiveClass     Objective function implementation
- * @param outputFormat       The format of output, can be AVRO or ORC
- * @param savePrimal         Flag to save primal
- * @param verbosity          0: Concise logging. 1: log with increased verbosity. 2: log everything
- * @param solverOutputPath   The outputPath
+ * @param initialLambdaPath   Optional path to initialize dual variables for algorithm restarts
+ * @param initialLambdaFormat The format of input data, e.g. avro or orc
+ * @param autotune            Flag to algorithmically choose gamma
+ * @param gamma               Coefficient for quadratic objective regularizer, used by most objectives
+ * @param objectiveClass      Objective function implementation
+ * @param outputFormat        The format of output, can be AVRO or ORC
+ * @param savePrimal          Flag to save primal
+ * @param verbosity           0: Concise logging. 1: log with increased verbosity. 2: log everything
+ * @param unionDataFrameCap   The cap for union how many DataFrames at a time (needed in parallel mode)
+ * @param solverOutputPath    The outputPath
  */
 case class LPSolverDriverParams(
   initialLambdaPath: Option[String] = None,
@@ -363,6 +368,7 @@ case class LPSolverDriverParams(
   outputFormat: DataFormat = AVRO,
   savePrimal: Boolean = false,
   verbosity: Int = 1,
+  unionDataFrameCap: Int = 1000,
   solverOutputPath: String = ""
 )
 
@@ -381,32 +387,13 @@ object LPSolverDriverParamsParser {
       opt[String]("driver.projectionType") required() action { (x, c) => c.copy(projectionType = ProjectionType.withName(x)) }
       opt[String]("driver.objectiveClass") required() action { (x, c) => c.copy(objectiveClass = x) }
       opt[String]("driver.outputFormat") optional() action { (x, c) => c.copy(outputFormat = DataFormat.withName(x)) }
-      opt[Boolean]("driver.savePrimal") optional() action { (x, c) => c.copy(savePrimal = x) }
-      opt[Int]("driver.verbosity") optional() action { (x, c) => c.copy(verbosity = x) }
+      opt[Boolean](name = "driver.savePrimal") optional() action { (x, c) => c.copy(savePrimal = x) }
+      opt[Int](name = "driver.verbosity") optional() action { (x, c) => c.copy(verbosity = x) }
+      opt[Int](name = "driver.unionDataFrameCap") optional() action { (x, c) => c.copy(unionDataFrameCap = x) }
       opt[String]("driver.solverOutputPath") required() action { (x, c) => c.copy(solverOutputPath = x) }
     }
 
     parser.parse(args, LPSolverDriverParams()) match {
-      case Some(params) => params
-      case _ => throw new IllegalArgumentException(s"Parsing the command line arguments ${args.mkString(", ")} failed")
-    }
-  }
-}
-
-/**
- * Input parameter parser. These are generic input parameters that are shared by most solvers now.
- */
-object InputPathParamsParser {
-  def parseArgs(args: Array[String]): InputPaths = {
-    val parser = new scopt.OptionParser[InputPaths]("Input data parameters parser") {
-      override def errorOnUnknownArgument = false
-
-      opt[String]("input.ACblocksPath") required() action { (x, c) => c.copy(ACblocksPath = x) }
-      opt[String]("input.vectorBPath") required() action { (x, c) => c.copy(vectorBPath = x) }
-      opt[String]("input.format") required() action { (x, c) => c.copy(format = DataFormat.withName(x)) }
-    }
-
-    parser.parse(args, InputPaths("", "", DataFormat.AVRO)) match {
       case Some(params) => params
       case _ => throw new IllegalArgumentException(s"Parsing the command line arguments ${args.mkString(", ")} failed")
     }
