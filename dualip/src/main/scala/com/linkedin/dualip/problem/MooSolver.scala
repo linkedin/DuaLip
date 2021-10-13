@@ -157,12 +157,6 @@ class MooSolverDualObjectiveFunction(
 }
 
 /**
- * Special parameter only for MOO optimizer
- * @param parallelMode whether the MOO problem is going to be solved in parallel mode or not
- */
-case class MooObjectiveParams(parallelMode: Boolean)
-
-/**
  * This companion object encapsulates all data/objective loading specifics for (single) MOO use case
  */
 object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
@@ -214,11 +208,10 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
    */
   def apply(gamma: Double, projectionType: ProjectionType, args: Array[String])(implicit spark: SparkSession): DualPrimalDifferentiableObjective = {
     val inputPaths = InputPathParamsParser.parseArgs(args)
-    val mooParams = MooParamsParser.parseArgs(args)
 
     val (data, b) = MooSolverDualObjectiveFunction.loadData(inputPaths)
 
-    new MooSolverDualObjectiveFunction(data, b, gamma, projectionType, mooParams.parallelMode)
+    new MooSolverDualObjectiveFunction(data, b, gamma, projectionType)
   }
 }
 
@@ -260,22 +253,5 @@ object ParallelMooSolverDualObjectiveFunction {
       .as[(Long, MapReduceArray[MooDataBlock], Array[(Int, Double)])]
 
     retData
-  }
-}
-
-/**
- * Parameters parser
- */
-object MooParamsParser {
-  def parseArgs(args: Array[String]): MooObjectiveParams = {
-    val parser = new scopt.OptionParser[MooObjectiveParams]("Moo params parser") {
-      override def errorOnUnknownArgument = false
-      opt[Boolean]("moo.parallelMode") optional() action { (x, c) => c.copy(parallelMode = x) }
-    }
-
-    parser.parse(args, MooObjectiveParams(parallelMode = true)) match {
-      case Some(params) => params
-      case _ => throw new IllegalArgumentException(s"Parsing the command line arguments ${args.mkString(", ")} failed")
-    }
   }
 }
