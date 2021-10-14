@@ -174,6 +174,7 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
 
     val budget = IOUtility.readDataFrame(inputPaths.vectorBPath, inputPaths.format)
       .map{case Row(_c0: Number, _c1: Number) => (_c0.intValue(), _c1.doubleValue()) }
+      .toDF("row", "value")
       .withColumn("problemId", lit(DUMMY_PROBLEM_ID))
       .as[ConstraintBlock]
       .map{constraintBlock => (constraintBlock.row, constraintBlock.value) }
