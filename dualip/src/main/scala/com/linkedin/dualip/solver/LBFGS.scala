@@ -141,10 +141,12 @@ class LBFGS(
     val iterationMsg: String = s"Total  LBFGS iterations: ${result.iter}\n"
     print(iterationMsg)
     log ++ iterationMsg
-    if (result.iter >= maxIter)
-      status = Status.Terminated
-    else
-      status = Status.Converged
+    if (status == Status.Running) {
+      if (result.iter >= maxIter)
+        status = Status.Terminated
+      else
+        status = Status.Converged
+    }
     (result.x, lastResult, OptimizerState(i, status, log.toString))
   }
 

@@ -133,8 +133,11 @@ class AcceleratedGradientDescent(
       // write the optimization parameters to a log file
       log ++= iterationLog(iLog)
     }
-    if (i > maxIter) {
-      status = Status.Terminated
+    if (status == Status.Running) {
+      if (i >= maxIter)
+        status = Status.Terminated
+      else
+        status = Status.Converged
     }
 
     (y, result, OptimizerState(i, status, log.toString))
