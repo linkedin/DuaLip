@@ -143,10 +143,12 @@ class LBFGSB(
       val iterationMsg: String = s"Total LBFGS iterations: ${result.iter}\n"
       print(iterationMsg)
       log ++ iterationMsg
-      if (result.iter >= maxIter)
-        status = Status.Terminated
-      else
-        status = Status.Converged
+      if (status == Status.Running) {
+        if (result.iter >= maxIter)
+          status = Status.Terminated
+        else
+          status = Status.Converged
+      }
       (SparseVector.apply(result.x.data), lastResult, OptimizerState(i, status, log.toString))
     } catch {
       case e: UnsupportedOperationException => {
