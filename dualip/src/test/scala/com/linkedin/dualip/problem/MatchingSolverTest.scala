@@ -77,7 +77,7 @@ class MatchingSolverTest {
     spark.sparkContext.setLogLevel("warn")
 
     val slateOptimizer: SlateOptimizer = new SingleSlotOptimizer(0, new GreedyProjection())
-    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateOptimizer, 1E-06, enableHighDimOptimization)
+    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateOptimizer, 1E-06, enableHighDimOptimization, None)
 
     val optimizer = new AcceleratedGradientDescent(maxIter = 100)
     val (lambda, value, _) = optimizer.maximize(f, BSV.fill(5)(0.1))
@@ -94,7 +94,7 @@ class MatchingSolverTest {
     spark.sparkContext.setLogLevel("warn")
 
     val slateOptimizer: SlateOptimizer = new SingleSlotOptimizer(0, new GreedyProjection())
-    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateOptimizer, 1E-06, enableHighDimOptimization)
+    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateOptimizer, 1E-06, enableHighDimOptimization, None)
     // compute value using calculate function
     val value = f.calculate(BSV(expectedLambda), mutable.Map.empty, 1)
 
@@ -117,7 +117,7 @@ class MatchingSolverTest {
 
     val gamma = 1E-3
     val slateOptimizer: SlateOptimizer = new SingleSlotOptimizer(gamma, new SimplexProjection())
-    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateOptimizer, gamma, enableHighDimOptimization)
+    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateOptimizer, gamma, enableHighDimOptimization, None)
 
     val primalUpperBound: Double = expectedPrimalUpperBound + 5 * gamma/2
     Assert.assertTrue(Math.abs(f.getPrimalUpperBound - primalUpperBound) < 0.01)
@@ -139,7 +139,7 @@ class MatchingSolverTest {
 
     val gamma = 1E-6
     val slateOptimizer: SlateOptimizer = new SingleSlotOptimizer(gamma, new BoxCutProjection(1000))
-    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(Array(0.7, 0.7, 0.7, 0.7, 0.7)), slateOptimizer, gamma, enableHighDimOptimization)
+    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(Array(0.7, 0.7, 0.7, 0.7, 0.7)), slateOptimizer, gamma, enableHighDimOptimization, None)
 
     val optimizer = new AcceleratedGradientDescent(maxIter = 200)
 
