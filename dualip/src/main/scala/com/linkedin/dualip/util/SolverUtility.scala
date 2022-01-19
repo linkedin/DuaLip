@@ -44,19 +44,26 @@ object SolverUtility {
     * @param lambda   : vector lambda
     * @param r        : vector ax-b
     * @param b        : vector b
+    * @param designInequality : True if Ax <= b, false if Ax = b
     * @return
     */
-  def getSlack(lambda: Array[Double], r: Array[Double], b: Array[Double]): SlackMetadata = {
+  def getSlack(lambda: Array[Double], r: Array[Double], b: Array[Double], designInequality: Boolean = true): SlackMetadata = {
     var j = 0
     val res = Array.ofDim[Double](lambda.length)
     var maxPosSlack: Double = Double.NegativeInfinity
     var maxZeroSlack: Double = Double.NegativeInfinity
     var feasibility: Double = Double.NegativeInfinity
     while (j < lambda.length) {
-      if (lambda(j) == 0) {
-        res(j) = Math.max(r(j), 0)/(1 + Math.abs(b(j)))
-        maxZeroSlack = Math.max(maxZeroSlack, res(j))
-      } else {
+      if (designInequality) {
+        if (lambda(j) == 0) {
+          res(j) = Math.max(r(j), 0)/(1 + Math.abs(b(j)))
+          maxZeroSlack = Math.max(maxZeroSlack, res(j))
+        } else {
+          res(j) = Math.abs(r(j))/(1 + Math.abs(b(j)))
+          maxPosSlack = Math.max(maxPosSlack, res(j))
+        }
+      }
+      else {
         res(j) = Math.abs(r(j))/(1 + Math.abs(b(j)))
         maxPosSlack = Math.max(maxPosSlack, res(j))
       }
