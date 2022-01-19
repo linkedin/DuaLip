@@ -86,7 +86,7 @@ object ParallelLPSolverDriver {
       }.toDF("problemId", "logList", "dualList", "violationList")
 
       resultsDS
-        .repartition(10)
+        .repartition(1000)
         .write
         .format(driverParams.outputFormat.toString)
         .mode(SaveMode.Overwrite)

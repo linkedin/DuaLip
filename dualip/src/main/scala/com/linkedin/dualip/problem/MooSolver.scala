@@ -37,6 +37,7 @@ import com.linkedin.dualip.util.ProjectionType._
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.storage.StorageLevel
+import scala.math.max
 
 /**
  * A MOO block of data. A vertical slice of design matrix, specifically the variables in the same simplex constraint sum x <= 1
@@ -84,12 +85,14 @@ class MooSolverDualObjectiveFunction(
   // The simple constraints are encoded using the projections supported by the slate optimizer type
   lazy val projection: Projection = projectionType match {
     case Simplex => new SimplexProjection(checkVertexSolution = true)
+    case SimplexInequality => new SimplexProjection(checkVertexSolution = true, inequality = true)
     case UnitBox => new UnitBoxProjection()
     case _ => throw new NoClassDefFoundError(s"Projection $projection is not supported by MOOSolver.")
   }
 
   lazy val upperBound: Double = projectionType match {
     case Simplex => problemDesign.map(_.c.max + gamma / 2).reduce(_ + _)
+    case SimplexInequality => problemDesign.map(problem => max(0, problem.c.max) + gamma / 2).reduce(_ + _)
     case _ => Double.PositiveInfinity
   }
 

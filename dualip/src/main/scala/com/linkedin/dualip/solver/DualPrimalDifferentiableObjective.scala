@@ -106,9 +106,10 @@ trait DualPrimalDifferentiableObjective {
     * @param lambda   The variable (vector) being optimized
     * @param log      Key-value pairs used to store logging information for each iteration of the optimizer
     * @param verbosity  Control the logging level
+    * @param designInequality True if Ax <= b, false if Ax = b
     * @return
     */
-  def calculate(lambda: SparseVector[Double], log: mutable.Map[String, String], verbosity: Int): DualPrimalDifferentiableComputationResult
+  def calculate(lambda: SparseVector[Double], log: mutable.Map[String, String], verbosity: Int, designInequality: Boolean = true): DualPrimalDifferentiableComputationResult
 
   /**
     * The maximum value the primal formulation can take is pre-computed and stored.
