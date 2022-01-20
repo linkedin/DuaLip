@@ -169,10 +169,10 @@
 <p>The solver settings are displayed in the following table.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="22%" />
+<col width="23%" />
 <col width="9%" />
 <col width="10%" />
-<col width="59%" />
+<col width="58%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameters</th>
@@ -210,7 +210,7 @@
 <tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">driver.projectionType</span></code></td>
 <td>true</td>
 <td>N/A</td>
-<td>One of available projections (simplex, unitbox, etc.)</td>
+<td>One of available projections (simplex, simplexInequality, unitbox, etc.)</td>
 </tr>
 <tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">driver.savePrimal</span></code></td>
 <td>false</td>
@@ -245,14 +245,19 @@
 <tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">optimizer.solverType</span></code></td>
 <td>true</td>
 <td>N/A</td>
-<td>The type of optimizer, currently supported: AGD, LBFGSB</td>
+<td>The type of optimizer, currently supported: AGD, LBFGSB, and LBFGS</td>
 </tr>
-<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">optimizer.dualTolerance</span></code></td>
+<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">optimizer.designInequality</span></code></td>
+<td>false</td>
+<td>true</td>
+<td>True if Ax &lt;= b, false if Ax = b</td>
+</tr>
+<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">optimizer.dualTolerance</span></code></td>
 <td>true</td>
 <td>N/A</td>
 <td>Tolerance criteria for dual variable change</td>
 </tr>
-<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">optimizer.slackTolerance</span></code></td>
+<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">optimizer.slackTolerance</span></code></td>
 <td>true</td>
 <td>N/A</td>
 <td>Tolerance criteria for slack</td>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Dualip: Dual Decomposition based Linear Program Solver Documentation &mdash; DuaLip 0.0.1 documentation</title>
+  <title>DuaLip: Dual Decomposition based Linear Program Solver Documentation &mdash; DuaLip 0.0.1 documentation</title>
   
 
   
@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="The Dualip Solver" href="solver/index.html" /> 
+    <link rel="next" title="The DuaLip Solver" href="solver/index.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -79,12 +79,12 @@
             
               <p class="caption"><span class="caption-text">User Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="solver/index.html">The Dualip Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="solver/index.html">The DuaLip Solver</a></li>
 <li class="toctree-l1"><a class="reference internal" href="get_started/index.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interfaces/index.html">Interfaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="demo/index.html">Demo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="citing/index.html">Citing Dualip</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing/index.html">Contributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing/index.html">Citing DuaLip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/index.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgement/index.html">Acknowledgements</a></li>
 </ul>
 
@@ -131,7 +131,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>Dualip: Dual Decomposition based Linear Program Solver Documentation</li>
+      <li>DuaLip: Dual Decomposition based Linear Program Solver Documentation</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -151,8 +151,8 @@
            <div itemprop="articleBody">
             
   <div class="section" id="dualip-dual-decomposition-based-linear-program-solver-documentation">
-<h1>Dualip: Dual Decomposition based Linear Program Solver Documentation<a class="headerlink" href="#dualip-dual-decomposition-based-linear-program-solver-documentation" title="Permalink to this headline">¶</a></h1>
-<p>DuaLiP is an extreme-scale Linear Program (LP) solver based on Apache Spark. It solves structured LP problems of the following form arising from web-applications:</p>
+<h1>DuaLip: Dual Decomposition based Linear Program Solver Documentation<a class="headerlink" href="#dualip-dual-decomposition-based-linear-program-solver-documentation" title="Permalink to this headline">¶</a></h1>
+<p>DuaLip is an extreme-scale Linear Program (LP) solver based on Apache Spark. It solves structured LP problems of the following form arising from web-applications:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{ll}
   \mbox{minimize} &amp; c^T x \\
@@ -161,17 +161,17 @@
 \end{array}\end{split}\]</div>
 <p>where <span class="math notranslate nohighlight">\(x = (x_1, ..., x_I)\)</span> is the full vector of optimization variables, <span class="math notranslate nohighlight">\(x_i\)</span> is the vector of optimization
 variables associated with one <span class="math notranslate nohighlight">\(i\)</span>, and <span class="math notranslate nohighlight">\(A,b,c\)</span> and <span class="math notranslate nohighlight">\(C_i\)</span> are user-supplied data.</p>
-<p>It is a distributed solver that solves a perturbation of the LP problem at scale via gradient-based algorithms on the smooth dual of the perturbed LP with computational guarantees. Dualip can easily scale to problems in trillions of variables.</p>
-<p>This library was created by <a class="reference external" href="https://www.linkedin.com/in/panyaopy/">Yao Pan</a>, <a class="reference external" href="https://www.linkedin.com/in/kinjalbasu/">Kinjal Basu</a>, <a class="reference external" href="https://www.linkedin.com/in/rohanramanath/">Rohan Ramanath</a>, <a class="reference external" href="https://www.linkedin.com/in/ksalomatin/">Konstantin Salomatin</a>, <a class="reference external" href="https://www.linkedin.com/in/amolghoting/">Amol Ghoting</a>, and <a class="reference external" href="https://www.linkedin.com/in/sathiya-keerthi-selvaraj-ba963414/">Sathiya Keerthi</a> from LinkedIn.</p>
-<p><strong>Code available on</strong> <a class="reference external" href="https://github.com/linkedin/dualip">GitHub</a>.</p>
+<p>It is a distributed solver that solves a perturbation of the LP problem at scale via gradient-based algorithms on the smooth dual of the perturbed LP with computational guarantees. DuaLip can easily scale to problems in trillions of variables.</p>
+<p>This library was created by <a class="reference external" href="https://www.linkedin.com/in/panyaopy/">Yao Pan</a>, <a class="reference external" href="https://www.linkedin.com/in/kinjalbasu/">Kinjal Basu</a>, <a class="reference external" href="https://www.linkedin.com/in/rohanramanath/">Rohan Ramanath</a>, <a class="reference external" href="https://www.linkedin.com/in/ksalomatin/">Konstantin Salomatin</a>, <a class="reference external" href="https://www.linkedin.com/in/amolghoting/">Amol Ghoting</a>, <a class="reference external" href="https://www.linkedin.com/in/sathiya-keerthi-selvaraj-ba963414/">Sathiya Keerthi</a>, and <a class="reference external" href="https://www.linkedin.com/in/miaoch/">Miao Cheng</a> from LinkedIn.</p>
+<p><strong>Code available on</strong> <a class="reference external" href="https://github.com/linkedin/DuaLip">GitHub</a>.</p>
 <div class="section" id="citing-dualip">
-<h2>Citing Dualip<a class="headerlink" href="#citing-dualip" title="Permalink to this headline">¶</a></h2>
-<p>If you are using Dualip for your work, we encourage you to</p>
+<h2>Citing DuaLip<a class="headerlink" href="#citing-dualip" title="Permalink to this headline">¶</a></h2>
+<p>If you are using DuaLip for your work, we encourage you to</p>
 <ul class="simple">
 <li><a class="reference internal" href="citing/index.html#citing"><span class="std std-ref">Cite the related papers</span></a></li>
-<li>Put a star on GitHub <a class="reference external" href="https://github.com/linkedin/dualip"><img alt="github-star" src="https://img.shields.io/github/stars/oxfordcontrol/osqp.svg?style=social&amp;label=Star" /></a></li>
+<li>Put a star on GitHub <a class="reference external" href="https://github.com/linkedin/DuaLip"><img alt="github-star" src="https://img.shields.io/github/stars/linkedin?style=social" /></a></li>
 </ul>
-<p><strong>We are looking forward to hearing your success stories with Dualip!</strong> Please <a class="reference external" href="mailto:dualip&#37;&#52;&#48;linkedin&#46;com">share them with us</a>.</p>
+<p><strong>We are looking forward to hearing your success stories with DuaLip!</strong> Please <a class="reference external" href="mailto:ask_lp&#37;&#52;&#48;linkedin&#46;com">share them with us</a>.</p>
 </div>
 <div class="section" id="features">
 <h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
@@ -180,7 +180,7 @@ variables associated with one <span class="math notranslate nohighlight">\(i\)</
 <ol class="arabic">
 <li><dl class="first docutils">
 <dt>Extreme Scale</dt>
-<dd><p class="first last">Dualip is specifically developed to tackle problems arising in web-applications that usually have hundreds of millions of users and millions of items, pushing the number of optimization variables in the trillions range (if not more). It uses a dual decomposition technique to be able to scale to such large problems. For details see the <a class="reference internal" href="solver/index.html#probsolution"><span class="std std-ref">solution</span></a> and for a wide range of applications see <a class="reference external" href="https://arxiv.org/abs/2103.05277">Ramanath et. al. (2021)</a> and <a class="reference external" href="http://proceedings.mlr.press/v119/basu20a/basu20a.pdf">Basu et. al (2020)</a>.</p>
+<dd><p class="first last">DuaLip is specifically developed to tackle problems arising in web-applications that usually have hundreds of millions of users and millions of items, pushing the number of optimization variables in the trillions range (if not more). It uses a dual decomposition technique to be able to scale to such large problems. For details see the <a class="reference internal" href="solver/index.html#probsolution"><span class="std std-ref">solution</span></a> and for a wide range of applications see <a class="reference external" href="https://arxiv.org/abs/2103.05277">Ramanath et. al. (2021)</a> and <a class="reference external" href="http://proceedings.mlr.press/v119/basu20a/basu20a.pdf">Basu et. al (2020)</a>.</p>
 </dd>
 </dl>
 </li>
@@ -204,7 +204,7 @@ variables associated with one <span class="math notranslate nohighlight">\(i\)</
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt>Detects Infeasibility</dt>
+<dt>Infeasibility Detection</dt>
 <dd><p class="first last">We have incorporated simple checks on infeasibility (see Appendix D of <a class="reference external" href="https://arxiv.org/abs/2103.05277">our paper</a>). This helps the end user to appropriately tweak the problem space.</p>
 </dd>
 </dl>
@@ -255,9 +255,9 @@ upon to build jobs using its APIs, or added to the classpath of a Spark Jupyter 
 <p>Copyright 2021 LinkedIn Corporation All Rights Reserved.
 Licensed under the BSD 2-Clause License (the &quot;License&quot;). See License in the project root for license information.</p>
 </div>
-<div class="section" id="contributions">
-<h2>Contributions<a class="headerlink" href="#contributions" title="Permalink to this headline">¶</a></h2>
-<p>If you would like to contribute to this project, please review the instructions <a class="reference internal" href="#contributions"><span class="std std-ref">here</span></a>.</p>
+<div class="section" id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
+<p>If you would like to contribute to this project, please review the instructions <a class="reference internal" href="contributing/index.html#contribution"><span class="std std-ref">here</span></a>.</p>
 </div>
 <div class="section" id="bug-reports-and-support">
 <h2>Bug reports and support<a class="headerlink" href="#bug-reports-and-support" title="Permalink to this headline">¶</a></h2>
@@ -265,11 +265,11 @@ Licensed under the BSD 2-Clause License (the &quot;License&quot;). See License i
 </div>
 <div class="section" id="acknowledgments">
 <h2>Acknowledgments<a class="headerlink" href="#acknowledgments" title="Permalink to this headline">¶</a></h2>
-<p>Implementations of some methods in DuaLip were inspired by other open-source libraries. Discussions with several LinkedIn employees influenced aspects of this library. A full list of acknowledgements can be found <a class="reference internal" href="acknowledgement/index.html#acknowledgements"><span class="std std-ref">here</span></a>.</p>
+<p>Implementations of some methods in DuaLip were inspired by other open-source libraries. Discussions with several LinkedIn employees influenced various aspects of this library. A full list of acknowledgements can be found <a class="reference internal" href="acknowledgement/index.html#acknowledgements"><span class="std std-ref">here</span></a>.</p>
 </div>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<p>DuaLip has been created on the basis of the following research paper. If you cite DuaLip, please use the following:</p>
+<p>DuaLip has been created on the basis of the following research papers. If you cite DuaLip, please use the following:</p>
 <blockquote>
 <div><div class="code latex highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@inproceedings</span><span class="p">{</span><span class="n">ramanath</span><span class="p">:</span><span class="mi">21</span><span class="p">,</span>
   <span class="n">author</span>       <span class="o">=</span> <span class="p">{</span><span class="n">Ramanath</span><span class="p">,</span> <span class="n">Rohan</span><span class="p">,</span> <span class="ow">and</span> <span class="n">Keerthi</span><span class="p">,</span> <span class="n">Sathiya</span> <span class="n">S</span><span class="o">.</span> <span class="ow">and</span> <span class="n">Basu</span><span class="p">,</span> <span class="n">Kinjal</span> <span class="ow">and</span> <span class="n">Salomatin</span><span class="p">,</span> <span class="n">Konstantin</span> <span class="ow">and</span> <span class="n">Yao</span><span class="p">,</span> <span class="n">Pan</span><span class="p">},</span>
@@ -317,7 +317,7 @@ Licensed under the BSD 2-Clause License (the &quot;License&quot;). See License i
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="solver/index.html" class="btn btn-neutral float-right" title="The Dualip Solver" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="solver/index.html" class="btn btn-neutral float-right" title="The DuaLip Solver" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>
