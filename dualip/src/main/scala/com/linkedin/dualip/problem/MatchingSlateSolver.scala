@@ -25,13 +25,13 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
- 
+
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.projection.{GreedyProjection, SimplexProjection, UnitBoxProjection}
 import com.linkedin.dualip.slate.{DataBlock, SingleSlotOptimizer, Slate, SlateOptimizer}
-import com.linkedin.dualip.solver.{DistributedRegularizedObjective, DualPrimalDifferentiableObjective, DualPrimalObjectiveLoader, 
+import com.linkedin.dualip.solver.{DistributedRegularizedObjective, DualPrimalDifferentiableObjective, DualPrimalObjectiveLoader,
   PartialPrimalStats}
 import com.linkedin.dualip.util.{IOUtility, InputPathParamsParser, InputPaths}
 import com.linkedin.dualip.util.ProjectionType._
@@ -53,6 +53,11 @@ import scala.util.Try
   * @param slateOptimizer - algorithm to generate primal given dual
   * @param gamma          - behaves like a regularizer and controls the smoothness of the objective
   * @param enableHighDimOptimization - passthrough parameter to the parent class (spark optimization for very high dimensional problems)
+  * @param numLambdaPartitions       - used when enableHighDimOptimization=true, dense lambda vectors coming from executors are partitioned
+  *                                    for aggregation. The number of partitions should depend on aggregation parallelism and the dimensionality
+  *                                    of lambda. A good rule of thumb is to use a multiple of aggregation parallelism to ensure even load
+  *                                    but not too high to keep individual partition sizes large (e.g. 1000) for efficiency:
+  *                                    numLambdaPartitions \in [5*parallelism, dim(lambda)/1000]
   * @param spark
   */
 class MatchingSolverDualObjectiveFunction(
@@ -60,8 +65,9 @@ class MatchingSolverDualObjectiveFunction(
   b: BSV[Double],
   slateOptimizer: SlateOptimizer,
   gamma: Double,
-  enableHighDimOptimization: Boolean
-)(implicit spark: SparkSession) extends DistributedRegularizedObjective(b, gamma, enableHighDimOptimization) with Serializable {
+  enableHighDimOptimization: Boolean,
+  numLambdaPartitions: Option[Int]
+)(implicit spark: SparkSession) extends DistributedRegularizedObjective(b, gamma, enableHighDimOptimization, numLambdaPartitions) with Serializable {
   import spark.implicits._
 
   lazy val upperBound = slateOptimizer match {
@@ -152,12 +158,14 @@ class MatchingSolverDualObjectiveFunction(
 
 /**
  * Special parameters only for Matching optimizer
+ * @param slateSize - number of items selected for each request
  * @param enableHighDimOptimization - spark optimization parameter for gradient computation
  *                                    set to true for very high dimensional lambdas (maybe >100K or 1M).
  *                                    and if each iteration is too slow or driver crashes.
  *                                    Default value is false
+ * @param numLambdaPartitions - number of partitions for lambda vector used in gradient aggregation
  */
-case class MatchingSolverParams(slateSize: Int = 1, enableHighDimOptimization: Boolean = false)
+case class MatchingSolverParams(slateSize: Int = 1, enableHighDimOptimization: Boolean = false, numLambdaPartitions: Option[Int] = None)
 
 /**
  * Companion object to load objective function from HDFS
@@ -201,7 +209,7 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
   }
 
   /**
-   * Code to initialize slate optimizer. 
+   * Code to initialize slate optimizer.
    * todo: Currently the available slate optimizers are hardcoded, consider an option to provide custom optimizer
    * @param gamma - gamma regularization (some optimizers require it)
    * @param slateSize - slate size
@@ -245,7 +253,7 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
     val matchingParams = MatchingParamsParser.parseArgs(args)
     val (data, b) = loadData(inputPaths)
     val slateOptimizer: SlateOptimizer = slateOptimizerChooser(gamma, matchingParams.slateSize, projectionType)
-    new MatchingSolverDualObjectiveFunction(data, b, slateOptimizer, gamma, matchingParams.enableHighDimOptimization)
+    new MatchingSolverDualObjectiveFunction(data, b, slateOptimizer, gamma, matchingParams.enableHighDimOptimization, matchingParams.numLambdaPartitions)
   }
 
   /**
@@ -266,6 +274,7 @@ object MatchingParamsParser {
       override def errorOnUnknownArgument = false
       opt[Int]("matching.slateSize") required() action { (x, c) => c.copy(slateSize = x) }
       opt[Boolean]("matching.enableHighDimOptimization") optional() action { (x, c) => c.copy(enableHighDimOptimization = x) }
+      opt[Int]("matching.numLambdaPartitions") optional() action { (x, c) => c.copy(numLambdaPartitions = Option(x)) }
     }
 
     parser.parse(args, MatchingSolverParams()) match {

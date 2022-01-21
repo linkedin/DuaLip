@@ -60,9 +60,10 @@ abstract class MooDistributedRegularizedObjective(b: SparseVector[Double], gamma
     * @param lambda   The variable (vector) being optimized
     * @param log      Key-value pairs used to store logging information for each iteration of the optimizer
     * @param verbosity  Control the logging level
+    * @param designInequality True if Ax <= b, false if Ax = b
     * @return
     */
-  override def calculate(lambda: SparseVector[Double], log: mutable.Map[String, String], verbosity: Int): DualPrimalDifferentiableComputationResult = {
+  override def calculate(lambda: SparseVector[Double], log: mutable.Map[String, String], verbosity: Int, designInequality: Boolean = true): DualPrimalDifferentiableComputationResult = {
     // compute and aggregate gradients and objective value
     val partialGradients = getPrimalStats(lambda)
     // choose between two implementations of gradient aggregator: they yield similar results but different efficiency
@@ -79,7 +80,7 @@ abstract class MooDistributedRegularizedObjective(b: SparseVector[Double], gamma
 
     // compute some extra values, i.e. the primal objective and slack metadata
     val primalObjective = cx +  xx * gamma / 2.0
-    val slackMetadata: SlackMetadata = SolverUtility.getSlack(lambda.toArray, axMinusB.toArray, b.toArray)
+    val slackMetadata: SlackMetadata = SolverUtility.getSlack(lambda.toArray, axMinusB.toArray, b.toArray, designInequality)
 
     // The sum of positive slacks, one of measures of constraints violation useful for logging
     val absoluteConstraintsViolation =  axMinusB.toArray.filter(_ > 0.0).sum

@@ -40,11 +40,13 @@ import scala.collection.mutable.ListBuffer
   * @param maxIter        The maximum number of iterations
   * @param dualTolerance  The dual tolerance limit
   * @param slackTolerance The slack tolerance limit
+  * @param designInequality True if Ax <= b, false if Ax = b
   */
 class AcceleratedGradientDescent(
   maxIter: Int = 1000,
   dualTolerance: Double = 1e-6,
-  slackTolerance: Double = 0.05
+  slackTolerance: Double = 0.05,
+  designInequality: Boolean = true
 ) extends Serializable with DualPrimalGradientMaximizer {
   // Initialize betaSeq sequence for acceleration
   val betaSeq: Array[Double] = {
@@ -101,7 +103,7 @@ class AcceleratedGradientDescent(
       iLog += ("iter" -> f"${i}%5d")
 
       // compute function at current dual value
-      result = time(f.calculate(x, iLog, verbosity), iLog)
+      result = time(f.calculate(x, iLog, verbosity, designInequality), iLog)
       // Check if the dual objective has exceeded the primal upper bound
       if (f.checkInfeasibility(result)) {
         status = Status.Infeasible
@@ -123,7 +125,10 @@ class AcceleratedGradientDescent(
       } else {
         // if not converged make a gradient step and continue the loop
         // otherwise the loop will break anyway
-        val y_new: SparseVector[Double] = (x + (result.dualGradient * stepSize)).map( x => if(x < 0 ) 0.0 else x)
+        val y_new: SparseVector[Double] =
+          if (designInequality) { (x + (result.dualGradient * stepSize)).map( x => if(x < 0 ) 0.0 else x) }
+          else { x + (result.dualGradient * stepSize) }
+
         x = (y_new * (1.0 - betaSeq(i - 1))) + (y * betaSeq(i - 1))
         y = y_new
         dualObjPrev = result.dualObjective
