@@ -19,14 +19,14 @@ allprojects {
     apply plugin: "idea"
     apply plugin: "scala"
 
-    def sparkVersion = findProperty("sparkVersion") ?: "2.3.0"
-    def scalaVersion = findProperty("scalaVersion") ?: "2.11"
+    def sparkVersion = findProperty("sparkVersion") ?: "3.1.1"
+    def scalaVersion = findProperty("scalaVersion") ?: "2.12"
 
     println ("Building with scala: ${scalaVersion}, spark: ${sparkVersion}")
 
     group = "com.linkedin.dualip"
-
-    project.version = "1.2.2"
+    
+    project.version = "2.0.0"
 
     repositories {
         mavenCentral()

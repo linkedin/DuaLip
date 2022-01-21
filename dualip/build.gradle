@@ -5,8 +5,8 @@ plugins {
   id 'scala'
 }
 
-def sparkVersion = findProperty("sparkVersion") ?: "2.3.0"
-def scalaVersion = findProperty("scalaVersion") ?: "2.11"
+def sparkVersion = findProperty("sparkVersion") ?: "3.1.1"
+def scalaVersion = findProperty("scalaVersion") ?: "2.12"
 
 println ("Building with scala: ${scalaVersion}, spark: ${sparkVersion}")
 
@@ -22,14 +22,12 @@ dependencies {
   testImplementation("org.apache.spark:spark-core_${scalaVersion}:${sparkVersion}")
   testImplementation("org.apache.spark:spark-sql_${scalaVersion}:${sparkVersion}")
   testImplementation("org.testng:testng:6.10")
-
-  testRuntimeOnly("com.fasterxml.jackson.core:jackson-databind:2.6.7.1")
 }
 
 test {
   useTestNG()
 }
 
-archivesBaseName = "${project.name}_2.11"
+archivesBaseName = "${project.name}_2.12"
 
 apply from: "$rootDir/gradle/java-publication.gradle"
