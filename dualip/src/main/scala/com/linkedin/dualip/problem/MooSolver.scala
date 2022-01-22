@@ -30,7 +30,7 @@ package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.problem.MatchingSolverDualObjectiveFunction.toBSV
-import com.linkedin.dualip.projection.{Projection, SimplexProjection, UnitBoxProjection}
+import com.linkedin.dualip.projection.{BoxCutProjection, Projection, SimplexProjection, UnitBoxProjection}
 import com.linkedin.dualip.solver._
 import com.linkedin.dualip.util.{IOUtility, InputPathParamsParser, InputPaths, MapReduceArray, MapReduceCollectionWrapper, MapReduceDataset}
 import com.linkedin.dualip.util.ProjectionType._
@@ -86,6 +86,8 @@ class MooSolverDualObjectiveFunction(
   lazy val projection: Projection = projectionType match {
     case Simplex => new SimplexProjection(checkVertexSolution = true)
     case SimplexInequality => new SimplexProjection(checkVertexSolution = true, inequality = true)
+    case BoxCut => new BoxCutProjection(maxIter = 100, inequality = false)
+    case BoxCutInequality => new BoxCutProjection(maxIter = 100, inequality = true)
     case UnitBox => new UnitBoxProjection()
     case _ => throw new NoClassDefFoundError(s"Projection $projection is not supported by MOOSolver.")
   }

@@ -29,10 +29,9 @@
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
-import com.linkedin.dualip.projection.{GreedyProjection, SimplexProjection, UnitBoxProjection}
+import com.linkedin.dualip.projection.{BoxCutProjection, GreedyProjection, SimplexProjection, UnitBoxProjection}
 import com.linkedin.dualip.slate.{DataBlock, SingleSlotOptimizer, Slate, SlateOptimizer}
-import com.linkedin.dualip.solver.{DistributedRegularizedObjective, DualPrimalDifferentiableObjective, DualPrimalObjectiveLoader,
-  PartialPrimalStats}
+import com.linkedin.dualip.solver.{DistributedRegularizedObjective, DualPrimalDifferentiableObjective, DualPrimalObjectiveLoader, PartialPrimalStats}
 import com.linkedin.dualip.util.{IOUtility, InputPathParamsParser, InputPaths}
 import com.linkedin.dualip.util.ProjectionType._
 import com.twitter.algebird.{Max, Tuple5Semigroup}
@@ -227,6 +226,16 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
         require(slateSize == 1, "Single slot inequality simplex algorithm requires matching.slateSize = 1")
         require(gamma > 0, "Gamma should be > 0 for simplex algorithm")
         new SingleSlotOptimizer(gamma, new SimplexProjection(inequality = true))
+      }
+      case BoxCut => {
+        require (slateSize == 1, "Single slot box cut algorithm requires matching.slateSize = 1")
+        require (gamma > 0, "Gamma should be > 0 for box cutx algorithm")
+        new SingleSlotOptimizer(gamma, new BoxCutProjection(maxIter = 100, inequality = false))
+      }
+      case BoxCutInequality => {
+        require (slateSize == 1, "Single slot box cut inequality algorithm requires matching.slateSize = 1")
+        require (gamma > 0, "Gamma should be > 0 for box cut algorithm")
+        new SingleSlotOptimizer(gamma, new BoxCutProjection(maxIter = 100, inequality = true))
       }
       case UnitBox => {
         require (slateSize == 1, "Single slot unit box algorithm requires matching.slateSize = 1")
