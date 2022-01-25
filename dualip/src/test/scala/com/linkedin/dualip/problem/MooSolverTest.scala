@@ -37,7 +37,7 @@ import org.testng.Assert
 import org.testng.annotations.Test
 
 class MooSolverTest {
-  val a = Array(
+  val a: Array[Array[Double]] = Array(
     Array(0.0169149451190606,  0.578941531083547,  0.737497533927672,  0.833785757608712,  0.91751586268656, 0.0),
     Array(0.0510786153143272,  0.578941531083547,  0.737497533927672,  0.833785757608712,  0.91751586268656, 0.0),
     Array(0.077301750308834,   0.578941531083547,  0.737497533927672,  0.833785757608712,  0.91751586268656, 0.0),
@@ -49,14 +49,14 @@ class MooSolverTest {
     Array(0.165696729999036,   0.578941531083547,  0.737497533927672,  0.833785757608712,  0.91751586268656, 0.0),
     Array(0.243720785295591,   0.578941531083547,  0.737497533927672,  0.833785757608712,  0.91751586268656, 0.0))
 
-  val c = Array(-1.0, -1.0, -1.0, -1.0, -1.0, 0)
-  val data = (0 to 9).map(i => MooDataBlock(i, Array(a(i)), c, -1))
-  val b = Array(0.419003697729204)
-  val infeasible_b = Array(-1.0)
+  val c: Array[Double] = Array(-1.0, -1.0, -1.0, -1.0, -1.0, 0)
+  val data: Seq[MooDataBlock] = (0 to 9).map(i => MooDataBlock(i, Array(a(i)), c, -1))
+  val b: Array[Double] = Array(0.419003697729204)
+  val infeasible_b: Array[Double] = Array(-1.0)
 
   // True values for this problem can be computed theoretically
   val expectedLambda = 7.114157
-  val expectedDualObjective = -5.5
+  val expectedDualObjective: Double = -5.5
 
   @Test
   def testSolver(): Unit = {
