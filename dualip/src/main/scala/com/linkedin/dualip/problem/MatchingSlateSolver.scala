@@ -32,8 +32,8 @@ import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.projection.{BoxCutProjection, GreedyProjection, SimplexProjection, UnitBoxProjection}
 import com.linkedin.dualip.slate.{DataBlock, SingleSlotOptimizer, Slate, SlateOptimizer}
 import com.linkedin.dualip.solver.{DistributedRegularizedObjective, DualPrimalDifferentiableObjective, DualPrimalObjectiveLoader, PartialPrimalStats}
-import com.linkedin.dualip.util.{IOUtility, InputPathParamsParser, InputPaths}
 import com.linkedin.dualip.util.ProjectionType._
+import com.linkedin.dualip.util.{IOUtility, InputPathParamsParser, InputPaths}
 import com.twitter.algebird.{Max, Tuple5Semigroup}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.functions.{col, lit}
@@ -69,9 +69,10 @@ class MatchingSolverDualObjectiveFunction(
 )(implicit spark: SparkSession) extends DistributedRegularizedObjective(b, gamma, enableHighDimOptimization, numLambdaPartitions) with Serializable {
   import spark.implicits._
 
-  lazy val upperBound = slateOptimizer match {
+  lazy val upperBound: Double = slateOptimizer match {
     case singleSlotOptimizer: SingleSlotOptimizer => singleSlotOptimizer.getProjection match {
-      case _: SimplexProjection => problemDesign.map(_.data.map { case (j, c, a) => c }.max + gamma / 2).reduce(_ + _)
+      // TODO: modify the upstream design to facilitate separate clauses for simplex equality and inequality constraints
+      case _: SimplexProjection => problemDesign.map(_.data.map { case (_, c, _) => c }.max + gamma / 2).reduce(_ + _)
       case _ => Double.PositiveInfinity
     }
     case _ => Double.PositiveInfinity
@@ -82,7 +83,7 @@ class MatchingSolverDualObjectiveFunction(
   override def getSardBound(lambda: BSV[Double]): Double = {
     val lambdaArray: Broadcast[Array[Double]] = spark.sparkContext.broadcast(lambda.toArray) // for performance
     val aggregator = new Tuple5Semigroup[Int, Int, Double, Max[Double], Max[Int]]
-    val (nonVertexSoln, numI, corralSize, corralSizeMax, jMax) = problemDesign.map { case block =>
+    val (nonVertexSoln, numI, corralSize, corralSizeMax, jMax) = problemDesign.map { block =>
       // below line is the same cost as a projection
       val (nV, corral, jM) = slateOptimizer.sardBound(block, lambdaArray.value)
       (nV, 1, corral, Max(corral), jM)
@@ -99,7 +100,7 @@ class MatchingSolverDualObjectiveFunction(
    * @return
    */
   override def getPrimalStats(lambda: BSV[Double]): Dataset[PartialPrimalStats] = {
-    getPrimal(lambda).flatMap { case (id, slates) =>
+    getPrimal(lambda).flatMap { case (_, slates) =>
       slates.map { slate =>
         PartialPrimalStats(slate.costs.toArray, slate.objective, slate.x * slate.x)
       }
@@ -113,9 +114,8 @@ class MatchingSolverDualObjectiveFunction(
     */
   def getPrimal(lambda: BSV[Double]): Dataset[(String, Seq[Slate])] = {
     val lambdaArray: Array[Double] = lambda.toArray // for performance
-    problemDesign.map { case block =>
-      (block.id, slateOptimizer.optimize(block, lambdaArray))
-    }
+    problemDesign.map(block =>
+      (block.id, slateOptimizer.optimize(block, lambdaArray)))
   }
 
   /**
@@ -187,7 +187,7 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
 
     val itemIds = budget.toMap.keySet
     // Check if every item has budget information encoded.
-    (0 until budget.length).foreach { i: Int =>
+    budget.indices.foreach { i: Int =>
       require(itemIds.contains(i), f"$i index does not have a specified constraint" )
     }
 
@@ -217,36 +217,30 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
    */
   def slateOptimizerChooser(gamma: Double, slateSize: Int, projectionType: ProjectionType): SlateOptimizer = {
     projectionType match {
-      case Simplex => {
+      case Simplex =>
         require (slateSize == 1, "Single slot simplex algorithm requires matching.slateSize = 1")
         require (gamma > 0, "Gamma should be > 0 for simplex algorithm")
         new SingleSlotOptimizer(gamma, new SimplexProjection())
-      }
-      case SimplexInequality => {
+      case SimplexInequality =>
         require(slateSize == 1, "Single slot inequality simplex algorithm requires matching.slateSize = 1")
         require(gamma > 0, "Gamma should be > 0 for simplex algorithm")
         new SingleSlotOptimizer(gamma, new SimplexProjection(inequality = true))
-      }
-      case BoxCut => {
+      case BoxCut =>
         require (slateSize == 1, "Single slot box cut algorithm requires matching.slateSize = 1")
         require (gamma > 0, "Gamma should be > 0 for box cutx algorithm")
         new SingleSlotOptimizer(gamma, new BoxCutProjection(maxIter = 100, inequality = false))
-      }
-      case BoxCutInequality => {
+      case BoxCutInequality =>
         require (slateSize == 1, "Single slot box cut inequality algorithm requires matching.slateSize = 1")
         require (gamma > 0, "Gamma should be > 0 for box cut algorithm")
         new SingleSlotOptimizer(gamma, new BoxCutProjection(maxIter = 100, inequality = true))
-      }
-      case UnitBox => {
+      case UnitBox =>
         require (slateSize == 1, "Single slot unit box algorithm requires matching.slateSize = 1")
         require (gamma > 0, "Gamma should be > 0 for unit box projection algorithm")
         new SingleSlotOptimizer(gamma, new UnitBoxProjection())
-      }
-      case Greedy => {
+      case Greedy =>
         require (gamma == 0, "Gamma should be zero for max element slate optimizer")
         require (slateSize == 1, "Single slot algorithm requires matching.slateSize = 1")
         new SingleSlotOptimizer(gamma, new GreedyProjection())
-      }
     }
   }
 

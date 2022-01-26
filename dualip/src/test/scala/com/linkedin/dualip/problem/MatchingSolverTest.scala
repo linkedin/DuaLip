@@ -60,15 +60,15 @@ class MatchingSolverTest {
     30 -> -0.0563831503968686,31 -> -0.546558595029637, 32 -> -0.398487901547924, 33 -> -0.359475114848465, 34 -> -0.74897222686559,
     40 -> -0.468549283919856, 41 -> -0.170262051047757, 42 -> -0.76255108229816,  43 -> -0.690290528349578, 44 -> -0.420101450523362
   )
-  val metadata = Map[String, Double]("boxCut" -> 2)
-  val data = (0 to 4).map(i => DataBlock(i.toString, (0 to 4).map(j => j + 10 * i).map(j => (j % 10, c(j), a((j % 10, j)))), metadata))
-  val b = Array(0.7, 0.7, 0.7, 0.7, 0.7)
+  val metadata: Map[String, Double] = Map[String, Double]("boxCut" -> 2)
+  val data: Seq[DataBlock] = (0 to 4).map(i => DataBlock(i.toString, (0 to 4).map(j => j + 10 * i).map(j => (j % 10, c(j), a((j % 10, j)))), metadata))
+  val b: Array[Double] = Array(0.7, 0.7, 0.7, 0.7, 0.7)
 
   // Expected values for this problem were computed with SCS
-  val expectedDualObjective = -3.4686
-  val expectedLambda = Array(0.0000000, 0.3327713, 0.3855439, 0.3212216, 0.5130992)
+  val expectedDualObjective: Double = -3.4686
+  val expectedLambda: Array[Double] = Array(0.0000000, 0.3327713, 0.3855439, 0.3212216, 0.5130992)
 
-  val expectedPrimalUpperBound = -(0.307766110869125 + 0.204612161964178 + 0.28035383997485 + 0.0563831503968686 + 0.170262051047757)
+  val expectedPrimalUpperBound: Double = -(0.307766110869125 + 0.204612161964178 + 0.28035383997485 + 0.0563831503968686 + 0.170262051047757)
 
   @Test
   def testMaxSolver(): Unit = {
@@ -101,7 +101,7 @@ class MatchingSolverTest {
     // alternative computation using returned primal solution and hardcoded objective
     val primal = f.getPrimalForSaving(BSV(expectedLambda)).get.as[MatchingSolverTestRow].collect.flatMap { r =>
       r.variables.map { x =>
-        require(x.items.size == 1)
+        require(x.items.length == 1)
         (r.blockId.toInt, x.items(0), x.value)
       }
     }
@@ -144,7 +144,7 @@ class MatchingSolverTest {
     val optimizer = new AcceleratedGradientDescent(maxIter = 200)
 
     val initialLambda = BSV.fill(5)(0.1)
-    val (lambda, value, _) = optimizer.maximize(f, initialLambda)
+    val (lambda, _, _) = optimizer.maximize(f, initialLambda)
     (0 to 4).foreach { i =>
       Assert.assertTrue(Math.abs(lambda(i) - 1.0) < 0.01)
     }
