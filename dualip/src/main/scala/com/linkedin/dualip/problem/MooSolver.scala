@@ -34,7 +34,8 @@ import com.linkedin.dualip.projection.{BoxCutProjection, Projection, SimplexProj
 import com.linkedin.dualip.solver._
 import com.linkedin.dualip.util.{IOUtility, InputPathParamsParser, InputPaths, MapReduceArray, MapReduceCollectionWrapper, MapReduceDataset}
 import com.linkedin.dualip.util.ProjectionType._
-import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+import org.apache.spark.sql.{Dataset, Encoder, Encoders, Row, SparkSession}
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.storage.StorageLevel
 import scala.math.max
@@ -80,7 +81,6 @@ class MooSolverDualObjectiveFunction(
   projectionType: ProjectionType,
   parallelMode: Boolean = false
 )(implicit spark: SparkSession) extends MooDistributedRegularizedObjective(b, gamma) with Serializable {
-  import spark.implicits._
 
   // The simple constraints are encoded using the projections supported by the slate optimizer type
   lazy val projection: Projection = projectionType match {
@@ -93,8 +93,8 @@ class MooSolverDualObjectiveFunction(
   }
 
   lazy val upperBound: Double = projectionType match {
-    case Simplex => problemDesign.map(_.c.max + gamma / 2).reduce(_ + _)
-    case SimplexInequality => problemDesign.map(problem => max(0, problem.c.max) + gamma / 2).reduce(_ + _)
+    case Simplex => problemDesign.map(_.c.max + gamma / 2, MooSolverDualObjectiveFunction.encoderDouble).reduce(_ + _)
+    case SimplexInequality => problemDesign.map(problem => max(0, problem.c.max) + gamma / 2, MooSolverDualObjectiveFunction.encoderDouble).reduce(_ + _)
     case _ => Double.PositiveInfinity
   }
 
@@ -107,7 +107,7 @@ class MooSolverDualObjectiveFunction(
    */
   override def getPrimalStats(lambda: BSV[Double]): MapReduceCollectionWrapper[PartialPrimalStats] = {
     val primals = getPrimal(lambda)
-    primals.map { case (_, _, stats) => stats }
+    primals.map( { case (_, _, stats) => stats } , MooSolverDualObjectiveFunction.encoderPartialPrimalStats)
   }
 
   /**
@@ -120,7 +120,7 @@ class MooSolverDualObjectiveFunction(
    */
   def getPrimal(lambda: BSV[Double]): MapReduceCollectionWrapper[(Long, Array[Double], PartialPrimalStats)] = {
     val lambdaArray = lambda.toArray
-    problemDesign.map { block =>
+    problemDesign.map( { block =>
       // compute projection input
       val n = block.c.length // number of columns (variables) in block
       val m = block.a.length // number of rows (constraints) in block
@@ -157,7 +157,7 @@ class MooSolverDualObjectiveFunction(
       }
       val ax = constr.zipWithIndex.map { case (value, index) => (index, value) }
       (block.id, primal, PartialPrimalStats(ax, obj, xsquared))
-    }
+    }, MooSolverDualObjectiveFunction.encoderTuplePartialPrimalStats)
   }
 }
 
@@ -165,6 +165,12 @@ class MooSolverDualObjectiveFunction(
  * This companion object encapsulates all data/objective loading specifics for (single) MOO use case
  */
 object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
+  /**
+   * Create encoder singletons to reuse and prevent re-initialization costs
+   */
+  val encoderTuplePartialPrimalStats: Encoder[(Long, Array[Double], PartialPrimalStats)] = ExpressionEncoder[(Long, Array[Double], PartialPrimalStats)]
+  val encoderPartialPrimalStats: Encoder[PartialPrimalStats] = ExpressionEncoder[PartialPrimalStats]
+  val encoderDouble: Encoder[Double] = Encoders.scalaDouble
 
   val DUMMY_PROBLEM_ID: Long = -1  // this is used when we are solving just a single problem
   /**

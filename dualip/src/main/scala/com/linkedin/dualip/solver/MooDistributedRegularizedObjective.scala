@@ -25,7 +25,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
- 
+
 package com.linkedin.dualip.solver
 
 import breeze.linalg.SparseVector
@@ -33,7 +33,8 @@ import com.linkedin.dualip.problem.MatchingSolverDualObjectiveFunction.toBSV
 import com.linkedin.dualip.util.{MapReduceCollectionWrapper, SolverUtility}
 import com.linkedin.dualip.util.SolverUtility.SlackMetadata
 import com.twitter.algebird.Tuple3Semigroup
-import org.apache.spark.sql.{Dataset, SparkSession}
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+import org.apache.spark.sql.{Dataset, Encoder, SparkSession}
 import scala.collection.mutable
 
 /**
@@ -126,9 +127,9 @@ abstract class MooDistributedRegularizedObjective(b: SparseVector[Double], gamma
     // ax is a vector, we represent it in sparse format as Map[Int, Double] because there is
     // a convenient aggregator for Maps.
     val aggregator = new Tuple3Semigroup[Map[Int, Double], Double, Double]
-    val (ax, cx,xx) = primalStats.map { stats =>
+    val (ax, cx, xx) = primalStats.map( { stats =>
       (stats.ax.toMap, stats.cx, stats.xx)
-    }.reduce(aggregator.plus(_, _))
+    } , MooDistributedRegularizedObjective.encoder).reduce(aggregator.plus(_, _))
     (ax.toArray, cx, xx)
   }
 
@@ -179,4 +180,11 @@ abstract class MooDistributedRegularizedObjective(b: SparseVector[Double], gamma
     * @return
     */
   def getPrimalStats(lambda: SparseVector[Double]): MapReduceCollectionWrapper[PartialPrimalStats]
+}
+
+object MooDistributedRegularizedObjective {
+  /*
+   * Create encoder singletons to reuse and prevent re-initialization costs
+   */
+  val encoder: Encoder[(Map[Int, Double], Double, Double)] = ExpressionEncoder[(Map[Int, Double], Double, Double)]
 }
