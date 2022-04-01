@@ -25,10 +25,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
- 
+
 package com.linkedin.dualip.util
 
 import scala.collection.mutable.ListBuffer
+import breeze.linalg.{SparseVector => BSV}
 
 /**
   * Util functions shared by solvers
@@ -142,5 +143,16 @@ object SolverUtility {
       case Some(gLambda) => epsilon / 2 * math.abs(g0 - gLambda) / psi
       case None => epsilon / 2 * math.abs(g0) / psi
     }
+  }
+
+  /**
+   * utility method to convert array of (Int, Double) to BSV[Double]
+   * @param data
+   * @param size
+   * @return
+   */
+  def toBSV(data: Array[(Int, Double)], size: Int): BSV[Double] = {
+    val (indices, values) = data.sortBy { case (index, _) => index }.unzip
+    new BSV(indices, values, size)
   }
 }
