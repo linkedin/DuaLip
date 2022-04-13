@@ -37,16 +37,18 @@ import scala.collection.mutable.ListBuffer
 
 /**
   * Implementation of accelerated gradient descent.
-  * @param maxIter        The maximum number of iterations
-  * @param dualTolerance  The dual tolerance limit
-  * @param slackTolerance The slack tolerance limit
-  * @param designInequality True if Ax <= b, false if Ax = b
+  * @param maxIter              The maximum number of iterations
+  * @param dualTolerance        The dual tolerance limit
+  * @param slackTolerance       The slack tolerance limit
+  * @param designInequality     True if Ax <= b, false if Ax = b or have mixed constraints
+  * @param mixedDesignPivotNum  The pivot number if we have mixed A_1x <= b1 and A_2x = b2, i.e. how many inequality constraints come first
   */
 class AcceleratedGradientDescent(
   maxIter: Int = 1000,
   dualTolerance: Double = 1e-6,
   slackTolerance: Double = 0.05,
-  designInequality: Boolean = true
+  designInequality: Boolean = true,
+  mixedDesignPivotNum: Int = 0
 ) extends Serializable with DualPrimalGradientMaximizer {
   // Initialize betaSeq sequence for acceleration
   val betaSeq: Array[Double] = {
@@ -65,7 +67,7 @@ class AcceleratedGradientDescent(
   /**
     * Implementation of the gradient maximizer API for dual-primal solvers
     * @param f - objective function from dual-primal
-    * @param initialValue initializing value for the dual
+    * @param initialValue - initializing value for the dual
     * @param verbosity - control logging level
     * @return a tuple of (optimizedVariable, objective computation, number of iterations, log)
     */
@@ -103,7 +105,7 @@ class AcceleratedGradientDescent(
       iLog += ("iter" -> f"${i}%5d")
 
       // compute function at current dual value
-      result = time(f.calculate(x, iLog, verbosity, designInequality), iLog)
+      result = time(f.calculate(x, iLog, verbosity, designInequality, mixedDesignPivotNum), iLog)
       // Check if the dual objective has exceeded the primal upper bound
       if (f.checkInfeasibility(result)) {
         status = Status.Infeasible
@@ -125,9 +127,14 @@ class AcceleratedGradientDescent(
       } else {
         // if not converged make a gradient step and continue the loop
         // otherwise the loop will break anyway
-        val y_new: SparseVector[Double] =
-          if (designInequality) { (x + (result.dualGradient * stepSize)).map( x => if(x < 0 ) 0.0 else x) }
-          else { x + (result.dualGradient * stepSize) }
+        val y_new: SparseVector[Double] = x + (result.dualGradient * stepSize)
+        // if we have specified a valid 'mixedDesignPivotNum', which means we have mixed inequality and equality constraints
+        // then we enable the first few constraints as A_1x <= b1 (inequality), the remaining will still be A_2x = b2 (equality)
+        for (j <- 0 until x.length) {
+          if (designInequality || j < mixedDesignPivotNum) {
+            y_new(j) = if (y_new(j) < 0) 0.0 else y_new(j)
+          }
+        }
 
         x = (y_new * (1.0 - betaSeq(i - 1))) + (y * betaSeq(i - 1))
         y = y_new

@@ -42,20 +42,21 @@ object SolverUtility {
     * If lambda_j is 0, then set v_j = max{ (Ax-b)_j, 0} / (1 + abs(b_j)).
     * else, then set v_j = abs((Ax-b)_j) / (1 + abs(b_j)).
     *
-    * @param lambda   : vector lambda
-    * @param r        : vector ax-b
-    * @param b        : vector b
-    * @param designInequality : True if Ax <= b, false if Ax = b
+    * @param lambda               : vector lambda
+    * @param r                    : vector ax-b
+    * @param b                    : vector b
+    * @param designInequality     : True if Ax <= b, false if Ax = b or have mixed constraints
+    * @param mixedDesignPivotNum  : The pivot number if we have mixed A_1x <= b1 and A_2x = b2, i.e. how many inequality constraints come first
     * @return
     */
-  def getSlack(lambda: Array[Double], r: Array[Double], b: Array[Double], designInequality: Boolean = true): SlackMetadata = {
+  def getSlack(lambda: Array[Double], r: Array[Double], b: Array[Double], designInequality: Boolean = true, mixedDesignPivotNum: Int = 0): SlackMetadata = {
     var j = 0
     val res = Array.ofDim[Double](lambda.length)
     var maxPosSlack: Double = Double.NegativeInfinity
     var maxZeroSlack: Double = Double.NegativeInfinity
     var feasibility: Double = Double.NegativeInfinity
     while (j < lambda.length) {
-      if (designInequality) {
+      if (designInequality || j < mixedDesignPivotNum) {
         if (lambda(j) == 0) {
           res(j) = Math.max(r(j), 0)/(1 + Math.abs(b(j)))
           maxZeroSlack = Math.max(maxZeroSlack, res(j))

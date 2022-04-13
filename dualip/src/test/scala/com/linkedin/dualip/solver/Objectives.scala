@@ -40,7 +40,7 @@ import scala.collection.mutable
 class SimpleObjective() extends DualPrimalDifferentiableObjective {
   override def dualDimensionality: Int = 2
 
-  override def calculate(lambda: BSV[Double], log: mutable.Map[String, String]=null, verbosity: Int = 1, designInequality: Boolean = true): DualPrimalDifferentiableComputationResult = {
+  override def calculate(lambda: BSV[Double], log: mutable.Map[String, String]=null, verbosity: Int = 1, designInequality: Boolean = true, mixedDesignPivotNum: Int = 0): DualPrimalDifferentiableComputationResult = {
     val Array(x,y) = lambda.toArray
     val obj = -(x - 3.0)*(x - 3.0) - (y + 5.0)*(y + 5.0)
     val grad = Array(-2.0 * (x - 3.0), -2.0 * (y + 5.0))
@@ -60,7 +60,7 @@ class SimpleObjective() extends DualPrimalDifferentiableObjective {
 class RosenbrockObjective(val shift: Double = 0.0) extends DualPrimalDifferentiableObjective {
   override def dualDimensionality: Int = 2
 
-  override def calculate(lambda: BSV[Double], log: mutable.Map[String, String]=null, verbosity: Int = 1, designInequality: Boolean = true): DualPrimalDifferentiableComputationResult = {
+  override def calculate(lambda: BSV[Double], log: mutable.Map[String, String]=null, verbosity: Int = 1, designInequality: Boolean = true, mixedDesignPivotNum: Int = 0): DualPrimalDifferentiableComputationResult = {
     val Array(_x,_y) = lambda.toArray
     val x = _x - shift
     val y = _y - shift
