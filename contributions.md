@@ -23,16 +23,19 @@ preferably with the title "Vulnerability in Github LinkedIn/DuaLip - < short sum
 
 ## Steps for Creating Pull Request
 1. Test build. (./gradlew build)
-2. Don't forget to update project.version in build.gradle. We follow the semantic versioning (Major.minor.patch). 
+2. Create a new branch locally. (git branch mybranch)
+3. Commit the changes locally. (git commit)
+4. **Don't forget to update project.version in build.gradle.** We follow the semantic versioning (major.minor.patch). 
    * Increment Major for backward incompatible change.
    * Increment Minor for major function changes.
    * Increment Patch for bug fixes.
-3. Create a new branch locally. (git branch mybranch)
-4. Commit the changes locally. (git commit)
-5. Push local changes to remote branch. (git push -f origin mybranch)
-6. Create a new pull request at https://github.com/linkedin/DuaLip/pulls
-7. If need to update the pull request, repeat step 4 to 5.
-8. Getting review and approval. Squash and merge to main branch.
+5. **Also, don't forget to create a corresponding new tag locally and push to the original master.**
+   * git tag vx.x.x
+   * git push origin vx.x.x
+6. Push local changes to remote branch. (git push -f origin mybranch)
+7. Create a new pull request at https://github.com/linkedin/DuaLip/pulls
+8. If need to update the pull request, repeat step 4 to 5.
+9. Getting review and approval. Squash and merge to main branch.
 
 ## Tips for Getting Your Pull Request Accepted
 
