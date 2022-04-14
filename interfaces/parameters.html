@@ -169,10 +169,10 @@
 <p>The solver settings are displayed in the following table.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="23%" />
-<col width="9%" />
-<col width="10%" />
-<col width="58%" />
+<col width="21%" />
+<col width="7%" />
+<col width="8%" />
+<col width="63%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameters</th>
@@ -250,14 +250,19 @@
 <tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">optimizer.designInequality</span></code></td>
 <td>false</td>
 <td>true</td>
-<td>True if Ax &lt;= b, false if Ax = b</td>
+<td>True if Ax &lt;= b, false if Ax = b or have mixed constraints</td>
 </tr>
-<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">optimizer.dualTolerance</span></code></td>
+<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">optimizer.mixedDesignPivotNum</span></code></td>
+<td>false</td>
+<td>0</td>
+<td>The pivot number if we have mixed A_1x &lt;= b1 and A_2x = b2, i.e. how many inequality constraints come first</td>
+</tr>
+<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">optimizer.dualTolerance</span></code></td>
 <td>true</td>
 <td>N/A</td>
 <td>Tolerance criteria for dual variable change</td>
 </tr>
-<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">optimizer.slackTolerance</span></code></td>
+<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">optimizer.slackTolerance</span></code></td>
 <td>true</td>
 <td>N/A</td>
 <td>Tolerance criteria for slack</td>
