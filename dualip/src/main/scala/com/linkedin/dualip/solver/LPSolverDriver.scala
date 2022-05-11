@@ -159,6 +159,8 @@ object LPSolverDriver {
       f"Number of Active Constraints: ${activeConstraints}"
     println(finalLogMessage)
 
+    println("here 1")
+
     // optionally save primal (in case the solver supports it)
     val primalToSave: Option[DataFrame] = if(driverParams.savePrimal) {
       val primal = objectiveFunction.getPrimalForSaving(lambda)
@@ -171,10 +173,14 @@ object LPSolverDriver {
       None
     }
 
+    println("here 2")
+
     if (!parallelMode) {
       saveSolution(driverParams.solverOutputPath, driverParams.outputFormat, lambda,
         objectiveValue, primalToSave, state.log + finalLogMessage)
     }
+
+    println("here 3")
 
     val logList = List(state.log + finalLogMessage)
     val dualList = lambda.activeIterator.toList
@@ -189,6 +195,8 @@ object LPSolverDriver {
         objectiveValue.constraintsSlack.activeIterator.toArray,
         objectiveValue.slackMetadata
       )
+
+    println("here 4")
     // TODO: We are skipping the primal results for now as it's NOT required by default.
     val retData = ResultWithLogsAndViolation(objectiveValueConverted, logList, dualList, violationList)
 
