@@ -171,28 +171,30 @@ object LPSolverDriver {
       None
     }
 
-    if (!parallelMode) {
+    val result: ResultWithLogsAndViolation = if (!parallelMode) {
       saveSolution(driverParams.solverOutputPath, driverParams.outputFormat, lambda,
         objectiveValue, primalToSave, state.log + finalLogMessage)
+      // we do not need to return any result, so create a dummy object here
+      ResultWithLogsAndViolation(null, null, null, null)
+    } else {
+      val logList = List(state.log + finalLogMessage)
+      val dualList = lambda.activeIterator.toList
+      val violationList = objectiveValue.constraintsSlack.activeIterator.toList
+      val objectiveValueConverted: DualPrimalDifferentiableComputationResultTuple =
+        DualPrimalDifferentiableComputationResultTuple(
+          objectiveValue.lambda.activeIterator.toArray,
+          objectiveValue.dualObjective,
+          objectiveValue.dualObjectiveExact,
+          objectiveValue.dualGradient.activeIterator.toArray,
+          objectiveValue.primalObjective,
+          objectiveValue.constraintsSlack.activeIterator.toArray,
+          objectiveValue.slackMetadata
+        )
+      // TODO: We are skipping the primal results for now as it's NOT required by default.
+      val retData = ResultWithLogsAndViolation(objectiveValueConverted, logList, dualList, violationList)
+      retData
     }
-
-    val logList = List(state.log + finalLogMessage)
-    val dualList = lambda.activeIterator.toList
-    val violationList = objectiveValue.constraintsSlack.activeIterator.toList
-    val objectiveValueConverted: DualPrimalDifferentiableComputationResultTuple =
-      DualPrimalDifferentiableComputationResultTuple(
-        objectiveValue.lambda.activeIterator.toArray,
-        objectiveValue.dualObjective,
-        objectiveValue.dualObjectiveExact,
-        objectiveValue.dualGradient.activeIterator.toArray,
-        objectiveValue.primalObjective,
-        objectiveValue.constraintsSlack.activeIterator.toArray,
-        objectiveValue.slackMetadata
-      )
-    // TODO: We are skipping the primal results for now as it's NOT required by default.
-    val retData = ResultWithLogsAndViolation(objectiveValueConverted, logList, dualList, violationList)
-
-    retData
+    result
   }
 
   /**
