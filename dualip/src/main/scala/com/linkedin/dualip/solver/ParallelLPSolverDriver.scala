@@ -75,7 +75,7 @@ object ParallelLPSolverDriver {
 
       val resultsDS = setOfProblems.map { case (problemId, data, budget) =>
         val objective: DualPrimalDifferentiableObjective =
-          new MooSolverDualObjectiveFunction(data, toBSV(budget, budget.length), driverParams.gamma, driverParams.projectionType, parallelMode = true)
+          new MooSolverDualObjectiveFunction(data, toBSV(budget, budget.length), driverParams.gamma, driverParams.projectionType)
         // initialize lambda: first try custom logic of the objective, then driver-generic lambda loader, finally initialize with zeros
         val initialLambda: BSV[Double] = objective.getInitialLambda.getOrElse(
           getInitialLambda(driverParams.initialLambdaPath, driverParams.initialLambdaFormat, objective.dualDimensionality)
