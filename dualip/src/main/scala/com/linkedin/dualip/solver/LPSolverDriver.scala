@@ -103,13 +103,20 @@ object LPSolverDriver {
     val primalPath = outputPath + "/primal"
 
     // write log to a text file
+    println("here 1")
     saveLog(log, logPath)
+    println("here 2")
 
     val dualDF = lambda.activeIterator.toList.toDF("index", "value")
+    println("here 3")
     saveDataFrame(dualDF, dualPath, outputFormat, Option(1))
+    println("here 4")
     val violationDF = objectiveValue.constraintsSlack.activeIterator.toList.toDF("index", "value")
+    println("here 5")
     saveDataFrame(violationDF, violationPath, outputFormat, Option(1))
+    println("here 6")
     primal.foreach(saveDataFrame(_, primalPath, outputFormat))
+    println("here 7")
   }
 
   /**
