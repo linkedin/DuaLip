@@ -171,28 +171,31 @@ object LPSolverDriver {
       None
     }
 
-    if (!parallelMode) {
+    val result: ResultWithLogsAndViolation = if (!parallelMode) {
       saveSolution(driverParams.solverOutputPath, driverParams.outputFormat, lambda,
         objectiveValue, primalToSave, state.log + finalLogMessage)
+      // we do not need to return any result, so create a dummy object here
+      ResultWithLogsAndViolation(null, null, null, null)
+    } else {
+      val logList = List(state.log + finalLogMessage)
+      val dualList = lambda.activeIterator.toList
+      val violationList = objectiveValue.constraintsSlack.activeIterator.toList
+      val objectiveValueConverted: DualPrimalDifferentiableComputationResultTuple =
+        DualPrimalDifferentiableComputationResultTuple(
+          objectiveValue.lambda.activeIterator.toArray,
+          objectiveValue.dualObjective,
+          objectiveValue.dualObjectiveExact,
+          objectiveValue.dualGradient.activeIterator.toArray,
+          objectiveValue.primalObjective,
+          objectiveValue.constraintsSlack.activeIterator.toArray,
+          objectiveValue.slackMetadata
+        )
+      // TODO: We are skipping the primal results for now as it's NOT required by default.
+      val retData = ResultWithLogsAndViolation(objectiveValueConverted, logList, dualList, violationList)
+
+      retData
     }
-
-    val logList = List(state.log + finalLogMessage)
-    val dualList = lambda.activeIterator.toList
-    val violationList = objectiveValue.constraintsSlack.activeIterator.toList
-    val objectiveValueConverted: DualPrimalDifferentiableComputationResultTuple =
-      DualPrimalDifferentiableComputationResultTuple(
-        objectiveValue.lambda.activeIterator.toArray,
-        objectiveValue.dualObjective,
-        objectiveValue.dualObjectiveExact,
-        objectiveValue.dualGradient.activeIterator.toArray,
-        objectiveValue.primalObjective,
-        objectiveValue.constraintsSlack.activeIterator.toArray,
-        objectiveValue.slackMetadata
-      )
-    // TODO: We are skipping the primal results for now as it's NOT required by default.
-    val retData = ResultWithLogsAndViolation(objectiveValueConverted, logList, dualList, violationList)
-
-    retData
+    result
   }
 
   /**
@@ -355,7 +358,6 @@ object LPSolverDriver {
  * @param outputFormat        The format of output, can be AVRO or ORC
  * @param savePrimal          Flag to save primal
  * @param verbosity           0: Concise logging. 1: log with increased verbosity. 2: log everything
- * @param unionDataFrameCap   The cap for union how many DataFrames at a time (needed in parallel mode)
  * @param solverOutputPath    The outputPath
  */
 case class LPSolverDriverParams(
@@ -368,7 +370,6 @@ case class LPSolverDriverParams(
   outputFormat: DataFormat = AVRO,
   savePrimal: Boolean = false,
   verbosity: Int = 1,
-  unionDataFrameCap: Int = 1000,
   solverOutputPath: String = ""
 )
 
@@ -389,7 +390,6 @@ object LPSolverDriverParamsParser {
       opt[String]("driver.outputFormat") optional() action { (x, c) => c.copy(outputFormat = DataFormat.withName(x)) }
       opt[Boolean](name = "driver.savePrimal") optional() action { (x, c) => c.copy(savePrimal = x) }
       opt[Int](name = "driver.verbosity") optional() action { (x, c) => c.copy(verbosity = x) }
-      opt[Int](name = "driver.unionDataFrameCap") optional() action { (x, c) => c.copy(unionDataFrameCap = x) }
       opt[String]("driver.solverOutputPath") required() action { (x, c) => c.copy(solverOutputPath = x) }
     }
 

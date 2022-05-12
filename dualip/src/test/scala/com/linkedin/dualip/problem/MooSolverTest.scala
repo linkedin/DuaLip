@@ -77,7 +77,7 @@ class MooSolverTest {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
     spark.sparkContext.setLogLevel("warn")
 
-    val f = new MooSolverDualObjectiveFunction(MapReduceArray[MooDataBlock](data.toArray), BSV(b),1e-6, ProjectionType.Simplex, true)
+    val f = new MooSolverDualObjectiveFunction(MapReduceArray[MooDataBlock](data.toArray), BSV(b),1e-6, ProjectionType.Simplex)
 
     val optimizer = new LBFGSB()
     val (lambda, value, _) = optimizer.maximize(f, BSV.fill(1)(0.1))
@@ -104,7 +104,7 @@ class MooSolverTest {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
     spark.sparkContext.setLogLevel("warn")
 
-    val f = new MooSolverDualObjectiveFunction(MapReduceArray[MooDataBlock](data.toArray), BSV(infeasible_b),1e-6, ProjectionType.Simplex, true)
+    val f = new MooSolverDualObjectiveFunction(MapReduceArray[MooDataBlock](data.toArray), BSV(infeasible_b),1e-6, ProjectionType.Simplex)
 
     val optimizer = new LBFGSB()
     val (_, value, _) = optimizer.maximize(f, BSV.fill(1)(0.1))

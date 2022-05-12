@@ -78,8 +78,7 @@ class MooSolverDualObjectiveFunction(
   problemDesign: MapReduceCollectionWrapper[MooDataBlock],
   b: BSV[Double],
   gamma: Double,
-  projectionType: ProjectionType,
-  parallelMode: Boolean = false
+  projectionType: ProjectionType
 )(implicit spark: SparkSession) extends MooDistributedRegularizedObjective(b, gamma) with Serializable {
 
   // The simple constraints are encoded using the projections supported by the slate optimizer type
