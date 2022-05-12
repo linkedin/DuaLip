@@ -115,6 +115,7 @@ object LPSolverDriver {
     println("here 5")
     saveDataFrame(violationDF, violationPath, outputFormat, Option(1))
     println("here 6")*/
+    println("here 7-1")
     primal.foreach(saveDataFrame(_, primalPath, outputFormat))
     println("here 7")
   }
