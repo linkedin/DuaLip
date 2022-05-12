@@ -109,7 +109,7 @@ object LPSolverDriver {
 
     val dualDF = lambda.activeIterator.toList.toDF("index", "value")
     println("here 3")
-    saveDataFrame(dualDF, dualPath, outputFormat, Option(1))
+    saveDataFrame(dualDF, dualPath, outputFormat, Option(1000))
     println("here 4")
     val violationDF = objectiveValue.constraintsSlack.activeIterator.toList.toDF("index", "value")
     println("here 5")
