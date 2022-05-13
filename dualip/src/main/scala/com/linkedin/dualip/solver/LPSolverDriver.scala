@@ -107,7 +107,7 @@ object LPSolverDriver {
     saveLog(log, logPath)
     println("here 2")
     println(lambda.size)
-    val tmp = lambda.toArray.toList.toDF()
+    val tmp = lambda.toArray.toList.zipWithIndex.toDF("index", "value")
     println(tmp.show(100))
     /*val dualDF = lambda.activeIterator.toList.toDF("index", "value")
     println("here 3")
