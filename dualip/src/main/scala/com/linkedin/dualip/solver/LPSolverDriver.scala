@@ -104,9 +104,12 @@ object LPSolverDriver {
 
     // write log to a text file
     saveLog(log, logPath)
+    val tmp = lambda.data.toList.toDF("value")
+    println(tmp.show(20))
+    println("here 2")
     val dualDF =  lambda.toArray.toList.toDF("value")
     println("here 3")
-    println(dualDF.show(40))
+    println(dualDF.show(20))
     // saveDataFrame(dualDF, dualPath, outputFormat, Option(1000))
     /*val violationDF = objectiveValue.constraintsSlack.activeIterator.toList.toDF("index", "value")
     println(violationDF.show(100))
