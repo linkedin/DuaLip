@@ -105,13 +105,14 @@ object LPSolverDriver {
     // write log to a text file
     saveLog(log, logPath)
     println(lambda.length)
-    lambda.activeIterator.foreach(x => println(x._1, x._2))
-    val dualDF =  lambda.toArray.toList.toDF("value")
+    val tmpList = lambda.activeIterator.toList
+    tmpList.foreach(x => println(x))
+    /*val dualDF =  lambda.toArray.toList.toDF("value")
     println(dualDF.show(20))
     println("here 2")
     val tmp = lambda.data.toList.toDF("value")
     println(tmp.show(20))
-    println("here 3")
+    println("here 3")*/
     // saveDataFrame(dualDF, dualPath, outputFormat, Option(1000))
     /*val violationDF = objectiveValue.constraintsSlack.activeIterator.toList.toDF("index", "value")
     println(violationDF.show(100))
