@@ -106,7 +106,7 @@ object LPSolverDriver {
     saveLog(log, logPath)
     val dualDF =  lambda.toArray.toList.toDF("value")
     println("here 3")
-    saveDataFrame(dualDF, dualPath, outputFormat, Option(100))
+    saveDataFrame(dualDF, dualPath, outputFormat, Option(1000))
     /*val violationDF = objectiveValue.constraintsSlack.activeIterator.toList.toDF("index", "value")
     println(violationDF.show(100))
     println("here 5")
