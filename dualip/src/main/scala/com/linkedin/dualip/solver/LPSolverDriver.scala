@@ -105,7 +105,7 @@ object LPSolverDriver {
     // write log to a text file
     saveLog(log, logPath)
     println(lambda.length)
-    lambda.foreachValue(x => println(x))
+    lambda.activeIterator.foreach(x => println(x._1, x._2))
     val dualDF =  lambda.toArray.toList.toDF("value")
     println(dualDF.show(20))
     println("here 2")
