@@ -107,6 +107,9 @@ object LPSolverDriver {
     println(lambda.length)
     val tmpList = lambda.activeIterator.toList
     tmpList.foreach(x => println(x))
+    val aa = tmpList.toDF("index", "value")
+    println(aa.show(10))
+
     /*val dualDF =  lambda.toArray.toList.toDF("value")
     println(dualDF.show(20))
     println("here 2")
