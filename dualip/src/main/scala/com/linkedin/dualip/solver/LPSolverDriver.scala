@@ -104,27 +104,12 @@ object LPSolverDriver {
 
     // write log to a text file
     saveLog(log, logPath)
-    println(lambda.length)
-    val tmpList = lambda.activeIterator.toList
-    val aa = spark.sparkContext.parallelize(tmpList)
-    println(aa.toDF().show(10))
-
-    /*tmpList.foreach(x => println(x))
-    val aa = tmpList.toDF("index", "value")
-    println(aa.show(10))
-    */
-    /*val dualDF =  lambda.toArray.toList.toDF("value")
-    println(dualDF.show(20))
-    println("here 2")
-    val tmp = lambda.data.toList.toDF("value")
-    println(tmp.show(20))
-    println("here 3")*/
-    // saveDataFrame(dualDF, dualPath, outputFormat, Option(1000))
-    /*val violationDF = objectiveValue.constraintsSlack.activeIterator.toList.toDF("index", "value")
-    println(violationDF.show(100))
-    println("here 5")
-    // saveDataFrame(violationDF, violationPath, outputFormat, Option(10000))
-    println("here 6")*/
+    val dualDF =  spark.sparkContext.parallelize(lambda.activeIterator.toList)
+      .toDF("index", "value")
+    saveDataFrame(dualDF, dualPath, outputFormat, Option(10))
+    val violationDF = spark.sparkContext.parallelize(objectiveValue.constraintsSlack.activeIterator.toList)
+      .toDF("index", "value")
+    saveDataFrame(violationDF, violationPath, outputFormat, Option(10))
     primal.foreach(saveDataFrame(_, primalPath, outputFormat))
   }
 
