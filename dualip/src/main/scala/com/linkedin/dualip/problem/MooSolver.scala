@@ -35,7 +35,7 @@ import com.linkedin.dualip.solver._
 import com.linkedin.dualip.util.{IOUtility, InputPathParamsParser, InputPaths, MapReduceArray, MapReduceCollectionWrapper, MapReduceDataset}
 import com.linkedin.dualip.util.ProjectionType._
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.{Dataset, Encoder, Encoders, Row, SparkSession}
+import org.apache.spark.sql.{DataFrame, Dataset, Encoder, Encoders, Row, SparkSession}
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.storage.StorageLevel
 import scala.math.max
@@ -158,6 +158,28 @@ class MooSolverDualObjectiveFunction(
       (block.id, primal, PartialPrimalStats(ax, obj, xsquared))
     }, MooSolverDualObjectiveFunction.encoderTuplePartialPrimalStats)
   }
+
+  /**
+    * Return the primal for saving as a DataFrame.
+    *
+    * @param lambda The dual values
+    * @return Optionally the DataFrame with primal solution. None if the functionality is not supported.
+    */
+  override def getPrimalForSaving(lambda: BSV[Double]): Option[DataFrame] = {
+
+    import spark.implicits._
+
+    val primalsDataFrame = getPrimal(lambda).map({ case (id, primal, _) => (id, primal) },
+      MooSolverDualObjectiveFunction.encoderIdPrimal)
+      .value
+      .asInstanceOf[Dataset[(Long, Array[Double])]]
+      .map({ case (blockId, primals) => (blockId.toString,
+        primals.zipWithIndex.map { case (value, index) => (index, value) })
+      })
+      .toDF("blockId", "variables")
+
+    Option(primalsDataFrame)
+  }
 }
 
 /**
@@ -169,6 +191,7 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
    */
   val encoderTuplePartialPrimalStats: Encoder[(Long, Array[Double], PartialPrimalStats)] = ExpressionEncoder[(Long, Array[Double], PartialPrimalStats)]
   val encoderPartialPrimalStats: Encoder[PartialPrimalStats] = ExpressionEncoder[PartialPrimalStats]
+  val encoderIdPrimal: Encoder[(Long, Array[Double])] = ExpressionEncoder[(Long, Array[Double])]
   val encoderDouble: Encoder[Double] = Encoders.scalaDouble
 
   val DUMMY_PROBLEM_ID: Long = -1  // this is used when we are solving just a single problem
