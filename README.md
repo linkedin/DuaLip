@@ -22,7 +22,7 @@ user-supplied data.
  
 It is a distributed solver that solves a perturbation of the LP problem at scale 
 via gradient-based algorithms on the smooth dual of the perturbed LP with 
-computational guarantees. Dualip can easily scale to problems in trillions of variables. 
+computational guarantees. DuaLip can easily scale to problems in trillions of variables. 
 
 This library was created by [Yao Pan](https://www.linkedin.com/in/panyaopy/), [Kinjal Basu](https://www.linkedin.com/in/kinjalbasu/), 
 [Rohan Ramanath](https://www.linkedin.com/in/rohanramanath/), [Konstantin Salomatin](https://www.linkedin.com/in/ksalomatin/), [Amol Ghoting](https://www.linkedin.com/in/amolghoting/), [Sathiya Keerthi](https://www.linkedin.com/in/sathiya-keerthi-selvaraj-ba963414/) and 
@@ -44,7 +44,7 @@ and millions of items, pushing the number of optimization variables into the tri
 decomposition technique to be able to scale to such large problems. For details and a wide range of applications, see [Ramanath et. al. (2021)](https://arxiv.org/pdf/2103.05277.pdf) and [Basu et. al. (2020)](http://proceedings.mlr.press/v119/basu20a/basu20a.pdf).
 
 ### Parallelism
-We support extreme-scale parallelism in our DuaLip solver, which can solve tens of millions of small seperate LPs simultaneously. There are arising applications like personalized constrained optimization in recommender systems, which require adding personalized constraints for each unique user. In this case, each LP is dedicated for each user and only contains small number of decision variables at per user level. Our parallel version of DuaLip can enable solving tens of millions of separate small LPs for all different users in parallel.
+We support extreme-scale parallelism in our DuaLip solver, which can solve tens of millions of small separate LPs simultaneously. There are arising applications like personalized constrained optimization in recommender systems, which require adding personalized constraints for each unique user. In this case, each LP is dedicated for each user and only contains small number of decision variables at per user level. Our parallel version of DuaLip can enable solving tens of millions of separate small LPs for all different users in parallel.
 
 ### Efficient
 Although we follow first-order gradient methods to solve the problem, we implement several highly efficient algorithms 
