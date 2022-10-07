@@ -43,6 +43,9 @@ DuaLip is specifically developed to tackle problems arising in web applications 
 and millions of items, pushing the number of optimization variables into the trillions range (if not more). It uses a dual 
 decomposition technique to be able to scale to such large problems. For details and a wide range of applications, see [Ramanath et. al. (2021)](https://arxiv.org/pdf/2103.05277.pdf) and [Basu et. al. (2020)](http://proceedings.mlr.press/v119/basu20a/basu20a.pdf).
 
+### Parallelism
+We support extreme-scale parallelism in our DuaLip solver, which can solve tens of millions of small seperate LPs simultaneously. There are arising applications like personalized constrained optimization in recommender systems, which require adding personalized constraints for each unique user. In this case, each LP is dedicated for each user and only contains small number of decision variables at per user level. Our parallel version of DuaLip can enable solving tens of millions of separate small LPs for all different users in parallel.
+
 ### Efficient
 Although we follow first-order gradient methods to solve the problem, we implement several highly efficient algorithms 
 for each of the component steps. This allows us to scale up 20x over a naive 
@@ -74,16 +77,12 @@ For more details of these features please see the full [wiki](https://linkedin.g
 ## Usage
 
 ### Building the Library
-It is recommended to use Scala 2.11.8 and Spark 2.3.0. To build, run the following:
+It is recommended to use Scala 2.12 and Spark 3.1.1. To build, run the following:
 ```bash
 ./gradlew build
 ```
 This will produce a JAR file in the ``./dualip/build/libs/`` directory.
 
-If you want to use the library with Spark 2.4, you can specify this when running the build command.
-```bash
-./gradlew build -PsparkVersion=2.4.3
-```
 Tests typically run with the `test` task. If you want to force-run all tests, you can use:
 ```bash
 ./gradlew cleanTest test --no-build-cache
@@ -94,7 +93,7 @@ Depending on the mode of usage, the built JAR can be deployed as part of an offl
 upon to build jobs using its APIs, or added to the classpath of a Spark Jupyter notebook or a Spark Shell instance. For
 example:
 ```bash
-$SPARK_HOME/bin/spark-shell --jars target/dualip_2.11.jar
+$SPARK_HOME/bin/spark-shell --jars target/dualip_2.12.jar
 ```
 
 ### Usage Examples
