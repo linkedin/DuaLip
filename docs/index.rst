@@ -54,6 +54,9 @@ Features
 #. Efficient
     Although we follow first-order gradient methods to solve the problem, we implement several highly efficient algorithms for each of the component steps. See the :ref:`solver <solver>` for more details. This allows us to scale up 20x over a naive implementation. Please see `Ramanath et. al. (2021) <https://arxiv.org/abs/2103.05277>`_ for a comparative study.
 
+#. Parallelism
+    We support extreme-scale parallelism in our DuaLip solver, which can solve tens of millions of small separate LPs simultaneously. There are arising applications like personalized constrained optimization in recommender systems, which require adding personalized constraints for each unique user. In this case, each LP is dedicated for each user and only contains a small number of decision variables at per user level. Our parallel version of DuaLip can enable solving tens of millions of separate small LPs for all different users in parallel.
+
 #. Modular Design
     In our implementation, any problem can be formulated through a highly modular approach.
 
@@ -75,18 +78,13 @@ Usage
 ------------------
 Building the Library
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-It is recommended to use Scala 2.11.8 and Spark 2.3.0. To build, run the following:
+It is recommended to use Scala 2.12 and Spark 3.1.1 To build, run the following:
 
 .. code:: bash
 
   ./gradlew build
 
 This will produce a JAR file in the :code:`./dualip/build/libs/` directory.
-If you want to use the library with Spark 2.4 (and the Scala 2.11.8 default), you can specify this when running the build command.
-
-.. code:: bash
-
-  ./gradlew build -PsparkVersion=2.4.3
 
 Tests typically run with the :code:`test` task. If you want to force-run all tests, you can use:
 
@@ -101,7 +99,7 @@ upon to build jobs using its APIs, or added to the classpath of a Spark Jupyter 
 
 .. code:: bash
 
-  $SPARK_HOME/bin/spark-shell --jars target/dualip_2.11.jar
+  $SPARK_HOME/bin/spark-shell --jars target/dualip_2.12.jar
 
 
 Copyright

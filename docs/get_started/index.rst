@@ -4,25 +4,13 @@ Getting Started
 Building the Library
 --------------------
 
-It is recommended to use Scala 2.11.8 and Spark 2.3.0. To build, run the following:
+It is recommended to use Scala 2.12 and Spark 3.1.1 To build, run the following:
 
 .. code:: bash
 
   ./gradlew build
 
 This will produce a JAR file in the :code:`./dualip/build/libs/` directory.
-
-If you want to use the library with Spark 2.4 (and the Scala 2.11.8 default), you can specify this when running the build command.
-
-.. code:: bash
-
-  ./gradlew build -PsparkVersion=2.4.3
-
-You can also build an artifact with Spark 2.4 and Scala 2.12.
-
-.. code:: bash
-
-  ./gradlew build -PsparkVersion=2.4.3 -PscalaVersion=2.12.11
 
 Tests typically run with the :code:`test` task. If you want to force-run all tests, you can use:
 
@@ -57,15 +45,15 @@ Spark/Scala version combinations:
 .. code:: java
 
   dependencies {
-      compile 'com.linkedin.dualip:dualip_2.3.0_2.11:0.0.1'
+      compile 'com.linkedin.dualip:dualip_3.1.1_2.12:2.4.8'
   }
 
   dependencies {
-      compile 'com.linkedin.dualip:dualip_2.4.3_2.11:0.0.1'
+      compile 'com.linkedin.dualip:dualip_3.1.1_2.12:2.4.6'
   }
   
   dependencies {
-      compile 'com.linkedin.dualip:dualip_2.4.3_2.12:0.0.1'
+      compile 'com.linkedin.dualip:dualip_3.1.1_2.12:2.4.2'
   }
 
 
@@ -78,7 +66,7 @@ example:
 
 .. code:: bash
 
-  $SPARK_HOME/bin/spark-shell --jars target/dualip_2.11.jar
+  $SPARK_HOME/bin/spark-shell --jars target/dualip_2.12.jar
 
 
 Usage Examples
