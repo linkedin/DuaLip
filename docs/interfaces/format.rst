@@ -18,6 +18,22 @@ For input in AVRO, the schema should be as follows:
 	   "type" : "double"
 	 }
 
+If we are using the parallel version of DuaLip and solving many separate problems in parallel, we need to add a new field :code:`problemId` 
+(unique identifier for distinguishing a specific problem) to the schema:
+
+.. code:: json
+
+	{
+	   "name" : "itemId",
+	   "type" : "int"
+	 }, {
+	   "name" : "budget",
+	   "type" : "double"
+	 }, {
+	   "name" : "problemId",
+	   "type" : "long"
+	 }
+
 Matrix A & c
 """""""""""""""
 If it is a MOO problem, we take a dense representation.
@@ -47,6 +63,34 @@ For input in AVRO, the schema should be as follows:
 	    "type" : [ {
 	      "type" : "array",
 	      "items" : "double"
+	    }]
+	  }
+
+If we are using the parallel version of :code:`MooSolver`, we also need to add a new field :code:`problemId` (unique identifier for 
+distinguishing a specific problem) to the schema:
+
+.. code:: json
+
+	{
+	    "name" : "id",
+	    "type" : [ "long" ]
+	  }, {
+	    "name" : "a",
+	    "type" : [ {
+	      "type" : "array",
+	      "items" : [ {
+	        "type" : "array",
+	        "items" : [ "double"]
+	      }]
+	    }]
+	  }, {
+	    "name" : "c",
+	    "type" : [ {
+	      "type" : "array",
+	      "items" : "double"
+	    }, {
+	    "name" : "problemId",
+	    "type" : [ "long" ]
 	    }]
 	  }
 

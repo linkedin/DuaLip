@@ -130,8 +130,8 @@ The solver can be run locally with spark-submit:
 
 .. code:: bash
 
-	$SPARK_HOME/bin/spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.0 \
-  --class com.linkedin.dualip.solver.LPSolverDriver ./dualip/build/libs/dualip_2.11.jar \
+	$SPARK_HOME/bin/spark-submit --packages org.apache.spark:spark-avro_2.12:3.1.1 \
+  --class com.linkedin.dualip.solver.LPSolverDriver ./dualip/build/libs/dualip_2.12.jar \
 	--driver.objectiveClass com.linkedin.dualip.problem.MooSolverDualObjectiveFunction \
 	--driver.solverOutputPath output/moo/ \
 	--driver.gamma 1E-6 \

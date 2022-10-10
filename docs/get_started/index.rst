@@ -75,7 +75,7 @@ Currently the library supports two different solvers:
 
 1. :code:`MooSolver`: This solves multi-objective optimization problems, which include a
 few global or cohort-level constraints and are characterized by small number of rows 
-in :math:`A` (usually less than one hundred) 
+in :math:`A` (usually less than one hundred)
 
 2. :code:`MatchingSolver`: This solves matching problems, where we have a large number of 
 per-item constraints. The number of rows of :math:`A` here is quite large and can range up to
@@ -87,6 +87,12 @@ as well as a wide variety of `first-order optimization methods
 <../solver/index.html#algorithm>`_.
 
 There is a unified driver implementation :code:`com.linkedin.dualip.solver.LPSolverDriver` for 
-both of these problems which serves as the primary entry point. 
+both of these problems which serves as the primary entry point.
+
+We currently support a parallel version of the :code:`MooSolver`, which can solve many separate 
+small Moo problems in parallel. The number of such small Moo problems can range up to tens of millions.
+
+Call :code:`com.linkedin.dualip.solver.ParallelLPSolverDriver` to leverage the extreme-scale parallelism 
+power of our DuaLip solver.
 
 For detailed usage please see the :ref:`Parameters` and the :ref:`demo`.

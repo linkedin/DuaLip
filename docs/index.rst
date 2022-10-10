@@ -51,11 +51,11 @@ Features
 #. Extreme Scale
     DuaLip is specifically developed to tackle problems arising in web-applications that usually have hundreds of millions of users and millions of items, pushing the number of optimization variables in the trillions range (if not more). It uses a dual decomposition technique to be able to scale to such large problems. For details see the :ref:`solution <probsolution>` and for a wide range of applications see `Ramanath et. al. (2021) <https://arxiv.org/abs/2103.05277>`_ and `Basu et. al (2020) <http://proceedings.mlr.press/v119/basu20a/basu20a.pdf>`_.
 
-#. Efficient
-    Although we follow first-order gradient methods to solve the problem, we implement several highly efficient algorithms for each of the component steps. See the :ref:`solver <solver>` for more details. This allows us to scale up 20x over a naive implementation. Please see `Ramanath et. al. (2021) <https://arxiv.org/abs/2103.05277>`_ for a comparative study.
-
 #. Parallelism
     We support extreme-scale parallelism in our DuaLip solver, which can solve tens of millions of small separate LPs simultaneously. There are arising applications like personalized constrained optimization in recommender systems, which require adding personalized constraints for each unique user. In this case, each LP is dedicated for each user and only contains a small number of decision variables at per user level. Our parallel version of DuaLip can enable solving tens of millions of separate small LPs for all different users in parallel.
+
+#. Efficient
+    Although we follow first-order gradient methods to solve the problem, we implement several highly efficient algorithms for each of the component steps. See the :ref:`solver <solver>` for more details. This allows us to scale up 20x over a naive implementation. Please see `Ramanath et. al. (2021) <https://arxiv.org/abs/2103.05277>`_ for a comparative study.
 
 #. Modular Design
     In our implementation, any problem can be formulated through a highly modular approach.
