@@ -4,7 +4,7 @@ Getting Started
 Building the Library
 --------------------
 
-It is recommended to use Scala 2.12 and Spark 3.1.1 To build, run the following:
+It is recommended to use Scala 2.12 and Spark 3.1.1. To build, run the following:
 
 .. code:: bash
 
