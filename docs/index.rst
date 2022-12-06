@@ -104,7 +104,7 @@ upon to build jobs using its APIs, or added to the classpath of a Spark Jupyter 
 
 Copyright
 ------------------
-Copyright 2021 LinkedIn Corporation All Rights Reserved.
+Copyright 2022 LinkedIn Corporation All Rights Reserved.
 Licensed under the BSD 2-Clause License (the "License"). See License in the project root for license information.
 
 Contributing
@@ -149,11 +149,11 @@ DuaLip has been created on the basis of the following research papers. If you ci
           }
 
           @misc{dualip,
-            author       = {Ramanath, Rohan, and Keerthi, Sathiya S. and Basu, Kinjal and Salomatin, Konstantin and Yao, Pan and Ghoting, Amol},
-            title        = {{DuaLip}: Dual Decomposition based Linear Program Solver, version 1.0.0},
+            author       = {Ramanath, Rohan, and Keerthi, Sathiya S. and Basu, Kinjal and Salomatin, Konstantin and Yao, Pan and Ghoting, Amol and Cheng, Miao},
+            title        = {{DuaLip}: Dual Decomposition based Linear Program Solver, version 2.0.0},
             url          = {https://github.com/linkedin/dualip},
-            month        = mar,
-            year         = 2021
+            month        = dec,
+            year         = 2022
           }
 
 
