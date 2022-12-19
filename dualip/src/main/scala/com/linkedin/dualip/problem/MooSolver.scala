@@ -72,21 +72,23 @@ case class ConstraintBlock(row: Int, value: Double, problemId: Long)
  * @param b - constraints vector
  * @param gamma - regularization parameter
  * @param projectionType - type of projection used
+ * @param boxCutUpperBound - upper bound for the box cut projection constraint
  * @param spark - implicit spark session object
  */
 class MooSolverDualObjectiveFunction(
   problemDesign: MapReduceCollectionWrapper[MooDataBlock],
   b: BSV[Double],
   gamma: Double,
-  projectionType: ProjectionType
+  projectionType: ProjectionType,
+  boxCutUpperBound: Int = 1
 )(implicit spark: SparkSession) extends MooDistributedRegularizedObjective(b, gamma) with Serializable {
 
   // The simple constraints are encoded using the projections supported by the slate optimizer type
   lazy val projection: Projection = projectionType match {
     case Simplex => new SimplexProjection(checkVertexSolution = true)
     case SimplexInequality => new SimplexProjection(checkVertexSolution = true, inequality = true)
-    case BoxCut => new BoxCutProjection(maxIter = 100, inequality = false)
-    case BoxCutInequality => new BoxCutProjection(maxIter = 100, inequality = true)
+    case BoxCut => new BoxCutProjection(maxIter = boxCutUpperBound)
+    case BoxCutInequality => new BoxCutProjection(maxIter = boxCutUpperBound, inequality = true)
     case UnitBox => new UnitBoxProjection()
     case _ => throw new NoClassDefFoundError(s"Projection $projection is not supported by MOOSolver.")
   }
@@ -119,6 +121,7 @@ class MooSolverDualObjectiveFunction(
    */
   def getPrimal(lambda: BSV[Double]): MapReduceCollectionWrapper[(Long, Array[Double], PartialPrimalStats)] = {
     val lambdaArray = lambda.toArray
+    val metadata: Map[String, Double] = Map[String, Double]("boxCut" -> boxCutUpperBound)
     problemDesign.map( { block =>
       // compute projection input
       val n = block.c.length // number of columns (variables) in block
@@ -136,8 +139,8 @@ class MooSolverDualObjectiveFunction(
         vectorForProjection(i) /= gamma
         i += 1
       }
-      // get the projection (the primal primal solution)
-      val primal = projection.project(BSV(vectorForProjection), Map()).toArray
+      // get the projection (the primal solution)
+      val primal = projection.project(BSV(vectorForProjection), metadata).toArray
 
       // compute cx, xx, ax values for the given primal
       var obj = 0.0 // cx running sum
@@ -234,9 +237,9 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
 
   /**
    * objective loader that conforms to a generic loader API
-   * @param gamma gamma regularization
-   * @param args input arguments
+   * @param gamma regularization weight
    * @param projectionType type of projection used
+   * @param args input arguments
    * @param spark spark session
    * @return
    */
@@ -246,6 +249,24 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
     val (data, b) = MooSolverDualObjectiveFunction.loadData(inputPaths)
 
     new MooSolverDualObjectiveFunction(data, b, gamma, projectionType)
+  }
+
+  /**
+    * objective loader with a customized box cut projection upper bound
+    * @param gamma regularization weight
+    * @param projectionType type of projection used
+    * @param boxCutUpperBound upper bound for the box cut projection constraint
+    * @param args input arguments
+    * @param spark spark session
+    * @return
+    */
+  def applyWithCustomizedBoxCut(gamma: Double, projectionType: ProjectionType, boxCutUpperBound: Int, args: Array[String])
+                               (implicit spark: SparkSession): DualPrimalDifferentiableObjective = {
+    val inputPaths = InputPathParamsParser.parseArgs(args)
+
+    val (data, b) = MooSolverDualObjectiveFunction.loadData(inputPaths)
+
+    new MooSolverDualObjectiveFunction(data, b, gamma, projectionType, boxCutUpperBound)
   }
 }
 

@@ -34,9 +34,15 @@ import com.linkedin.dualip.util.ProjectionType.BoxCut
 
 
 /**
- * Boxed simplex projection
- *
- */
+  * Box Cut projection, \sum_j x_j = d or \sum_j x_j <= d along with 0 <= x_j <= 1
+  *
+  * @param maxIter: bounds the number of iterations of Wolfe's algorithm
+  * @param inequality: makes the constraint \sum_j x_j <= d when true
+  *
+  * Note that the upper bound d is set through metadata, for example:
+  * val metadata: Map[String, Double] = Map[String, Double]("boxCut" -> 3) -- d = 3 in this case
+  *
+  */
 class BoxCutProjection(maxIter: Int, inequality: Boolean = false) extends PolytopeProjection(polytope = null, maxIter) with Serializable {
 
   val unitBoxProjection = new UnitBoxProjection()

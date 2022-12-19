@@ -31,6 +31,7 @@ package com.linkedin.dualip.solver
 import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.problem.MatchingSolverDualObjectiveFunction.toBSV
 import com.linkedin.dualip.blas.VectorOperations
+import com.linkedin.dualip.problem.MooSolverDualObjectiveFunction
 import com.linkedin.dualip.util.{DataFormat, ProjectionType, SolverUtility}
 import com.linkedin.dualip.util.DataFormat.{AVRO, DataFormat}
 import com.linkedin.dualip.util.IOUtility.{printCommandLineArgs, readDataFrame, saveDataFrame, saveLog}
@@ -207,13 +208,22 @@ object LPSolverDriver {
    * @param gamma     regularization parameter
    * @param projectionType used to encode simple constraints on the objective
    * @param args      passthrough command line arguments for objective-specific initializations
+   * @param boxCutUpperBound  upper bound for the box cut projection constraint
    * @param spark
    * @return
    */
-  def loadObjectiveFunction(className: String, gamma: Double, projectionType: ProjectionType, args: Array[String])(implicit spark: SparkSession): DualPrimalDifferentiableObjective = {
+  def loadObjectiveFunction(className: String, gamma: Double, projectionType: ProjectionType, args: Array[String], boxCutUpperBound: Int = 1)
+  (implicit spark: SparkSession): DualPrimalDifferentiableObjective = {
     try {
-      Class.forName(className + "$")
-        .getField("MODULE$").get(None.orNull).asInstanceOf[DualPrimalObjectiveLoader].apply(gamma, projectionType, args)
+      // we enable passing customizable (>1) upper bound for the box cut projection as a param for MooSolver
+      if (boxCutUpperBound > 1 && className.contains("MooSolverDualObjectiveFunction")) {
+        MooSolverDualObjectiveFunction.applyWithCustomizedBoxCut(gamma, projectionType, boxCutUpperBound, args)
+      } else {
+        // for other cases (e.g. MatchingSlateSolver), the customized box cut projection upper bound was passed through input data
+        // directly, so no need to pass through a driver param
+        Class.forName(className + "$")
+          .getField("MODULE$").get(None.orNull).asInstanceOf[DualPrimalObjectiveLoader].apply(gamma, projectionType, args)
+      }
     } catch {
       case e: ClassNotFoundException => {
         val errorMessage = s"Error initializing objective function loader $className.\n" +
@@ -239,7 +249,7 @@ object LPSolverDriver {
       fastSolver.get
     }
     val objective: DualPrimalDifferentiableObjective = loadObjectiveFunction(driverParams.objectiveClass,
-      driverParams.gamma, driverParams.projectionType, args)
+      driverParams.gamma, driverParams.projectionType, args, driverParams.boxCutUpperBound)
 
     // initialize lambda: first try custom logic of the objective, then driver-generic lambda loader, finally initialize with zeros
     val initialLambda: BSV[Double] = objective.getInitialLambda.getOrElse(
@@ -264,7 +274,7 @@ object LPSolverDriver {
       val driverParams = LPSolverDriverParamsParser.parseArgs(args)
 
       println("-----------------------------------------------------------------------")
-      println("                      DuaLip v1.0     2021")
+      println("                      DuaLip v2.0     2022")
       println("            Dual Decomposition based Linear Program Solver")
       println("-----------------------------------------------------------------------")
       println("Settings:")
@@ -297,7 +307,7 @@ object LPSolverDriver {
     (implicit spark: SparkSession): Unit = {
 
     val objective: DualPrimalDifferentiableObjective = loadObjectiveFunction(driverParams.objectiveClass,
-      driverParams.gamma, driverParams.projectionType, args)
+      driverParams.gamma, driverParams.projectionType, args, driverParams.boxCutUpperBound)
     val solution = objective.calculate(BSV.zeros[Double](objective.dualDimensionality), mutable.Map(), driverParams.verbosity)
     var psiTil = objective.getSardBound(solution.lambda)
 
@@ -307,7 +317,7 @@ object LPSolverDriver {
 
     // First pass over the data to determine the starting gamma
     val greedyObjective: DualPrimalDifferentiableObjective =
-      loadObjectiveFunction(driverParams.objectiveClass, 0, Greedy, args)
+      loadObjectiveFunction(driverParams.objectiveClass, 0, Greedy, args, driverParams.boxCutUpperBound)
     val g0 = greedyObjective.calculate(BSV.zeros[Double](greedyObjective.dualDimensionality), mutable.Map(), driverParams.verbosity)
       .dualObjectiveExact
     var gLambdaTil = g0
@@ -355,6 +365,8 @@ object LPSolverDriver {
  * @param initialLambdaFormat The format of input data, e.g. avro or orc
  * @param autotune            Flag to algorithmically choose gamma
  * @param gamma               Coefficient for quadratic objective regularizer, used by most objectives
+ * @param projectionType      Type of projection used
+ * @param boxCutUpperBound    Upper bound for the box cut projection constraint
  * @param objectiveClass      Objective function implementation
  * @param outputFormat        The format of output, can be AVRO or ORC
  * @param savePrimal          Flag to save primal
@@ -367,6 +379,7 @@ case class LPSolverDriverParams(
   autotune: Boolean = false,
   gamma: Double = 1E-3,
   projectionType: ProjectionType = Simplex,
+  boxCutUpperBound: Int = 1,
   objectiveClass: String = "",
   outputFormat: DataFormat = AVRO,
   savePrimal: Boolean = false,
@@ -387,6 +400,7 @@ object LPSolverDriverParamsParser {
       opt[Boolean]("driver.autotune") optional() action { (x, c) => c.copy(autotune = x) }
       opt[Double]("driver.gamma") optional() action { (x, c) => c.copy(gamma = x) }
       opt[String]("driver.projectionType") required() action { (x, c) => c.copy(projectionType = ProjectionType.withName(x)) }
+      opt[Int]("driver.boxCutUpperBound") optional() action { (x, c) => c.copy(boxCutUpperBound = x) }
       opt[String]("driver.objectiveClass") required() action { (x, c) => c.copy(objectiveClass = x) }
       opt[String]("driver.outputFormat") optional() action { (x, c) => c.copy(outputFormat = DataFormat.withName(x)) }
       opt[Boolean](name = "driver.savePrimal") optional() action { (x, c) => c.copy(savePrimal = x) }
