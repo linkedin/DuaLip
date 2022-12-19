@@ -20,13 +20,13 @@
 # -- Project information -----------------------------------------------------
 
 project = 'DuaLip'
-copyright = '2021, LinkedIn'
+copyright = '2022, LinkedIn'
 author = 'LinkedIn'
 
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '2.0.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -133,7 +133,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'DuaLip.tex', 'DuaLip Documentation',
-     'Yao Pan', 'manual'),
+     author, 'manual'),
 ]
 
 
