@@ -15,7 +15,8 @@ Parameters                             Is Required    Default Value   Descriptio
 :code:`driver.initialLambdaPath`       false          N/A             Optional path to initialize dual variables for algorithm restarts
 :code:`driver.gamma`                   false          1E-3            Coefficient for quadratic objective regularizer, used by most objectives
 :code:`driver.outputFormat`            false          AVRO            The format of output, can be AVRO, JSON or ORC
-:code:`driver.projectionType`          true           N/A             One of available projections (simplex, simplexInequality, unitbox, etc.)
+:code:`driver.projectionType`          true           N/A             One of available projections (simplex, simplexInequality, unitbox, boxcut, etc.)
+:code:`driver.boxCutUpperBound`        false          1           	  Upper bound for the box cut projection constraint
 :code:`driver.savePrimal`              false          false           Flag to save primal
 :code:`driver.verbosity`               false          1               The levels of logging to be shown. We currently support 0 and 1.
 :code:`input.ACblocksPath`             true           N/A             Path of matrix A & c encoded as data blocks
