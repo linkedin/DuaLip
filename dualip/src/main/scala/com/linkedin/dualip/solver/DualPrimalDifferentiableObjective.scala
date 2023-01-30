@@ -107,7 +107,7 @@ trait DualPrimalDifferentiableObjective {
     * @param log                  Key-value pairs used to store logging information for each iteration of the optimizer
     * @param verbosity            Control the logging level
     * @param designInequality     True if Ax <= b, false if Ax = b or have mixed constraints
-    * @param mixedDesignPivotNum  The pivot number if we have mixed A_1x <= b1 and A_2 = b2, i.e. how many inequality constraints come first
+    * @param mixedDesignPivotNum  The pivot number if we have mixed A_1x <= b1 and A_2x = b2, i.e. how many inequality constraints come first
     * @return
     */
   def calculate(lambda: SparseVector[Double], log: mutable.Map[String, String], verbosity: Int, designInequality: Boolean = true, mixedDesignPivotNum: Int = 0): DualPrimalDifferentiableComputationResult

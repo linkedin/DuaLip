@@ -29,8 +29,8 @@
 package com.linkedin.dualip.solver
 
 import breeze.linalg.{SparseVector => BSV}
-import org.testng.Assert
 import org.testng.annotations.Test
+import org.testng.Assert
 
 class AcceleratedGradientDescentTest {
 

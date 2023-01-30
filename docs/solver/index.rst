@@ -28,7 +28,7 @@ compact polytopes. :math:`x \in \mathbb{R}^n` is the vector of optimization vari
 Problem Solution
 ----------------
 
-We briefly outline the solution mechanism here. For more details, please see `Basu et. al (2020)
+We briefly outline the solution mechanism here. For more details, please see `Basu et al. (2020)
 <http://proceedings.mlr.press/v119/basu20a/basu20a.pdf>`_.
 To solve the problem, we introduce the perturbed problem:
 
@@ -68,7 +68,7 @@ where :math:`\Pi_{\mathcal{C}_i}(\cdot)` is the Euclidean projection operator on
 parts of :math:`A` and :math:`c` corresponding to :math:`x_i`. Based on this we use a first-order gradient method as the main optimizer to
 solve the problem. It can also be shown that the solution obeys certain bounds to the true solution :math:`g_0(\lambda)` and 
 in fact the exact solution of the LP can be obtained if :math:`\gamma` is small enough. 
-For more details, please refer to `Basu et. al (2020)
+For more details, please refer to `Basu et al. (2020)
 <http://proceedings.mlr.press/v119/basu20a/basu20a.pdf>`_.
 
 
@@ -88,7 +88,7 @@ The overall algorithm can now be written as:
 We currently support three different mechanisms for doing this first-order optimization. Specifically, `Proximal Gradient Ascent
 <https://en.wikipedia.org/wiki/Proximal_gradient_method>`_, `Accelerated Gradient Ascent
 <https://www.ceremade.dauphine.fr/~carlier/FISTA>`_, and `LBFGS-B
-<https://en.wikipedia.org/wiki/Limited-memory_BFGS>`_. For the details please see Appendix A of the `full paper
+<https://en.wikipedia.org/wiki/Limited-memory_BFGS>`_. For the details please see Appendix A of `Ramanath et al. (2021)
 <https://arxiv.org/abs/2103.05277>`_.
 
 .. _constraints :
@@ -98,7 +98,7 @@ Constraint Sets :math:`\mathcal{C}_i`
 In this current version of the solver we support a wide variety of constraints types :math:`\mathcal{C}_i`, 
 such as:
 
-1. Unit Box: :math:`\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : 0 <= x_k <= 1\big\}`
+1. Unit Box: :math:`\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : 0 \leq x_k \leq 1\big\}`
 2. Simplex-E: :math:`\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K = 1, \;\; x_k \geq 0\big\}`
 3. Simplex-I: :math:`\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K \leq 1, \;\; x_k \geq 0\big\}`
 4. Box Cut-E: :math:`\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K = d, \;\; 0 \leq x_k \leq 1\big\}`
@@ -110,7 +110,7 @@ Here :math:`E` and :math:`I` stands for equality and inequality. Also note that 
 To execute step 2 of the overall algorithm, we need a projection operation on these constraint sets.
 In our solver, we have implemented highly efficient projection algorithms to make step 2 extremely fast. The different sets have 
 different customized algorithms to make the overall system highly efficient. For more details on 
-these projection algorithms please see Section 3 of `the full paper
+these projection algorithms please see Section 3 of `Ramanath et al. (2021)
 <https://arxiv.org/abs/2103.05277>`_.
 
 .. _adaptive_smoothing :
@@ -121,7 +121,7 @@ The smoothness of :math:`g_\gamma` decreases as the number of constraints increa
 A small :math:`\gamma` makes the optimizer's convergence prohibitively slow, while a large :math:`\gamma` reduces the accuracy of 
 the solution. We define a practical criterion for sufficient convergence for a given :math:`\gamma` and 
 implement a stage-wise algorithm that automatically reduces :math:`\gamma` when the criterion is met to 
-prefer more accurate solutions. For details, please see Section 4 of the `full paper
+prefer more accurate solutions. For details, please see Section 4 of `Ramanath et al. (2021)
 <https://arxiv.org/abs/2103.05277>`_.
 
 .. _convergence :

@@ -32,8 +32,8 @@ import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.projection.{BoxCutProjection, GreedyProjection, SimplexProjection, UnitBoxProjection}
 import com.linkedin.dualip.slate.{DataBlock, SingleSlotOptimizer, Slate, SlateOptimizer}
 import com.linkedin.dualip.solver.{DistributedRegularizedObjective, DualPrimalDifferentiableObjective, DualPrimalObjectiveLoader, PartialPrimalStats}
-import com.linkedin.dualip.util.ProjectionType._
 import com.linkedin.dualip.util.{IOUtility, InputPathParamsParser, InputPaths}
+import com.linkedin.dualip.util.ProjectionType._
 import com.twitter.algebird.{Max, Tuple5Semigroup}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.functions.{col, lit}
@@ -47,10 +47,11 @@ import scala.util.Try
   *
   *
   * The class is declared serializable only for slatOptimizer serialization
-  * @param problemDesign  - parallelized problem representation
-  * @param b              - constraints vector
-  * @param slateOptimizer - algorithm to generate primal given dual
-  * @param gamma          - behaves like a regularizer and controls the smoothness of the objective
+  *
+  * @param problemDesign             - parallelized problem representation
+  * @param b                         - constraints vector
+  * @param slateOptimizer            - algorithm to generate primal given dual
+  * @param gamma                     - behaves like a regularizer and controls the smoothness of the objective
   * @param enableHighDimOptimization - passthrough parameter to the parent class (spark optimization for very high dimensional problems)
   * @param numLambdaPartitions       - used when enableHighDimOptimization=true, dense lambda vectors coming from executors are partitioned
   *                                    for aggregation. The number of partitions should depend on aggregation parallelism and the dimensionality
@@ -67,11 +68,11 @@ class MatchingSolverDualObjectiveFunction(
   enableHighDimOptimization: Boolean,
   numLambdaPartitions: Option[Int]
 )(implicit spark: SparkSession) extends DistributedRegularizedObjective(b, gamma, enableHighDimOptimization, numLambdaPartitions) with Serializable {
+
   import spark.implicits._
 
   lazy val upperBound: Double = slateOptimizer match {
     case singleSlotOptimizer: SingleSlotOptimizer => singleSlotOptimizer.getProjection match {
-      // TODO: modify the upstream design to facilitate separate clauses for simplex equality and inequality constraints
       case _: SimplexProjection => problemDesign.map(_.data.map { case (_, c, _) => c }.max + gamma / 2).reduce(_ + _)
       case _ => Double.PositiveInfinity
     }
@@ -96,6 +97,7 @@ class MatchingSolverDualObjectiveFunction(
 
    /**
    * Convert slates (primal solution) into sufficient statistics of the solution.
+   *
    * @param lambda
    * @return
    */
@@ -109,6 +111,7 @@ class MatchingSolverDualObjectiveFunction(
 
   /**
     * Get the primal value for a given dual variable. For matching solver primal is a dataset of slates
+    *
     * @param lambda
     * @return dataset of slates
     */
@@ -138,14 +141,16 @@ class MatchingSolverDualObjectiveFunction(
    * Note. There is a potential optimization to use last primal computed during the optimization.
    * Unlikely to help a lot - cost is equivalent to one extra iteration.
    * todo: consider case class to define return DataFrame schema
+   *
    * @param lambda
    * @return Optionally the DataFrame with primal solution. None if the functionality is not supported.
    */
   override def getPrimalForSaving(lambda: BSV[Double]): Option[DataFrame] = {
     val renamedSchema = "array<struct<value:double,items:array<int>>>"
+
     val primal = getPrimal(lambda).map { case (blockId, slates) =>
       val variables = slates.map { s =>
-        val items = s.costs.map { case (itemId, cost) => itemId }
+        val items = s.costs.map { case (itemId, _) => itemId }
         (s.x, items)
       }
       (blockId, variables)
@@ -172,6 +177,7 @@ case class MatchingSolverParams(slateSize: Int = 1, enableHighDimOptimization: B
 object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
   /**
    * Load the problem objective and constraints
+   *
    * @param inputPaths
    * @param spark
    * @return
@@ -182,21 +188,22 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
     import spark.implicits._
 
     val budget = IOUtility.readDataFrame(inputPaths.vectorBPath, inputPaths.format)
-      .map{case Row(_c0: Number, _c1: Number) => (_c0.intValue(), _c1.doubleValue()) }
+      .map { case Row(_c0: Number, _c1: Number) => (_c0.intValue(), _c1.doubleValue()) }
       .collect
 
     val itemIds = budget.toMap.keySet
     // Check if every item has budget information encoded.
     budget.indices.foreach { i: Int =>
-      require(itemIds.contains(i), f"$i index does not have a specified constraint" )
+      require(itemIds.contains(i), f"$i index does not have a specified constraint")
     }
 
     val b = toBSV(budget, budget.length)
 
     var blocks = IOUtility.readDataFrame(inputPaths.ACblocksPath, inputPaths.format)
     // Make the optional fields of the DataBlock null in the dataframe
-    DataBlock.optionalFields.foreach{
-      field => if (Try(blocks(field)).isFailure) {
+    DataBlock.optionalFields.foreach {
+      field =>
+      if (Try(blocks(field)).isFailure) {
         blocks = blocks.withColumn(field, lit(null))
       }
     }
@@ -208,44 +215,46 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
   }
 
   /**
-   * Code to initialize slate optimizer.
-   * todo: Currently the available slate optimizers are hardcoded, consider an option to provide custom optimizer
-   * @param gamma - gamma regularization (some optimizers require it)
-   * @param slateSize - slate size
+   * Code to initialize slate optimizer. Currently the available slate optimizers are hardcoded,
+   * consider an option to provide custom optimizer
+   *
+   * @param gamma          - gamma regularization (some optimizers require it)
+   * @param slateSize      - slate size
    * @param projectionType - one of available projections (simplex, unitbox, et.c.)
    * @return
    */
   def slateOptimizerChooser(gamma: Double, slateSize: Int, projectionType: ProjectionType): SlateOptimizer = {
     projectionType match {
       case Simplex =>
-        require (slateSize == 1, "Single slot simplex algorithm requires matching.slateSize = 1")
-        require (gamma > 0, "Gamma should be > 0 for simplex algorithm")
+        require(slateSize == 1, "Single slot simplex algorithm requires matching.slateSize = 1")
+        require(gamma > 0, "Gamma should be > 0 for simplex algorithm")
         new SingleSlotOptimizer(gamma, new SimplexProjection())
       case SimplexInequality =>
         require(slateSize == 1, "Single slot inequality simplex algorithm requires matching.slateSize = 1")
         require(gamma > 0, "Gamma should be > 0 for simplex algorithm")
         new SingleSlotOptimizer(gamma, new SimplexProjection(inequality = true))
       case BoxCut =>
-        require (slateSize == 1, "Single slot box cut algorithm requires matching.slateSize = 1")
-        require (gamma > 0, "Gamma should be > 0 for box cutx algorithm")
-        new SingleSlotOptimizer(gamma, new BoxCutProjection(maxIter = 100, inequality = false))
+        require(slateSize == 1, "Single slot box cut algorithm requires matching.slateSize = 1")
+        require(gamma > 0, "Gamma should be > 0 for box cutx algorithm")
+        new SingleSlotOptimizer(gamma, new BoxCutProjection(100, inequality = false))
       case BoxCutInequality =>
-        require (slateSize == 1, "Single slot box cut inequality algorithm requires matching.slateSize = 1")
-        require (gamma > 0, "Gamma should be > 0 for box cut algorithm")
-        new SingleSlotOptimizer(gamma, new BoxCutProjection(maxIter = 100, inequality = true))
+        require(slateSize == 1, "Single slot box cut algorithm requires matching.slateSize = 1")
+        require(gamma > 0, "Gamma should be > 0 for box cut algorithm")
+        new SingleSlotOptimizer(gamma, new BoxCutProjection(100, inequality = true))
       case UnitBox =>
-        require (slateSize == 1, "Single slot unit box algorithm requires matching.slateSize = 1")
-        require (gamma > 0, "Gamma should be > 0 for unit box projection algorithm")
+        require(slateSize == 1, "Single slot unit box algorithm requires matching.slateSize = 1")
+        require(gamma > 0, "Gamma should be > 0 for unit box projection algorithm")
         new SingleSlotOptimizer(gamma, new UnitBoxProjection())
       case Greedy =>
-        require (gamma == 0, "Gamma should be zero for max element slate optimizer")
-        require (slateSize == 1, "Single slot algorithm requires matching.slateSize = 1")
+        require(gamma == 0, "Gamma should be zero for max element slate optimizer")
+        require(slateSize == 1, "Single slot algorithm requires matching.slateSize = 1")
         new SingleSlotOptimizer(gamma, new GreedyProjection())
     }
   }
 
   /**
    * objective loader that conforms to a generic loader API
+   *
    * @param gamma
    * @param args
    * @param spark
@@ -261,6 +270,10 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
 
   /**
    * Utility method to convert array represented sparse vector to breeze sparse vector
+   *
+   * @param data
+   * @param size
+   * @return
    */
   def toBSV(data: Array[(Int, Double)], size: Int): BSV[Double] = {
     val (indices, values) = data.sortBy { case (index, _) => index }.unzip
@@ -275,6 +288,7 @@ object MatchingParamsParser {
   def parseArgs(args: Array[String]): MatchingSolverParams = {
     val parser = new scopt.OptionParser[MatchingSolverParams]("Matching slate solver params parser") {
       override def errorOnUnknownArgument = false
+
       opt[Int]("matching.slateSize") required() action { (x, c) => c.copy(slateSize = x) }
       opt[Boolean]("matching.enableHighDimOptimization") optional() action { (x, c) => c.copy(enableHighDimOptimization = x) }
       opt[Int]("matching.numLambdaPartitions") optional() action { (x, c) => c.copy(numLambdaPartitions = Option(x)) }

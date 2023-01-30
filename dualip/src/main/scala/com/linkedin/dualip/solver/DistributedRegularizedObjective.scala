@@ -89,7 +89,7 @@ abstract class DistributedRegularizedObjective(b: SparseVector[Double], gamma: D
     // choose between two implementations of gradient aggregator: they yield identical results
     // but different efficiency
     val (ax, cx, xx) = if(enableHighDimOptimization) {
-      val partitions = numLambdaPartitions.getOrElse(DistributedRegularizedObjective.guessNumberOfLambdaPartitions(lambda.size))
+      val partitions = numLambdaPartitions.getOrElse(guessNumberOfLambdaPartitions(lambda.size))
       require(partitions <= lambda.size,
         s"Number of lambda aggregation partitions ($partitions) cannot be smaller than dimensionality of lambda ($lambda.size)")
       fasterTwoStepGradientAggregator(partialGradients, lambda.size, partitions)

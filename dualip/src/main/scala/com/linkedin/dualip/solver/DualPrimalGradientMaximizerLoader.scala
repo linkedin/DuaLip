@@ -41,7 +41,6 @@ object DualPrimalGradientMaximizerLoader {
     val solver: DualPrimalGradientMaximizer = solverType match {
       case OptimizerType.LBFGSB => new LBFGSB(maxIter = maxIter, dualTolerance = dualTolerance, slackTolerance = slackTolerance)
       case OptimizerType.LBFGS => new LBFGS(alpha = alpha, maxIter = maxIter, dualTolerance = dualTolerance, slackTolerance = slackTolerance)
-      // TODO: for now, we only enabled 'designInequality' and 'mixedDesignPivotNum' for AGD, will add these two params for other algorithms in the future.
       case OptimizerType.AGD => new AcceleratedGradientDescent(maxIter = maxIter, dualTolerance = dualTolerance, slackTolerance = slackTolerance, designInequality = designInequality, mixedDesignPivotNum = mixedDesignPivotNum)
     }
     solver
@@ -50,13 +49,13 @@ object DualPrimalGradientMaximizerLoader {
 
 /**
  * Union of optimizer parameters
- * @param solverType          Solver type
- * @param designInequality    True if Ax <= b, false if Ax = b or have mixed constraints
- * @param mixedDesignPivotNum The pivot number if we have mixed A_1x <= b1 and A_2x = b2, i.e. how many inequality constraints come first
- * @param alpha               LBFGS positivity contstraint relaxation
- * @param dualTolerance       Tolerance criteria for dual variable change
- * @param slackTolerance      Tolerance criteria for slack
- * @param maxIter             Number of iterations
+ * @param solverType           Solver type
+ * @param designInequality     True if Ax <= b, false if Ax = b or have mixed constraints
+ * @param mixedDesignPivotNum  The pivot number if we have mixed A_1x <= b1 and A_2x = b2, i.e. how many inequality constraints come first
+ * @param alpha                LBFGS positivity constraint relaxation
+ * @param dualTolerance        Tolerance criteria for dual variable change
+ * @param slackTolerance       Tolerance criteria for slack
+ * @param maxIter              Number of iterations
  */
 case class DualPrimalGradientMaximizerParams(
   solverType: OptimizerType = OptimizerType.LBFGSB,
