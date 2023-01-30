@@ -58,12 +58,12 @@ object LPSolverDriver {
   val logger: Logger = Logger.getLogger(getClass)
 
   /**
-   * Load initial lambda value for warm restarts
-   * @param path
-   * @param format
-   * @param size - the vector is sparse, so we need to provide its dimensionality
-   * @param spark
-   * @return
+   * Load initial lambda value for warm restarts.
+   * @param path   Filepath for initial lambda values.
+   * @param format The format of the file for initial lambda values.
+   * @param size   Size (length) of the lambda vector. The vector is sparse, so we need to provide its dimensionality.
+   * @param spark  The spark session.
+   * @return Initial lambda values as a sparse vector.
    */
   def loadInitialLambda(path: String, format: DataFormat, size: Int)(implicit spark: SparkSession): BSV[Double] = {
     import spark.implicits._
@@ -76,16 +76,16 @@ object LPSolverDriver {
   }
 
   /**
-   * Save solution. The method saves logs, some statistics of the solution and the dual variable
-   * Note: primal is optional because not all problems support it yet
+   * Save solution. The method saves logs, some statistics of the solution and the dual variable.
+   * Note: primal is optional because not all problems support it yet.
    *       The schema of the primal depends on the problem.
-   * @param outputPath
-   * @param outputFormat
-   * @param lambda
-   * @param objectiveValue
-   * @param primal
-   * @param log
-   * @param spark
+   * @param outputPath     Directory path to save solution at.
+   * @param outputFormat   The format of the output files.
+   * @param lambda         Dual variable values at the solution.
+   * @param objectiveValue Statistics of the solution (of class DualPrimalDifferentiableComputationResult).
+   * @param primal         Primal variable values at the solution (optional).
+   * @param log            Log to be saved.
+   * @param spark          The spark session.
    */
   def saveSolution(
     outputPath: String,
@@ -115,10 +115,11 @@ object LPSolverDriver {
   }
 
   /**
-   * Optionally load initial lambda, otherwise initialize with zeros
-   * @param initialLambdaPath
-   * @param lambdaFormat
-   * @param lambdaDim
+   * Optionally load initial lambda, otherwise initialize with zeros.
+   * @param initialLambdaPath Filepath for initial lambda values.
+   * @param lambdaFormat      The format of the file for initial lambda values.
+   * @param lambdaDim         Dimension (length) of the lambda vector.
+   * @return Initial lambda values as a sparse vector.
    */
   def getInitialLambda(initialLambdaPath: Option[String], lambdaFormat: DataFormat, lambdaDim: Int)
     (implicit spark: SparkSession): BSV[Double] = {
@@ -129,12 +130,13 @@ object LPSolverDriver {
 
   /**
    * Solve the LP and save output
-   * @param objectiveFunction
-   * @param solver
-   * @param initialLambda
-   * @param driverParams
-   * @param parallelMode
-   * @param spark
+   * @param objectiveFunction Objective function (of class DualPrimalDifferentiableObjective).
+   * @param solver        Solver to use (of class DualPrimalGradientMaximizer).
+   * @param initialLambda Initial dual variable.
+   * @param driverParams  LP solver parameters.
+   * @param parallelMode  Should parallel mode be used?
+   * @param spark         The spark session.
+   * @return Optimal solution (of class ResultWithLogsAndViolation).
    */
   def solve(
     objectiveFunction: DualPrimalDifferentiableObjective,
@@ -203,31 +205,42 @@ object LPSolverDriver {
   /**
    * Initializes the objective function based on class name. All objective specific parameters are pulled from
    * the command line arguments. The companion object of the objective function is expected to implement
-   * the DualPrimalObjectiveLoader trait
-   * @param className class name of the objective function
-   * @param gamma     regularization parameter
-   * @param projectionType used to encode simple constraints on the objective
-   * @param args      passthrough command line arguments for objective-specific initializations
-   * @param boxCutUpperBound  upper bound for the box cut projection constraint
-   * @param spark
-   * @return
+   * the DualPrimalObjectiveLoader trait.
+   * @param className         Class name of the objective function. The class should be a subclass of
+   *                          DualPrimalObjectiveLoader. One of "MooSolverDualObjectiveFunction",
+   *                          "MatchingSolverDualObjectiveFunction", "ConstrainedMatchingSolverDualObjectiveFunction",
+   *                          "ParallelMooSolverDualObjectiveFunction".
+   * @param gamma             Regularization parameter.
+   * @param projectionType    Used to encode simple constraints on the objective.
+   * @param args              Passthrough command line arguments for objective-specific initializations.
+   * @param boxCutUpperBound  Upper bound for the box cut projection constraint (default is 1).
+   * @param spark             The spark session.
+   * @return Objective function (of class DualPrimalDifferentiableObjective).
    */
-  def loadObjectiveFunction(className: String, gamma: Double, projectionType: ProjectionType, args: Array[String], boxCutUpperBound: Int = 1)
+  def loadObjectiveFunction(className: String,
+                            gamma: Double,
+                            projectionType: ProjectionType,
+                            args: Array[String],
+                            boxCutUpperBound: Int = 1)
   (implicit spark: SparkSession): DualPrimalDifferentiableObjective = {
     try {
       // we enable passing customizable (>1) upper bound for the box cut projection as a param for MooSolver
       if (boxCutUpperBound > 1 && className.contains("MooSolverDualObjectiveFunction")) {
         MooSolverDualObjectiveFunction.applyWithCustomizedBoxCut(gamma, projectionType, boxCutUpperBound, args)
       } else {
-        // for other cases (e.g. MatchingSlateSolver), the customized box cut projection upper bound was passed through input data
-        // directly, so no need to pass through a driver param
+        // for other cases (e.g. MatchingSlateSolver), the customized box cut projection upper bound was passed through
+        // input data directly, so no need to pass through a driver param
         Class.forName(className + "$")
-          .getField("MODULE$").get(None.orNull).asInstanceOf[DualPrimalObjectiveLoader].apply(gamma, projectionType, args)
+          .getField("MODULE$")
+          .get(None.orNull)
+          .asInstanceOf[DualPrimalObjectiveLoader]
+          .apply(gamma, projectionType, args)
       }
     } catch {
       case e: ClassNotFoundException => {
         val errorMessage = s"Error initializing objective function loader $className.\n" +
-        "Please provide a fully qualified companion object name (including namespace) that implements DualPrimalObjectiveLoader trait.\n" +
+          "Please provide a fully qualified companion object name (including namespace) that implements " +
+          "DualPrimalObjectiveLoader trait.\n" +
           e.toString
         sys.error(errorMessage)
       }
@@ -238,9 +251,19 @@ object LPSolverDriver {
   }
 
   /**
-   * Run the solver with a fixed gamma and given optimizer, as opposed to adpative smoothing algorithm.
+   * Run the solver with a fixed gamma and given optimizer, as opposed to adaptive smoothing algorithm.
+   * @param driverParams LP solver parameters.
+   * @param args         Command line arguments.
+   * @param fastSolver   Solver to use for optimization (optional). If not provided, we use the solver as defined
+   *                     in args.
+   * @param parallelMode Should parallel mode be used? Default is false.
+   * @param spark        The spark session.
+   * @return Optimal solution (of class ResultWithLogsAndViolation).
    */
-  def singleRun(driverParams: LPSolverDriverParams, args: Array[String], fastSolver: Option[DualPrimalGradientMaximizer], parallelMode: Boolean = false)
+  def singleRun(driverParams: LPSolverDriverParams,
+                args: Array[String],
+                fastSolver: Option[DualPrimalGradientMaximizer],
+                parallelMode: Boolean = false)
     (implicit spark: SparkSession): ResultWithLogsAndViolation = {
 
     val solver: DualPrimalGradientMaximizer = if (fastSolver.isEmpty) {
@@ -251,7 +274,8 @@ object LPSolverDriver {
     val objective: DualPrimalDifferentiableObjective = loadObjectiveFunction(driverParams.objectiveClass,
       driverParams.gamma, driverParams.projectionType, args, driverParams.boxCutUpperBound)
 
-    // initialize lambda: first try custom logic of the objective, then driver-generic lambda loader, finally initialize with zeros
+    // initialize lambda: first try custom logic of the objective, then driver-generic lambda loader, finally
+    // initialize with zeros
     val initialLambda: BSV[Double] = objective.getInitialLambda.getOrElse(
       getInitialLambda(driverParams.initialLambdaPath, driverParams.initialLambdaFormat, objective.dualDimensionality)
     )
@@ -260,8 +284,8 @@ object LPSolverDriver {
   }
 
   /**
-   * Entry point to spark job
-   * @param args
+   * Entry point to spark job.
+   * @param args Command line arguments.
    */
   def main(args: Array[String]): Unit = {
 
@@ -297,18 +321,21 @@ object LPSolverDriver {
 
   /**
    * Implementation of the adaptive smoothing algorithm mentioned in the DuaLip paper.
-   * Appendix has the full algorithm. The 3 γ's are picked using a bound calculate using sard's theorem.
+   * Appendix has the full algorithm. The 3 γ's are picked using a bound calculate using Sard's theorem.
    *
-   * @param driverParams
-   * @param args
-   * @param spark
+   * @param driverParams LP solver parameters.
+   * @param args         Command line arguments.
+   * @param parallelMode Should parallel mode be used? Default is false.
+   * @param spark        The spark session.
    */
   def autotune(driverParams: LPSolverDriverParams, args: Array[String], parallelMode: Boolean = false)
     (implicit spark: SparkSession): Unit = {
 
     val objective: DualPrimalDifferentiableObjective = loadObjectiveFunction(driverParams.objectiveClass,
       driverParams.gamma, driverParams.projectionType, args, driverParams.boxCutUpperBound)
-    val solution = objective.calculate(BSV.zeros[Double](objective.dualDimensionality), mutable.Map(), driverParams.verbosity)
+    val solution = objective.calculate(BSV.zeros[Double](objective.dualDimensionality),
+                                       mutable.Map(),
+                                       driverParams.verbosity)
     var psiTil = objective.getSardBound(solution.lambda)
 
     // The parameters that change on every run to the solver.
@@ -318,7 +345,9 @@ object LPSolverDriver {
     // First pass over the data to determine the starting gamma
     val greedyObjective: DualPrimalDifferentiableObjective =
       loadObjectiveFunction(driverParams.objectiveClass, 0, Greedy, args, driverParams.boxCutUpperBound)
-    val g0 = greedyObjective.calculate(BSV.zeros[Double](greedyObjective.dualDimensionality), mutable.Map(), driverParams.verbosity)
+    val g0 = greedyObjective.calculate(BSV.zeros[Double](greedyObjective.dualDimensionality),
+                                       mutable.Map(),
+                                       driverParams.verbosity)
       .dualObjectiveExact
     var gLambdaTil = g0
 
@@ -332,12 +361,18 @@ object LPSolverDriver {
       var iterateAtGamma = true
       var subIter = 1
       while (iterateAtGamma) {
-        val results = singleRun(driverParams.copy(gamma = nextGamma,
-          initialLambdaPath = previousSolutionPath, solverOutputPath = driverParams.solverOutputPath + f"/${iter}/${subIter}"),
+        val results = singleRun(
+          driverParams.copy(
+            gamma = nextGamma,
+            initialLambdaPath = previousSolutionPath,
+            solverOutputPath = driverParams.solverOutputPath + f"/${iter}/${subIter}"
+          ),
           args, solver, parallelMode)
         previousSolutionPath = Some(driverParams.solverOutputPath + f"/${iter}/${subIter}/dual")
         val gLambdaBar = greedyObjective.calculate(
-          toBSV(results.objectiveValue.lambda, results.objectiveValue.lambda.length), mutable.Map(), driverParams.verbosity).dualObjectiveExact
+          toBSV(results.objectiveValue.lambda, results.objectiveValue.lambda.length),
+          mutable.Map(),
+          driverParams.verbosity).dualObjectiveExact
 
         println (f"iter/subIter: ${iter}/${subIter}, gamma: ${nextGamma}%.6f, " +
           f"g0(λ): ${gLambdaBar}%.6f, g0(λ'): ${gLambdaTil}%.6f, g0(λ)-g0(λ'): ${gLambdaBar - gLambdaTil}%.6f, " +
@@ -361,17 +396,21 @@ object LPSolverDriver {
 }
 
 /**
- * @param initialLambdaPath   Optional path to initialize dual variables for algorithm restarts
- * @param initialLambdaFormat The format of input data, e.g. avro or orc
- * @param autotune            Flag to algorithmically choose gamma
+ * @param initialLambdaPath   Filepath to initialize dual variables for algorithm restarts (optional).
+ * @param initialLambdaFormat The format of input data, e.g. "avro" (default) or "orc".
+ * @param autotune            Flag to algorithmically choose regularization parameter gamma (default is false).
  * @param gamma               Coefficient for quadratic objective regularizer, used by most objectives
- * @param projectionType      Type of projection used
- * @param boxCutUpperBound    Upper bound for the box cut projection constraint
- * @param objectiveClass      Objective function implementation
- * @param outputFormat        The format of output, can be AVRO or ORC
- * @param savePrimal          Flag to save primal
- * @param verbosity           0: Concise logging. 1: log with increased verbosity. 2: log everything
- * @param solverOutputPath    The outputPath
+ *                            (default is 1E-3).
+ * @param projectionType      Type of projection used (default is Simplex).
+ * @param boxCutUpperBound    Upper bound for the box cut projection constraint (default is 1).
+ * @param objectiveClass      Class name of the objective function. The class should be a subclass of
+ *                            DualPrimalObjectiveLoader. One of "MooSolverDualObjectiveFunction",
+ *                            "MatchingSolverDualObjectiveFunction", "ConstrainedMatchingSolverDualObjectiveFunction",
+ *                            "ParallelMooSolverDualObjectiveFunction".
+ * @param outputFormat        The format of output, can be "avro" (default) or "orc".
+ * @param savePrimal          Flag to save primal variable values at the solution (default is false).
+ * @param verbosity           0: Concise logging. 1: log with increased verbosity. 2: log everything.
+ * @param solverOutputPath    Directory path to save solution at (default is "").
  */
 case class LPSolverDriverParams(
   initialLambdaPath: Option[String] = None,
@@ -381,7 +420,7 @@ case class LPSolverDriverParams(
   projectionType: ProjectionType = Simplex,
   boxCutUpperBound: Int = 1,
   objectiveClass: String = "",
-  outputFormat: DataFormat = AVRO,
+  outputFormat: DataFormat = DataFormat.AVRO,
   savePrimal: Boolean = false,
   verbosity: Int = 1,
   solverOutputPath: String = ""
@@ -395,14 +434,18 @@ object LPSolverDriverParamsParser {
     val parser = new scopt.OptionParser[LPSolverDriverParams]("Parsing solver parameters") {
       override def errorOnUnknownArgument = false
 
-      opt[String]("driver.initialLambdaPath") optional() action { (x, c) => c.copy(initialLambdaPath = Option(x)) }
-      opt[String]("driver.initialLambdaFormat") optional() action { (x, c) => c.copy(initialLambdaFormat = DataFormat.withName(x)) }
+      opt[String]("driver.initialLambdaPath") optional() action {
+        (x, c) => c.copy(initialLambdaPath = Option(x)) }
+      opt[String]("driver.initialLambdaFormat") optional() action {
+        (x, c) => c.copy(initialLambdaFormat = DataFormat.withName(x)) }
       opt[Boolean]("driver.autotune") optional() action { (x, c) => c.copy(autotune = x) }
       opt[Double]("driver.gamma") optional() action { (x, c) => c.copy(gamma = x) }
-      opt[String]("driver.projectionType") required() action { (x, c) => c.copy(projectionType = ProjectionType.withName(x)) }
+      opt[String]("driver.projectionType") required() action {
+        (x, c) => c.copy(projectionType = ProjectionType.withName(x)) }
       opt[Int]("driver.boxCutUpperBound") optional() action { (x, c) => c.copy(boxCutUpperBound = x) }
       opt[String]("driver.objectiveClass") required() action { (x, c) => c.copy(objectiveClass = x) }
-      opt[String]("driver.outputFormat") optional() action { (x, c) => c.copy(outputFormat = DataFormat.withName(x)) }
+      opt[String]("driver.outputFormat") optional() action {
+        (x, c) => c.copy(outputFormat = DataFormat.withName(x)) }
       opt[Boolean](name = "driver.savePrimal") optional() action { (x, c) => c.copy(savePrimal = x) }
       opt[Int](name = "driver.verbosity") optional() action { (x, c) => c.copy(verbosity = x) }
       opt[String]("driver.solverOutputPath") required() action { (x, c) => c.copy(solverOutputPath = x) }

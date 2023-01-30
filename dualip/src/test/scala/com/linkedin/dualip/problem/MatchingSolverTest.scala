@@ -41,6 +41,7 @@ import scala.collection.mutable
 
 // schema for DataFrame in primal test
 case class MatchingSolverTestVar(value: Double, items: Array[Int])
+
 case class MatchingSolverTestRow(blockId: String, variables: Array[MatchingSolverTestVar])
 
 class MatchingSolverTest {
@@ -105,8 +106,8 @@ class MatchingSolverTest {
         (r.blockId.toInt, x.items(0), x.value)
       }
     }
-    val primalObj = primal.map { case (i, j, x) => x * c(i*10 + j) + 1E-6*x*x/2.0 }.sum
-    Assert.assertTrue(Math.abs(value.primalObjective - primalObj)<1E-8)
+    val primalObj = primal.map { case (i, j, x) => x * c(i * 10 + j) + 1E-6 * x * x / 2.0 }.sum
+    Assert.assertTrue(Math.abs(value.primalObjective - primalObj) < 1E-8)
   }
 
   @Test
@@ -119,7 +120,7 @@ class MatchingSolverTest {
     val slateOptimizer: SlateOptimizer = new SingleSlotOptimizer(gamma, new SimplexProjection())
     val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateOptimizer, gamma, enableHighDimOptimization, None)
 
-    val primalUpperBound: Double = expectedPrimalUpperBound + 5 * gamma/2
+    val primalUpperBound: Double = expectedPrimalUpperBound + 5 * gamma / 2
     Assert.assertTrue(Math.abs(f.getPrimalUpperBound - primalUpperBound) < 0.01)
 
     val optimizer = new AcceleratedGradientDescent(maxIter = 200)
@@ -150,4 +151,3 @@ class MatchingSolverTest {
     }
   }
 }
-

@@ -44,7 +44,7 @@ We can further frame this using vector and matrix notation.
                 r_{11}  & \ldots & r_{1K} & \ldots & r_{I1} & \ldots & r_{IK}
             \end{bmatrix}
 
-   **Note**: There is a sign change for the second constrain to get the :math:`\leq` form.
+   **Note**: There is a sign change for the second constraint to get the :math:`\leq` form.
 #. The constraint vector :math:`b` is :math:`\\(c_1, -c_2, c_3)`.
 #. The objective vector :math:`c` is vectorized version of :math:`c_{ik}`.
 
@@ -62,7 +62,7 @@ where :math:`\mathcal{C}_i` is the unit box.
 
 How to formulate the training data?
 -----------------------------------
-Let's consider a simple dataset. We have 3 emails, each with their predicted utilities. We would like to send less or equal to 2 emails. Keep click >= 1 and disable <= 0.03.
+Let's consider a simple dataset. We have 3 emails to be sent to a single user (i.e. :math:`i = 1` and :math:`k = 3`), each with their predicted utilities. We would like to send less or equal to 2 emails, have at least 1 or more clicks, and have the disable probability <= 0.03.
 
 ========= =========  ========  ==========
 Email     Psession   Pclick    PDisable       

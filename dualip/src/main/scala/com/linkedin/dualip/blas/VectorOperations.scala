@@ -122,8 +122,8 @@ object VectorOperations {
 
   /**
     * Utility method
-    * @param data
-    * @param size
+    * @param data The dataset to be converted
+    * @param size The size of the data
     * @return
     */
   def toBSV(data: Array[(Int, Double)], size: Int): BSV[Double] = {
