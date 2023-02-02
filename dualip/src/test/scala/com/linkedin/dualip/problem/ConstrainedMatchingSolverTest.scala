@@ -107,7 +107,7 @@ class ConstrainedMatchingSolverTest {
   def testPrimal(): Unit = {
     val constrainedMatchingSlateOptimizer: ConstrainedMatchingSlateOptimizer = new ConstrainedMatchingSlateOptimizer(
       gamma, new BoxCutProjection(1000, inequality = true))
-    val f = new ConstrainedMatchingSolverDualObjective(spark.createDataset(data), budget,
+    val f = new ConstrainedMatchingSolverDualObjectiveFunction(spark.createDataset(data), budget,
       constrainedMatchingSlateOptimizer, gamma, enableHighDimOptimization, None)
     val expectedDualsBSV = BSV(expectedDuals.lambdaLocal.toArray ++ expectedDuals.lambdaGlobal.toArray)
 
@@ -132,7 +132,7 @@ class ConstrainedMatchingSolverTest {
   def testBoxCutInequalitySolver(): Unit = {
     val constrainedMatchingSlateOptimizer: ConstrainedMatchingSlateOptimizer = new ConstrainedMatchingSlateOptimizer(
       gamma, new BoxCutProjection(1000, inequality = true))
-    val f = new ConstrainedMatchingSolverDualObjective(spark.createDataset(data), budget,
+    val f = new ConstrainedMatchingSolverDualObjectiveFunction(spark.createDataset(data), budget,
       constrainedMatchingSlateOptimizer, gamma, enableHighDimOptimization, None)
 
     val optimizer = new AcceleratedGradientDescent(maxIter = 1000, dualTolerance = dualTolerance)

@@ -36,35 +36,35 @@ import breeze.linalg.{SparseVector => BSV}
  */
 
 /**
-  * Generic API of the slate optimizer. It takes the unconstrained variable as the input and projects it to honor the
-  * "simple" constraints in the problem definition.
+  * Generic API of the projection operator. It takes the unconstrained variable as the input and projects it to
+  * honor the "simple" constraints in the problem definition.
   */
 trait Projection {
 
   type Metadata = Map[String, Double]
   /**
-    * @param v - unconstrained primal variable
-    * @return projected primal variable
+    * @param v Unconstrained primal variable.
+    * @return Projected primal variable.
     */
   def project(v: BSV[Double], metadata: Metadata): BSV[Double]
 
   /**
-   * The max norm (`x^Tx`) possible using the defined projection
-   * @param size of the sparse vector for the current record
+    * The max norm (`x^Tx`) possible using the defined projection.
+    * @param size Size of the variable.
    * @return
    */
   def maxNorm(size: Int): Double = ???
 
   /**
-   * The min norm (`x^Tx`) possible using the defined projection
-   * @param size of the sparse vector for the current record
+    * The min norm (`x^Tx`) possible using the defined projection.
+    * @param size Size of the variable.
    * @return
    */
   def minNorm(size: Int): Double = ???
 
   /**
-   * To check if the projection returns a vertex solution
-   * @param v - projected primal variable
+    * To check if the projection returns a vertex solution.
+    * @param v - Projected primal variable.
    * @return
    */
   def isVertexSolution(v: BSV[Double], metadata: Metadata): Boolean = ???

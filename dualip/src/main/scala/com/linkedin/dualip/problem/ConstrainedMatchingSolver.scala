@@ -26,7 +26,7 @@ import scala.util.Try
   * @param numLambdaPartitions               : number of partitions for the duals
   * @param spark                             : spark session
   */
-class ConstrainedMatchingSolverDualObjective(
+class ConstrainedMatchingSolverDualObjectiveFunction(
   problemDesign: Dataset[ConstrainedMatchingDataBlock],
   budget: ConstrainedMatchingBudget,
   constrainedMatchingSlateOptimizer: ConstrainedMatchingSlateOptimizer,
@@ -133,7 +133,7 @@ class ConstrainedMatchingSolverDualObjective(
   }
 }
 
-object ConstrainedMatchingSolverDualObjective extends DualPrimalObjectiveLoader {
+object ConstrainedMatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
 
   /**
     * checks for consistency of the budget vectors
@@ -267,12 +267,12 @@ object ConstrainedMatchingSolverDualObjective extends DualPrimalObjectiveLoader 
     * @return
     */
   def apply(gamma: Double, projectionType: ProjectionType, args: Array[String])(implicit spark: SparkSession):
-  ConstrainedMatchingSolverDualObjective = {
+  ConstrainedMatchingSolverDualObjectiveFunction = {
     val constrainedMatchingParams = ConstrainedMatchingParamsParser.parseArgs(args)
     val (problemDesign, budget) = loadData(constrainedMatchingParams.constrainedMatchingDataPath,
       constrainedMatchingParams.localBudgetPath, constrainedMatchingParams.globalBudgetPath,
       constrainedMatchingParams.numOfPartitions, constrainedMatchingParams.format)
-    new ConstrainedMatchingSolverDualObjective(problemDesign, budget,
+    new ConstrainedMatchingSolverDualObjectiveFunction(problemDesign, budget,
       constrainedMatchingSlateOptimizerChooser(gamma, projectionType),
       gamma, constrainedMatchingParams.enableHighDimOptimization, constrainedMatchingParams.numLambdaPartitions)
   }

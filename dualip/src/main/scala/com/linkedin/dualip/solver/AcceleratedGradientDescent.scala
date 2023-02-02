@@ -28,7 +28,7 @@
  
 package com.linkedin.dualip.solver
 
-import breeze.linalg.SparseVector
+import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.util.IOUtility.{iterationLog, time}
 import com.linkedin.dualip.util.Status.Status
 import com.linkedin.dualip.util.{OptimizerState, SolverUtility, Status}
@@ -37,11 +37,12 @@ import scala.collection.mutable.ListBuffer
 
 /**
   * Implementation of accelerated gradient descent.
-  * @param maxIter              The maximum number of iterations
-  * @param dualTolerance        The dual tolerance limit
-  * @param slackTolerance       The slack tolerance limit
-  * @param designInequality     True if Ax <= b, false if Ax = b or have mixed constraints
-  * @param mixedDesignPivotNum  The pivot number if we have mixed A_1x <= b1 and A_2x = b2, i.e. how many inequality constraints come first
+  * @param maxIter              The maximum number of iterations (default is 1000).
+  * @param dualTolerance        The dual tolerance limit (default is 1e-6).
+  * @param slackTolerance       The slack tolerance limit (default is 0.05).
+  * @param designInequality     True if Ax <= b (default), false if Ax = b or have mixed constraints.
+  * @param mixedDesignPivotNum  The pivot number if we have mixed A_1x <= b1 and A_2x = b2, i.e. how many inequality
+  *                             constraints come first (default is 0).
   */
 class AcceleratedGradientDescent(
   maxIter: Int = 1000,
@@ -66,13 +67,13 @@ class AcceleratedGradientDescent(
 
   /**
     * Implementation of the gradient maximizer API for dual-primal solvers
-    * @param f - objective function from dual-primal
-    * @param initialValue - initializing value for the dual
-    * @param verbosity - control logging level
-    * @return a tuple of (optimizedVariable, objective computation, number of iterations, log)
+    * @param f             Objective function from dual-primal.
+    * @param initialValue  Initial value for the dual variable.
+    * @param verbosity     Control logging level.
+    * @return A tuple of (optimizedVariable, objective computation, OptimizerState).
     */
-  override def maximize(f: DualPrimalDifferentiableObjective, initialValue: SparseVector[Double], verbosity: Int)
-  : (SparseVector[Double], DualPrimalDifferentiableComputationResult, OptimizerState) = {
+  override def maximize(f: DualPrimalDifferentiableObjective, initialValue: BSV[Double], verbosity: Int)
+  : (BSV[Double], DualPrimalDifferentiableComputationResult, OptimizerState) = {
     val log = new StringBuilder()
 
     val parameters: String = f"AGD solver\nprimalUpperBound: ${f.getPrimalUpperBound}%.8e, " +
@@ -93,11 +94,11 @@ class AcceleratedGradientDescent(
     val lambdaHistory: ListBuffer[Array[Double]] = mutable.ListBuffer[Array[Double]] ()
 
     // (x, y) are used for accelerated update
-    var x = initialValue //tracks the dual value
-    var y = initialValue //intermediate value to compute acceleration
+    var x = initialValue // tracks the dual value
+    var y = initialValue // intermediate value to compute acceleration
     // y_new = x + stepSize * grad(f(x))
-    // x_new = (1 - beta)y_new + beta*y
-    // dualObj = x^T(A*xhat - b) - c^T*xhat
+    // x_new = (1 - beta) * y_new + beta * y
+    // dualObj = x^T(A * xhat - b) - c^T * xhat
 
     while (i <= maxIter && status == Status.Running) {
 
@@ -127,9 +128,9 @@ class AcceleratedGradientDescent(
       } else {
         // if not converged make a gradient step and continue the loop
         // otherwise the loop will break anyway
-        val y_new: SparseVector[Double] = x + (result.dualGradient * stepSize)
-        // if we have specified a valid 'mixedDesignPivotNum', which means we have mixed inequality and equality constraints
-        // then we enable the first few constraints as A_1x <= b1 (inequality), the remaining will still be A_2x = b2 (equality)
+        val y_new: BSV[Double] = x + (result.dualGradient * stepSize)
+        // if we have inequality constraints, then we need to threshold the (dual) variables so that they
+        // are non-negative
         for (j <- 0 until x.length) {
           if (designInequality || j < mixedDesignPivotNum) {
             y_new(j) = if (y_new(j) < 0) 0.0 else y_new(j)

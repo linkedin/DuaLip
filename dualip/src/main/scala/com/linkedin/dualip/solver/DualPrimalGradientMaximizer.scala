@@ -28,7 +28,7 @@
  
 package com.linkedin.dualip.solver
 
-import breeze.linalg.SparseVector
+import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.util.OptimizerState
 
 /**
@@ -49,14 +49,14 @@ import com.linkedin.dualip.util.OptimizerState
 trait DualPrimalGradientMaximizer {
   /**
     * API of the solver
-    * @param f - objective function from dual-primal
-    * @param initialValue - Initial lambda value.
-    * @param verbosity - control logging level
-    * @return a tuple of (optimizedVariable, objective computation, OptimizerState)
+    * @param f             Objective function from dual-primal.
+    * @param initialValue  Initial lambda value.
+    * @param verbosity     Control logging level.
+    * @return A tuple of (optimizedVariable, objective computation, OptimizerState).
     */
   def maximize(
     f: DualPrimalDifferentiableObjective,
-    initialValue: SparseVector[Double],
+    initialValue: BSV[Double],
     verbosity: Int = 1
-  ): (SparseVector[Double], DualPrimalDifferentiableComputationResult, OptimizerState)
+  ): (BSV[Double], DualPrimalDifferentiableComputationResult, OptimizerState)
 }

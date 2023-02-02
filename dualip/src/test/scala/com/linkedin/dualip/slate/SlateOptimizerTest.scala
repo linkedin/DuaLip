@@ -28,10 +28,7 @@
 
 package com.linkedin.dualip.slate
 
-import breeze.linalg.{DenseMatrix, DenseVector}
-import breeze.optimize.proximal.Constraint.PROBABILITYSIMPLEX
-import breeze.optimize.proximal.QuadraticMinimizer
-import com.linkedin.dualip.projection.{SimplexProjection, UnitBoxProjection}
+import com.linkedin.dualip.projection.{QPProjection, SimplexProjection, UnitBoxProjection}
 import org.testng.annotations.Test
 import org.testng.Assert
 
@@ -104,6 +101,26 @@ class SlateOptimizerTest {
     Assert.assertEquals(slates8.size, 2)
     Assert.assertEquals(slates8(0).x, 0.5)
     Assert.assertEquals(slates8(1).x, 0.3)
+  }
+
+  @Test
+  def testQPOptimizer(): Unit = {
+    val qpProjection = new QPProjection()
+    // Symmetric case
+    val slates1 = new SingleSlotOptimizer(0.1, qpProjection).optimize(db1, Array(0,0))
+    Assert.assertEquals(slates1.size, 2)
+    Assert.assertEquals(slates1(0).x, 0.5)
+    Assert.assertEquals(slates1(1).x, 0.5)
+    // Asymmetric case with small gamma (should pick largest element)
+    val slates2 = new SingleSlotOptimizer(0.1, qpProjection).optimize(db2, Array(0,0))
+    Assert.assertEquals(slates2.size, 1)
+    Assert.assertEquals(slates2(0).x, 1.0)
+    Assert.assertEquals(slates2(0).costs, Seq((1, 0.0)))
+    // Asymmetric case with large gamma (should pick both elements)
+    val slates3 = new SingleSlotOptimizer(1, qpProjection).optimize(db2, Array(0,0))
+    Assert.assertEquals(slates3.size, 2)
+    Assert.assertTrue(Math.abs(slates3(0).x - 0.75) < 1E-2)
+    Assert.assertTrue(Math.abs(slates3(1).x - 0.25) < 1E-2)
   }
 
   @Test
