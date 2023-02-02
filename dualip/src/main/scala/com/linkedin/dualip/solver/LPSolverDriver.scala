@@ -33,7 +33,7 @@ import com.linkedin.dualip.problem.MatchingSolverDualObjectiveFunction.toBSV
 import com.linkedin.dualip.blas.VectorOperations
 import com.linkedin.dualip.problem.MooSolverDualObjectiveFunction
 import com.linkedin.dualip.util.{DataFormat, ProjectionType, SolverUtility}
-import com.linkedin.dualip.util.DataFormat.{AVRO, DataFormat}
+import com.linkedin.dualip.util.DataFormat.DataFormat
 import com.linkedin.dualip.util.IOUtility.{printCommandLineArgs, readDataFrame, saveDataFrame, saveLog}
 import com.linkedin.dualip.util.ProjectionType.{Greedy, ProjectionType, Simplex}
 import org.apache.log4j.Logger
@@ -396,8 +396,9 @@ object LPSolverDriver {
 }
 
 /**
- * @param initialLambdaPath   Filepath to initialize dual variables for algorithm restarts (optional).
- * @param initialLambdaFormat The format of input data, e.g. "avro" (default) or "orc".
+ * @param initialLambdaPath   Filepath to initialize dual variables (lambda) for algorithm restarts (optional).
+ * @param initialLambdaFormat The format of file with initial lambda values, e.g. "avro" (default), "json", "orc"
+  *                            or "csv".
  * @param autotune            Flag to algorithmically choose regularization parameter gamma (default is false).
  * @param gamma               Coefficient for quadratic objective regularizer, used by most objectives
  *                            (default is 1E-3).
