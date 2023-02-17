@@ -1,31 +1,3 @@
-/*
- * BSD 2-CLAUSE LICENSE
- *
- * Copyright 2021 LinkedIn Corporation
- * All Rights Reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
-
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
@@ -84,7 +56,7 @@ class MatchingSolverDualObjectiveFunction(
   override def getSardBound(lambda: BSV[Double]): Double = {
     val lambdaArray: Broadcast[Array[Double]] = spark.sparkContext.broadcast(lambda.toArray) // for performance
     val aggregator = new Tuple5Semigroup[Int, Int, Double, Max[Double], Max[Int]]
-    val (nonVertexSoln, numI, corralSize, corralSizeMax, jMax) = problemDesign.map { block =>
+    val (nonVertexSoln, numI, corralSize, corralSizeMax, jMax) = problemDesign.map { case block =>
       // below line is the same cost as a projection
       val (nV, corral, jM) = slateOptimizer.sardBound(block, lambdaArray.value)
       (nV, 1, corral, Max(corral), jM)
@@ -117,8 +89,9 @@ class MatchingSolverDualObjectiveFunction(
     */
   def getPrimal(lambda: BSV[Double]): Dataset[(String, Seq[Slate])] = {
     val lambdaArray: Array[Double] = lambda.toArray // for performance
-    problemDesign.map(block =>
-      (block.id, slateOptimizer.optimize(block, lambdaArray)))
+    problemDesign.map { case block =>
+      (block.id, slateOptimizer.optimize(block, lambdaArray))
+    }
   }
 
   /**
@@ -207,7 +180,8 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
         blocks = blocks.withColumn(field, lit(null))
       }
     }
-    val data = blocks.as[DataBlock]
+    val data = blocks.withColumnRenamed("memberId", "id")
+      .as[DataBlock]
       .repartition(spark.sparkContext.defaultParallelism)
       .persist(StorageLevel.MEMORY_ONLY)
 
