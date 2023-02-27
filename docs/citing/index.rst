@@ -3,7 +3,7 @@
 Citing DuaLip
 =============
 
-DuaLip has been created on the basis of the following research paper. If you cite DuaLip, please use the following:
+DuaLip has been created on the basis of the following research papers. To cite DuaLip, please use the following:
 
 
         .. code:: latex
@@ -15,7 +15,6 @@ DuaLip has been created on the basis of the following research paper. If you cit
             year         = {2021},
             url          = {https://arxiv.org/abs/2103.05277}
             }
-
 
           @InProceedings{pmlr-v119-basu20a,
             title      = {{ECLIPSE}: An Extreme-Scale Linear Program Solver for Web-Applications},

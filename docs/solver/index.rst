@@ -79,9 +79,9 @@ The Algorithm
 
 The overall algorithm can now be written as:
 
-1. Start with an initial :math:`\lambda`
-2. Get Primal: :math:`x_{\gamma}^*(\lambda)`
-3. Get Gradient: :math:`Ax_{\gamma}^*(\lambda) - b`
+1. Start with an initial :math:`\lambda`.
+2. Get Primal: :math:`x_{\gamma}^*(\lambda)`.
+3. Get Gradient: :math:`Ax_{\gamma}^*(\lambda) - b`.
 4. Update :math:`\lambda` via appropriate mechanisms.
 5. Continue till converge.
    
