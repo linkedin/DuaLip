@@ -36,17 +36,17 @@ The solver prints the following information during execution:
 ================================  ====================================================================================
 Variables                         Description
 ================================  ====================================================================================
-:code:`gradientCall`              The number of calls to compute gradient in LBFGS/LBFGSB
-:code:`iter`                      Iteration number
-:code:`dual_obj`                  Dual objective
-:code:`max_pos_slack`             If :math:`\lambda_j` is not 0, :code:`max_pos_slack` = :math:`\max \{ (Ax-b)_j, 0 \} / (1 + |b_j|)`
-:code:`max_zero_slack`            If :math:`\lambda_j` is 0, :code:`max_zero_slack` = :math:`\max\{ (Ax-b)_j, 0\} / (1 + |b_j|)`
-:code:`abs_slack_sum`             Sum of violation
-:code:`feasibility`               :math:`\max \{ r_j/(1 + |b_j|)\}`
-:code:`cx`                        :math:`c^T x`
-:math:`\lambda(Ax-b)`             Gradient
-:math:`\frac{\gamma}{2}||x||^2`   Regularization term
-:code:`time`                      Execution time of this iteration in seconds
+:code:`gradientCall`              The number of calls to compute the gradient in the solver.
+:code:`iter`                      Iteration number.
+:code:`dual_obj`                  Dual objective value.
+:code:`max_pos_slack`             If :math:`\lambda_j` is not 0, :code:`max_pos_slack` = :math:`\max \{ (Ax-b)_j, 0 \} / (1 + |b_j|)`.
+:code:`max_zero_slack`            If :math:`\lambda_j` is 0, :code:`max_zero_slack` = :math:`\max\{ (Ax-b)_j, 0\} / (1 + |b_j|)`.
+:code:`abs_slack_sum`             Sum of constraint violations.
+:code:`feasibility`               :math:`\max \{ r_j/(1 + |b_j|)\}`.
+:code:`cx`                        Primal objective value, i.e. :math:`c^T x`.
+:math:`\lambda(Ax-b)`             Gradient.
+:math:`\frac{\gamma}{2}||x||^2`   Regularization term.
+:code:`time`                      Execution time of this iteration in seconds.
 ================================  ====================================================================================
 
 Termination Logging

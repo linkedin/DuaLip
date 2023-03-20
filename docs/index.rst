@@ -1,4 +1,4 @@
-DuaLip: Dual Decomposition based Linear Program Solver Documentation
+DuaLip: Dual Decomposition based Linear Program Solver
 ====================================================================
 
 DuaLip is an extreme-scale Linear Program (LP) solver based on Apache Spark. It solves structured LP problems of the following form arising from web-applications:
@@ -49,30 +49,30 @@ Features
 .. glossary::
 
 #. Extreme Scale
-    DuaLip is specifically developed to tackle problems arising in web-applications that usually have hundreds of millions of users and millions of items, pushing the number of optimization variables in the trillions range (if not more). It uses a dual decomposition technique to be able to scale to such large problems. For details see the :ref:`solution <probsolution>` and for a wide range of applications see `Ramanath et. al. (2021) <https://arxiv.org/abs/2103.05277>`_ and `Basu et. al (2020) <http://proceedings.mlr.press/v119/basu20a/basu20a.pdf>`_.
+    DuaLip is specifically developed to tackle problems arising in web-applications that usually have hundreds of millions of users and millions of items, pushing the number of optimization variables in the trillions range (if not more). It uses a dual decomposition technique to be able to scale to such large problems. For the :ref:`Problem Solution <probsolution>` section for details. For a wide range of applications, see `Ramanath et. al. (2021) <https://arxiv.org/abs/2103.05277>`_ and `Basu et. al (2020) <http://proceedings.mlr.press/v119/basu20a/basu20a.pdf>`_.
 
 #. Parallelism
-    We support extreme-scale parallelism in our DuaLip solver, which can solve tens of millions of small separate LPs simultaneously. There are arising applications like personalized constrained optimization in recommender systems, which require adding personalized constraints for each unique user. In this case, each LP is dedicated for each user and only contains a small number of decision variables at per user level. Our parallel version of DuaLip can enable solving tens of millions of separate small LPs for all different users in parallel.
+    We support extreme-scale parallelism in our DuaLip solver, which can solve tens of millions of small separate LPs simultaneously. Such problems arise in applications like personalized constrained optimization in recommender systems which have personalized constraints for each unique user. In this case, each LP is dedicated to one user and only contains a small number of decision variables. Our parallel version of DuaLip can solve tens of millions of separate small LPs for all different users in parallel.
 
 #. Efficient
-    Although we follow first-order gradient methods to solve the problem, we implement several highly efficient algorithms for each of the component steps. See the :ref:`solver <solver>` for more details. This allows us to scale up 20x over a naive implementation. Please see `Ramanath et. al. (2021) <https://arxiv.org/abs/2103.05277>`_ for a comparative study.
+    Although we use well-known first-order gradient methods to solve the problem, we implement several highly efficient algorithms for each of the component steps. (See the :ref:`Solver section <solver>` for more details.) This allows us to scale up 20x over a naive implementation. Please see `Ramanath et. al. (2021) <https://arxiv.org/abs/2103.05277>`_ for a comparative study.
 
 #. Modular Design
     In our implementation, any problem can be formulated through a highly modular approach.
 
-		- **solver**: We begin by choosing a first-order optimization solver. We currently support `Proximal Gradient Ascent <https://en.wikipedia.org/wiki/Proximal_gradient_method>`_, `Accelerated Gradient Ascent <https://www.ceremade.dauphine.fr/~carlier/FISTA>`_, and `LBFGS-B <https://en.wikipedia.org/wiki/Limited-memory_BFGS>`_
+		- **solver**: We begin by choosing a first-order optimization solver. We currently support `Accelerated Gradient Ascent <https://www.ceremade.dauphine.fr/~carlier/FISTA>`_, `LBFGS <https://en.wikipedia.org/wiki/Limited-memory_BFGS>`_ and `LBFGS-B <https://en.wikipedia.org/wiki/Limited-memory_BFGS>`_.
 		- **projectionType**: We implement several very efficient projection algorithms to allow for a wide class of constraint sets :math:`\mathcal{C}_i`. For a list of supported constraints sets see :ref:`here <constraints>`.
 
     Each of these components is highly flexible and can be easily customized to add new solvers, or new types of projections for different constraints sets :math:`\mathcal{C}_i`. New formulations can also be added by appropriately stitching together these different components.
 
 #. Infeasibility Detection
-    We have incorporated simple checks on infeasibility (see Appendix D of `our paper <https://arxiv.org/abs/2103.05277>`_). This helps the end user to appropriately tweak the problem space.
+    We have incorporated simple checks on infeasibility. This helps the end user to appropriately tweak the problem space.
 
 #. Extensive Logging
     We have added extensive logging to help users understand whether the solver has converged to a good approximate solution. For more details, please see :ref:`here <logging>`.
 
 #. Warm start
-    We allow the user to input an initial estimate of the dual solution, if she is familiar with the problem space. This allows for very efficient solving of the overall problem.
+    We allow the user to input an initial estimate of the dual solution if they have one (e.g., if they have solved a highly related problem before). This can result in very efficient solving of the overall problem.
 
 Usage
 ------------------

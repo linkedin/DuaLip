@@ -1,38 +1,35 @@
 A Matching Problem
 ========================
 Large-scale matching problems occur naturally in many two-sided marketplaces. Usually in these settings, there are creators and consumers.
-Each item created has an associated budget and the problem is to maximize the utility under budget constraints.
-For example, in the ads marketplace, each ad campaign has a budget and we need to distribute impressions appropriately.
-For the jobs marketplace, each paid job has a budget and the impressions need to be appropriately allocated to maximize job applies.
+Each item created has an associated budget and the problem is to maximize utility under budget constraints.
+For example, in the ads marketplace, each ad campaign has a budget and we need to distribute impressions across campaigns without going over the budget for any of the campaigns.
+For the jobs marketplace, each paid job has a budget and the impressions need to be appropriately allocated to maximize job applies (again without going over budget).
 Here we work with a simple example to showcase how we can formulate and solve such matching problems through DuaLip.
 
-An example problem
-------------------
-For `"MovieLens dataset" <https://grouplens.org/datasets/movielens/>`_ (`Harper et. al. 2015
-<https://dl.acm.org/doi/10.1145^2/2827872>`_), which contains user rating of movies, let us imagine, we want to recommend movies to users,
-such that we maximize the total expected ratings, while restricting the number of times a movie is recommended. Similar
-such problems have been framed in `Makari et. al. (2013)
-<https://dl.acm.org/doi/10.14778^2/2536360.2536362>`_.
+An example problem: Movie recommendations
+-----------------------------------------
+One example of a matching problem is movie recommendations. Imagine that we want to recommend movies to users in a way that maximizes the total expected ratings, but without recommending any one movie too many times. We will use the `"MovieLens dataset" <https://grouplens.org/datasets/movielens/>`_ (`Harper et. al. 2015
+<https://dl.acm.org/doi/10.1145^2/2827872>`_), which contains user rating of movies, for this example. (Similar problems have been framed in `Makari et. al. (2013) <https://dl.acm.org/doi/10.14778^2/2536360.2536362>`_.
 
-How to translate the problem mathematically?
---------------------------------------------
-To translate this problem mathematically, let us begin with some notations. Define
+How to frame the problem mathematically?
+----------------------------------------
+To frame this problem mathematically, define the following quantities:
 
 * :math:`x_{ik}`: Probability of recommmending movie :math:`k` to user :math:`i`.
 * :math:`c_{ik}`: Movie rating of movie :math:`k` by user :math:`i`.
 * :math:`b_{k}`: Maximum number of times movie :math:`k` can be recommended.
 
-Based on this notation, the above problem can be formulated mathematically as:
+The optimization problem can be written as:
 
 .. math::
   \begin{array}{ll}
-    \mbox{Maximize} & \sum_{i,k} x_{i,k} c_{i,k} \\
-    \mbox{subject to} & \sum_i x_{i,k} \leq b_k \;\; \text{for all}\;\; k = 1,\ldots, K \\
-    & \sum_{k} x_{i,k} \leq 1, \;\; \text{and} \;\; 0 \leq x_{i,k} \leq 1 \;\; \text{for all}\; i,k
+    \mbox{Maximize} & \sum_{i,k} x_{ik} c_{ik} \\
+    \mbox{subject to} & \sum_i x_{ik} \leq b_k \;\; \text{for all}\;\; k = 1,\ldots, K \\
+    & \sum_{k} x_{ik} \leq 1, \;\; \text{and} \;\; 0 \leq x_{i,k} \leq 1 \;\; \text{for all}\; i,k
   \end{array}
 
-We can further frame this in the vector matrix notation by writing :math:`x,b,c` as the vectorized version of :math:`x_{i,k},b_k,c_{i,k}`
-respectively, with :math:`x_i = (x_{i,1}, \ldots, x_{i,K})`. Under this notation and changing the maximization to a
+We can further frame this in the vector matrix notation by writing :math:`x,b,c` as the vectorized versions of :math:`x_{ik},b_k,c_{ik}`
+respectively, e.g., :math:`x_i = (x_{i,1}, \ldots, x_{i,K})`. With this notation and changing the maximization to a
 minimization problem, we have
 
 .. math::
@@ -81,9 +78,9 @@ The matrix A will be
   \end{bmatrix}
 
 .. note::
-  In many matching problems, the connections are very sparse, i.e. users only rate a small percentage of movies. If user i does not rate movie k, the corresponding entry in A should be 0 because it will not contribute to the objective value. ACBlock only record the non-zero entries.
+  In many matching problems, the connections are very sparse, i.e. users only rate a small percentage of movies. If user i does not rate movie k (corresponding to NAs in the "Rating" column), the corresponding entry in A should be 0 because it will not contribute to the objective value. To save memory, ACBlock only records the non-zero entries.
 
-The vector b will be (1, 1, 1). Vector c will be (-3, -4, 0, 0, -1, -2, 0, -2, -1, -2, -4, -3)
+The vector b will be (1, 1, 1), and the vector c will be (-3, -4, 0, 0, -1, -2, 0, -2, -1, -2, -4, -3).
 
 The solver takes ACBlock and vectorB as two inputs. We require the input to be in the :ref:`Input Format`.
 
@@ -115,9 +112,9 @@ The format of ACBlock:
       } ]
     }
 
-Here id is a unique identifier of the block, i.e. user id for this problem. Each id corresponds to an array of tuples, which is in the format of (rowId, c(rowId), a(rowId)). rowId correspond to movieId in this problem.
+Here id is a unique identifier of the block, i.e. user id for this problem. Each id corresponds to an array of tuples, which is in the format of (rowId, c(rowId), a(rowId)). rowId corresponds to movieId in this problem.
 
-ACBlock in json format:
+ACBlock in JSON format:
 
 .. code:: json
 
@@ -126,7 +123,7 @@ ACBlock in json format:
   {"id":3,"data":[[2, -2, 1], [3, -1, 1]]}
   {"id":4,"data":[[1, -2, 1], [2, -4, 1], [3, -3, 1]]}
 
-vectorB in json format:
+vectorB in JSON format:
 
 .. code:: json
 
@@ -152,12 +149,11 @@ Get and build the code
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 .. code:: bash
 
-  git clone https://github.com/linkedin/DuaLip.git
   ./gradlew build
 
 Get the dataset
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-To download the 20M `MovieLens dataset <https://grouplens.org/datasets/movielens/>`_
+Run the code below to download the 20M `MovieLens dataset <https://grouplens.org/datasets/movielens/>`_:
 
 .. code:: bash
 
@@ -166,7 +162,7 @@ To download the 20M `MovieLens dataset <https://grouplens.org/datasets/movielens
   mkdir data/ml-20m/data
   mv ml-20m/rating.csv data/ml-20m/data
 
-Then use MatchingDataGenerator to convert the dataset to the format solver takes: 
+Next, use DuaLip's :code:`MatchingDataGenerator` to convert the dataset to the input format DuaLip needs for matching problems. (**Note:** The name of the :code:`.jar` file on your machine might be slightly different from :code:`./dualip/build/libs/dualip_2.12.jar` due to differing version numbers. Please replace the filename with the one on your machine if necessary.)
 
 .. code:: bash
 
@@ -182,9 +178,12 @@ Then use MatchingDataGenerator to convert the dataset to the format solver takes
   --preprocess.costValue 1.0 \
   --preprocess.outputPath data/movielens/
 
-Here rewardDim is the column name corresponding to reward information :math:`c_{ik}`.
-dataBlockDim is the column name corresponding to dataBlockId (i). constraintDim is the column name corresponding to itemId (k).
-budgetValue is budget information :math:`b_{k}`.
+In the code above,
+
+* :code:`rewardDim` is the column name corresponding to reward information :math:`c_{ik}`.
+* :code:`dataBlockDim` is the column name corresponding to dataBlockId(i).
+* :code:`constraintDim` is the column name corresponding to itemId(k).
+* :code:`budgetValue` is the budget constraint :math:`b_{k}`.
 
 Run the solver
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -211,7 +210,7 @@ The solver can be run locally with spark-submit:
 How to read the results?
 ------------------------
 
-We can see that as the solver progress, the :code:`dual_obj` increases and :code:`max_pos_slack` and :code:`max_zero_slack` decreases.
+We can see that as the solver progresses, :code:`dual_obj` increases while :code:`max_pos_slack` and :code:`max_zero_slack` decrease.
 
 .. code:: text
 
@@ -256,15 +255,11 @@ The detailed log is given :ref:`here <Matching log>`.
 
 How to do inference?
 --------------------
+There are two scenarios when reading the results. First, we can use the optimal primal values directly as decision variables. This is useful for a static system or batch processing.
 
-There are two scenarios when reading the results. We can directly use the primal as decision variables. This is useful for a static system or batch processing.
-Or we can use the dual to recover primal. This is useful when the system is dynamic and there are new items coming in. We can get the primal decision variable
-:math:`x_{ij}` without even solving the optimization problem. This allows us to work in a low-latency environment as required by most internet applications.
-
-The mechanism of solving such problems in industry is to first solve an extreme-scale problem to generate the duals and then use the duals in a
-low-latency environment to recover the primal, without the need of solving any optimization problem for every new item that is coming into
-the ecosystem.
+Second, we can use the optimal dual values to recover primal. This is useful when the system is dynamic and there are new items coming in. We can get the primal decision variable
+:math:`x_{ij}` without solving the extreme-scale optimization problem again. This allows us to work in a low-latency environment as required by most internet applications.
 
 .. note::
 	The above method for re-using the dual variable works as long as the score distribution of the new items
-	matches that of the old items which were used to solve the Problem. To prevent staleness, in practice, the optimization problem is solved at a regular cadence.
+	matches that of the old items which were used to solve the MOO problem. To prevent staleness in practice, the optimization problem is re-solved at a regular cadence.
