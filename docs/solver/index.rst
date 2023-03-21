@@ -121,8 +121,7 @@ The smoothness of :math:`g_\gamma` decreases as the number of constraints increa
 A small :math:`\gamma` makes the optimizer's convergence prohibitively slow, while a large :math:`\gamma` reduces the accuracy of 
 the solution. We define a practical criterion for sufficient convergence for a given :math:`\gamma` and 
 implement a stage-wise algorithm that automatically reduces :math:`\gamma` when the criterion is met to 
-prefer more accurate solutions. For details, please see Section 4 of `Ramanath et al. (2021)
-<https://arxiv.org/abs/2103.05277>`_.
+prefer more accurate solutions. For details, please see Section 3 of `Basu et al. (2020) <http://proceedings.mlr.press/v119/basu20a/basu20a.pdf>`_.
 
 .. _convergence :
 
