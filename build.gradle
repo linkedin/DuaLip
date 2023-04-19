@@ -26,7 +26,6 @@ allprojects {
 
     group = "com.linkedin.dualip"
 
-    project.version = "2.7.5"
 
     repositories {
         mavenCentral()
