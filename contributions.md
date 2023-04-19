@@ -33,7 +33,7 @@ preferably with the title "Vulnerability in Github LinkedIn/DuaLip - < short sum
 5. Test build (./gradlew build)
 6. Push local changes to remote branch. (git push -f origin mybranch)
 7. Create a new pull request at https://github.com/linkedin/DuaLip/pulls
-8. If need to update the pull request, repeat step 2 to 3.
+8. If you need to update the pull request, repeat steps 2 through 6, **excluding step 3**.
 9. Getting review and approval. Squash and merge to main branch.
 
 ## Tips for Getting Your Pull Request Accepted
