@@ -40,37 +40,35 @@ See [License](LICENSE) in the project root for license information.
 
 ### Extreme Scale
 DuaLip is specifically developed to tackle problems arising in web applications that usually have hundreds of millions of users
-and millions of items, pushing the number of optimization variables into the trillions range (if not more). It uses a dual 
+and millions of items, pushing the number of optimization variables in the trillions range (if not more). It uses a dual 
 decomposition technique to be able to scale to such large problems. For details and a wide range of applications, see [Ramanath et. al. (2021)](https://arxiv.org/pdf/2103.05277.pdf) and [Basu et. al. (2020)](http://proceedings.mlr.press/v119/basu20a/basu20a.pdf).
 
 ### Parallelism
-We support extreme-scale parallelism in our DuaLip solver, which can solve tens of millions of small separate LPs simultaneously. There are arising applications like personalized constrained optimization in recommender systems, which require adding personalized constraints for each unique user. In this case, each LP is dedicated for each user and only contains a small number of decision variables at per user level. Our parallel version of DuaLip can enable solving tens of millions of separate small LPs for all different users in parallel.
+We support extreme-scale parallelism in our DuaLip solver, which can solve tens of millions of small separate LPs simultaneously. Such problems arise in applications like personalized constrained optimization in recommender systems which have personalized constraints for each unique user. In this case, each LP is dedicated to each user and only contains a small number of decision variables. Our parallel version of DuaLip can solve tens of millions of separate small LPs for all different users in parallel.
 
 ### Efficient
-Although we follow first-order gradient methods to solve the problem, we implement several highly efficient algorithms 
+Although we use well-known first-order gradient methods to solve the problem, we implement several highly efficient algorithms 
 for each of the component steps. This allows us to scale up 20x over a naive 
 implementation. Please see [Ramanath et. al. (2021)](https://arxiv.org/pdf/2103.05277.pdf) for a comparative study.
 
 ### Modular Design
 In our implementation, any problem can be formulated through a highly modular approach.
-* `solver`: We begin by choosing a first-order optimization solver. We currently support [Proximal Gradient Ascent](https://en.wikipedia.org/wiki/Proximal_gradient_method), 
-[Accelerated Gradient Ascent](https://www.ceremade.dauphine.fr/~carlier/FISTA), and [LBFGS-B](https://en.wikipedia.org/wiki/Limited-memory_BFGS).
-* `projectionType`: We implement several very efficient projection algorithms to allow for the wide class of constraint
+* `solver`: We begin by choosing a first-order optimization solver. We currently support
+[Accelerated Gradient Ascent](https://www.ceremade.dauphine.fr/~carlier/FISTA), [LBFGS](https://en.wikipedia.org/wiki/Limited-memory_BFGS) and [LBFGS-B](https://en.wikipedia.org/wiki/Limited-memory_BFGS).
+* `projectionType`: We implement several very efficient projection algorithms to allow for a wide class of constraint
 sets `C_i`. 
 
 Each of these components is highly flexible and can be easily customized to add new solvers, or new types of projections
 for different constraints sets `C_i`. New formulations can also be added by appropriately stitching together these different components.
- 
 
 ### Detects Infeasibility
-We have incorporated simple checks on infeasibility (see Appendix D of [our paper](https://arxiv.org/abs/2103.05277)). This helps the end user to appropriately tweak their problem space.    
+We have incorporated simple checks on infeasibility. This helps the end user to appropriately tweak their problem space.    
 
 ### Extensive Logging
 We have added extensive logging to help users understand whether the solver has converged to a good approximate solution. 
 
 ### Warm start
-We allow the user to input an initial estimate of the dual solution, if she is familiar with the problem space. This 
-allows for very efficient solving of the overall problem.
+We allow the user to input an initial estimate of the dual solution if they have one (e.g., if they have solved a highly related problem before). This can result in very efficient solving of the overall problem.
  
 For more details of these features please see the full [wiki](https://linkedin.github.io/DuaLip/). 
 
@@ -107,7 +105,7 @@ Implementations of some methods in DuaLip were inspired by other open-source lib
 aspects of this library. A full list of acknowledgements can be found [here](acknowledgements.md).
 
 ## References
-DuaLip has been created on the basis of the following research paper. If you cite DuaLip, please use the following:
+DuaLip has been created on the basis of the following research papers. If you cite DuaLip, please use the following:
 ```
 @inproceedings{ramanath:21,
   author       = {Ramanath, Rohan, and Keerthi, Sathiya S. and Basu, Kinjal and Salomatin, Konstantin and Yao, Pan},

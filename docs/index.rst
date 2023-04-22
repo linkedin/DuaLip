@@ -24,7 +24,7 @@ This library was created by `Yao Pan
 <https://www.linkedin.com/in/sathiya-keerthi-selvaraj-ba963414/>`_, and `Miao Cheng
 <https://www.linkedin.com/in/miaoch/>`_ from LinkedIn.
 
-**Code available on** `GitHub 
+**Code available on** `GitHub
 <https://github.com/linkedin/DuaLip>`_.
 
 Citing DuaLip
@@ -49,7 +49,7 @@ Features
 .. glossary::
 
 #. Extreme Scale
-    DuaLip is specifically developed to tackle problems arising in web-applications that usually have hundreds of millions of users and millions of items, pushing the number of optimization variables in the trillions range (if not more). It uses a dual decomposition technique to be able to scale to such large problems. For the :ref:`Problem Solution <probsolution>` section for details. For a wide range of applications, see `Ramanath et. al. (2021) <https://arxiv.org/abs/2103.05277>`_ and `Basu et. al (2020) <http://proceedings.mlr.press/v119/basu20a/basu20a.pdf>`_.
+    DuaLip is specifically developed to tackle problems arising in web-applications that usually have hundreds of millions of users and millions of items, pushing the number of optimization variables in the trillions range (if not more). It uses a dual decomposition technique to be able to scale to such large problems. See the :ref:`Problem Solution <probsolution>` section for details. For a wide range of applications, see `Ramanath et. al. (2021) <https://arxiv.org/abs/2103.05277>`_ and `Basu et. al (2020) <http://proceedings.mlr.press/v119/basu20a/basu20a.pdf>`_.
 
 #. Parallelism
     We support extreme-scale parallelism in our DuaLip solver, which can solve tens of millions of small separate LPs simultaneously. Such problems arise in applications like personalized constrained optimization in recommender systems which have personalized constraints for each unique user. In this case, each LP is dedicated to one user and only contains a small number of decision variables. Our parallel version of DuaLip can solve tens of millions of separate small LPs for all different users in parallel.
@@ -94,7 +94,7 @@ Tests typically run with the :code:`test` task. If you want to force-run all tes
 
 Using the JAR File
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Depending on the mode of usage, the built JAR can be deployed as part of an offline data pipeline, depended 
+Depending on the mode of usage, the built JAR can be deployed as part of an offline data pipeline, depended
 upon to build jobs using its APIs, or added to the classpath of a Spark Jupyter notebook or a Spark Shell instance. For example:
 
 .. code:: bash
@@ -157,7 +157,7 @@ DuaLip has been created on the basis of the following research papers. If you ci
           }
 
 
-        
+
 
 .. toctree::
    :hidden:
