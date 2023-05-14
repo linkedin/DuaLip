@@ -1,6 +1,8 @@
 package com.linkedin.dualip.solver.firstorder.gradientbased
 
 import breeze.linalg.{SparseVector => BSV}
+import com.linkedin.dualip.maximizer.solver.firstorder.gradientbased.GradientDescent
+import com.linkedin.dualip.objective.SimpleObjective
 import org.testng.Assert
 import org.testng.annotations.Test
 

@@ -2,6 +2,7 @@ package com.linkedin.dualip.data
 
 import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.projection.Projection
+import com.linkedin.dualip.util.DataFormat.DataFormat
 
 /**
   * case class for the dual variables corresponding to local and global constraints

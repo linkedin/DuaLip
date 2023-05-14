@@ -1,6 +1,8 @@
 package com.linkedin.dualip.solver.firstorder.subgradientbased
 
 import breeze.linalg.{SparseVector => BSV}
+import com.linkedin.dualip.maximizer.solver.firstorder.subgradientbased.SubgradientDescent
+import com.linkedin.dualip.objective.{SimpleNonDifferentiableObjective, SimpleObjective}
 import org.testng.Assert
 import org.testng.annotations.Test
 

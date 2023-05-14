@@ -1,5 +1,6 @@
 package com.linkedin.dualip.objective.distributedobjective
 
+import com.linkedin.dualip.objective.PartialPrimalStats
 import com.linkedin.spark.common.lib.TestUtils
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession

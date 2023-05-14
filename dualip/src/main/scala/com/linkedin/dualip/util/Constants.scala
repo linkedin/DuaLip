@@ -1,5 +1,7 @@
 package com.linkedin.dualip.util
 
+import com.linkedin.dualip.util
+
 /**
   * The enumeration of supported file format.
   */

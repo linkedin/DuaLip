@@ -14,9 +14,9 @@ import scala.collection.mutable
 class SimpleObjective() extends DualPrimalObjective {
   override def dualDimensionality: Int = 2
 
-  override def calculate(lambda: BSV[Double], log: mutable.Map[String, String]=null, verbosity: Int = 1, designInequality: Boolean = true, mixedDesignPivotNum: Int = 0): DualPrimalComputationResult = {
-    val Array(x,y) = lambda.toArray
-    val obj = -(x - 3.0)*(x - 3.0) - (y + 5.0)*(y + 5.0)
+  override def calculate(lambda: BSV[Double], log: mutable.Map[String, String] = null, verbosity: Int = 1, designInequality: Boolean = true, mixedDesignPivotNum: Int = 0): DualPrimalComputationResult = {
+    val Array(x, y) = lambda.toArray
+    val obj = -(x - 3.0) * (x - 3.0) - (y + 5.0) * (y + 5.0)
     val grad = Array(-2.0 * (x - 3.0), -2.0 * (y + 5.0))
     // primal, slack and maxSlack are dummy, they are used for logging and extra convergence criteria,
     // so they should not impact the testing of basic functionality
@@ -55,13 +55,13 @@ class RosenbrockObjective(val shift: Double = 0.0) extends DualPrimalObjective {
 }
 
 /**
- * A simple function with non-differentiability at (0, 0) and (1, 0)
- * The function is defined by f(x, y) = g(x) - (y - 1)^2, where
- * g(x) = 2x if x <= 0,
- * = x  if 0 < x <= 2,
- * = -x + 4  if 2 < x.
- * Function maximized at x = 2, y = 1, max function value is 2.
- */
+  * A simple function with non-differentiability at (0, 0) and (1, 0)
+  * The function is defined by f(x, y) = g(x) - (y - 1)^2, where
+  * g(x) = 2x if x <= 0,
+  * = x  if 0 < x <= 2,
+  * = -x + 4  if 2 < x.
+  * Function maximized at x = 2, y = 1, max function value is 2.
+  */
 class SimpleNonDifferentiableObjective() extends DualPrimalObjective {
   override def dualDimensionality: Int = 2
 

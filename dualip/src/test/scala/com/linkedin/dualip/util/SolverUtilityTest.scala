@@ -1,5 +1,6 @@
 package com.linkedin.dualip.util
 
+import com.linkedin.dualip.util.SolverUtility.{estimateLipschitzConstant, expandGroupedStepSize, stepSizeFromLipschitzConstants, updateDualGradientHistory}
 import org.testng.Assert
 import org.testng.annotations.Test
 
@@ -111,6 +112,8 @@ class SolverUtilityTest {
     val expectedStepSizeThree = 1e-5
     Assert.assertEquals(expectedStepSizeThree, stepSizeFromLipschitzConstants(lipschitzConstantsThree, 10, 1e-5, 0.1))
   }
+
+  def calculateGroupStepSize(gradient: Array[Double], lambda: Array[Double], gradientHistory: ListBuffer[Array[Double]], lambdaHistory: ListBuffer[Array[Double]], pivotPositionsForStepSize: Array[Int], i: Int, d: Double, d1: Double) = ???
 
   @Test
   def calculateStepSizeTest(): Unit = {

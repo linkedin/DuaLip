@@ -1,6 +1,10 @@
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
+import com.linkedin.dualip.data.MatchingData
+import com.linkedin.dualip.maximizer.solver.firstorder.gradientbased.AcceleratedGradientDescent
+import com.linkedin.dualip.projection.BoxCutProjection
+import com.linkedin.dualip.slate.{SingleSlotComposer, SlateComposer}
 import com.linkedin.spark.common.lib.TestUtils
 import org.apache.spark.sql.SparkSession
 import org.testng.Assert
@@ -48,6 +52,7 @@ class MatchingSolverTest {
   @Test
   def testMaxSolver(): Unit = {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
+    import spark.implicits._
     spark.sparkContext.setLogLevel("warn")
 
     val gamma = 1E-6
@@ -88,6 +93,7 @@ class MatchingSolverTest {
   @Test
   def testSimplexSolver(): Unit = {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
+    import spark.implicits._
     spark.sparkContext.setLogLevel("warn")
 
     val gamma = 1E-3
@@ -110,6 +116,7 @@ class MatchingSolverTest {
   @Test
   def testBoxCutSolver(): Unit = {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
+    import spark.implicits._
     spark.sparkContext.setLogLevel("warn")
 
     val gamma = 1E-6
@@ -126,12 +133,13 @@ class MatchingSolverTest {
   }
 
   /**
-   * The objective of this test is to simulate the optimal solution of x=0; which tests the correctness of the
-   * code-segment that handles the empty primal stats
-   */
+    * The objective of this test is to simulate the optimal solution of x=0; which tests the correctness of the
+    * code-segment that handles the empty primal stats
+    */
   @Test
   def testBoxCutInequalitySolver(): Unit = {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
+    import spark.implicits._
 
     val data: Seq[MatchingData] = (0 to 4).map(i =>
       MatchingData(i.toString, (0 to 4).map(j => (j, -c((i, j)), a((i, j)))), metadata))

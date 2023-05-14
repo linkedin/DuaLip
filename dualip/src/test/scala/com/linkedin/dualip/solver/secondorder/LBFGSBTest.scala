@@ -1,6 +1,8 @@
 package com.linkedin.dualip.solver.secondorder
 
 import breeze.linalg.{SparseVector => BSV}
+import com.linkedin.dualip.maximizer.solver.secondorder.LBFGSB
+import com.linkedin.dualip.objective.{RosenbrockObjective, SimpleObjective}
 import org.testng.Assert
 import org.testng.annotations.Test
 

@@ -5,8 +5,8 @@ import org.apache.spark.sql.{Dataset, Encoder}
 import scala.reflect.ClassTag
 
 /**
- * New data types to support objects being passed and computed as either Array or Dataset
- */
+  * New data types to support objects being passed and computed as either Array or Dataset
+  */
 trait MapReduceCollectionWrapper[A] {
   val value: Object
 
