@@ -1,54 +1,27 @@
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
-import com.linkedin.dualip.problem.MatchingSolverDualObjectiveFunction.toBSV
-import com.linkedin.dualip.projection.{BoxCutProjection, Projection, SimplexProjection, UnitBoxProjection}
-import com.linkedin.dualip.solver._
-import com.linkedin.dualip.util.{IOUtility, InputPathParamsParser, InputPaths, MapReduceArray, MapReduceCollectionWrapper, MapReduceDataset}
-import com.linkedin.dualip.util.ProjectionType._
+import com.linkedin.dualip.util.MapReduceCollectionWrapper
+import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.{DataFrame, Dataset, Encoder, Encoders, Row, SparkSession}
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.storage.StorageLevel
+
 import scala.math.max
 
-/**
- * A MOO block of data. A vertical slice of design matrix, specifically the variables in the same simplex constraint sum x <= 1
- * We need to keep this data together because we need to do a simplex projection on it.
- *
- * Column (variable indices in "a" and "c" are relative, that is, variable is uniquely identified by
- * a combination of block id and internal id.
- *
- * internal representation is optimized for the operations that algorithm implements and data characteristics:
- * in particular, dense constraints matrix with few rows.
- *
- * @param id - unique identifier of the block, i.e. impression id for some problems
- * @param a - a dense constraints matrix a(row)(column)
- * @param c - a dense objective function vector
- * @param problemId - unique identifier for distinguishing a specific LP problem
- */
-case class MooDataBlock(id: Long, a: Array[Array[Double]], c: Array[Double], problemId: Long)
+
 
 /**
- * A constraint block of data. A data point of constraint vector.
- *
- * @param row - a specific row number of the constraint vector
- * @param value - the corresponding constraint value for the row
- * @param problemId - unique identifier for distinguishing a specific LP problem
- */
-case class ConstraintBlock(row: Int, value: Double, problemId: Long)
-
-/**
- * Moo objective function, encapsulates problem design
- * @param problemDesign - constraints matrix and objective vector
- * @param b - constraints vector
- * @param gamma - regularization parameter
- * @param projectionType - type of projection used
- * @param boxCutUpperBound - upper bound for the box cut projection constraint
- * @param spark - implicit spark session object
- */
+  * Moo objective function, encapsulates problem design
+  * @param problemDesign - constraints matrix and objective vector
+  * @param b - constraints vector
+  * @param gamma - regularization parameter
+  * @param projectionType - type of projection used
+  * @param boxCutUpperBound - upper bound for the box cut projection constraint
+  * @param spark - implicit spark session object
+  */
 class MooSolverDualObjectiveFunction(
-  problemDesign: MapReduceCollectionWrapper[MooDataBlock],
+  problemDesign: MapReduceCollectionWrapper[MooData],
   b: BSV[Double],
   gamma: Double,
   projectionType: ProjectionType,
@@ -74,23 +47,43 @@ class MooSolverDualObjectiveFunction(
   override def getPrimalUpperBound: Double = upperBound
 
   /**
-   * Method called in the parent class
-   * @param lambda the dual variable
-   * @return
-   */
+    * Method called in the parent class
+    * @param lambda the dual variable
+    * @return
+    */
   override def getPrimalStats(lambda: BSV[Double]): MapReduceCollectionWrapper[PartialPrimalStats] = {
     val primals = getPrimal(lambda)
     primals.map( { case (_, _, stats) => stats } , MooSolverDualObjectiveFunction.encoderPartialPrimalStats)
   }
 
   /**
-   * Get the primal value for a given dual variable along with some auxiliary quantities needed for
-   * the solver.
-   * This is the most expensive part of the algorithm, so we pay attention to code optimization
-   * and use java arrays, while loops and mutable variables.
-   * @param lambda the dual variable
-   * @return (id, obj, sum(`x^2`), grad)
-   */
+    * Return the primal for saving as a DataFrame.
+    *
+    * @param lambda The dual values
+    * @return Optionally the DataFrame with primal solution. None if the functionality is not supported.
+    */
+  override def getPrimalForSaving(lambda: BSV[Double]): Option[DataFrame] = {
+
+    val primalsDataFrame = getPrimal(lambda).map({ case (id, primal, _) => (id, primal) },
+      MooSolverDualObjectiveFunction.encoderIdPrimal)
+      .value
+      .asInstanceOf[Dataset[(Long, Array[Double])]]
+      .map({ case (blockId, primals) => (blockId.toString,
+        primals.zipWithIndex.map { case (value, index) => (index, value) })
+      })
+      .toDF("blockId", "variables")
+
+    Option(primalsDataFrame)
+  }
+
+  /**
+    * Get the primal value for a given dual variable along with some auxiliary quantities needed for
+    * the solver.
+    * This is the most expensive part of the algorithm, so we pay attention to code optimization
+    * and use java arrays, while loops and mutable variables.
+    * @param lambda the dual variable
+    * @return (id, obj, sum(`x^2`), grad)
+    */
   def getPrimal(lambda: BSV[Double]): MapReduceCollectionWrapper[(Long, Array[Double], PartialPrimalStats)] = {
     val lambdaArray = lambda.toArray
     val metadata: Map[String, Double] = Map[String, Double]("boxCut" -> boxCutUpperBound)
@@ -133,37 +126,15 @@ class MooSolverDualObjectiveFunction(
       (block.id, primal, PartialPrimalStats(ax, obj, xsquared))
     }, MooSolverDualObjectiveFunction.encoderTuplePartialPrimalStats)
   }
-
-  /**
-    * Return the primal for saving as a DataFrame.
-    *
-    * @param lambda The dual values
-    * @return Optionally the DataFrame with primal solution. None if the functionality is not supported.
-    */
-  override def getPrimalForSaving(lambda: BSV[Double]): Option[DataFrame] = {
-
-    import spark.implicits._
-
-    val primalsDataFrame = getPrimal(lambda).map({ case (id, primal, _) => (id, primal) },
-      MooSolverDualObjectiveFunction.encoderIdPrimal)
-      .value
-      .asInstanceOf[Dataset[(Long, Array[Double])]]
-      .map({ case (blockId, primals) => (blockId.toString,
-        primals.zipWithIndex.map { case (value, index) => (index, value) })
-      })
-      .toDF("blockId", "variables")
-
-    Option(primalsDataFrame)
-  }
 }
 
 /**
- * This companion object encapsulates all data/objective loading specifics for (single) MOO use case
- */
+  * This companion object encapsulates all data/objective loading specifics for (single) MOO use case
+  */
 object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
   /**
-   * Create encoder singletons to reuse and prevent re-initialization costs
-   */
+    * Create encoder singletons to reuse and prevent re-initialization costs
+    */
   val encoderTuplePartialPrimalStats: Encoder[(Long, Array[Double], PartialPrimalStats)] = ExpressionEncoder[(Long, Array[Double], PartialPrimalStats)]
   val encoderPartialPrimalStats: Encoder[PartialPrimalStats] = ExpressionEncoder[PartialPrimalStats]
   val encoderIdPrimal: Encoder[(Long, Array[Double])] = ExpressionEncoder[(Long, Array[Double])]
@@ -171,14 +142,13 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
 
   val DUMMY_PROBLEM_ID: Long = -1  // this is used when we are solving just a single problem
   /**
-   * Custom data loader.
-   * @param inputPaths input path for vectorB and ACblock
-   * @param spark spark session
-   * @return
-   */
+    * Custom data loader.
+    * @param inputPaths input path for vectorB and ACblock
+    * @param spark spark session
+    * @return
+    */
   def loadData(inputPaths: InputPaths)
-    (implicit spark: SparkSession): (MapReduceDataset[MooDataBlock], BSV[Double]) = {
-    import spark.implicits._
+    (implicit spark: SparkSession): (MapReduceDataset[MooData], BSV[Double]) = {
 
     val budget = IOUtility.readDataFrame(inputPaths.vectorBPath, inputPaths.format)
       .map{case Row(_c0: Number, _c1: Number) => (_c0.intValue(), _c1.doubleValue()) }
@@ -199,23 +169,23 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
     val data = IOUtility.readDataFrame(inputPaths.ACblocksPath, inputPaths.format)
       .repartition(spark.sparkContext.defaultParallelism)
       .withColumn("problemId", lit(DUMMY_PROBLEM_ID))
-      .as[MooDataBlock]
+      .as[MooData]
       .persist(StorageLevel.MEMORY_ONLY)
 
-    val retData = MapReduceDataset[MooDataBlock](data)
+    val retData = MapReduceDataset[MooData](data)
 
     (retData, b)
   }
 
   /**
-   * objective loader that conforms to a generic loader API
-   * @param gamma regularization weight
-   * @param projectionType type of projection used
-   * @param args input arguments
-   * @param spark spark session
-   * @return
-   */
-  def apply(gamma: Double, projectionType: ProjectionType, args: Array[String])(implicit spark: SparkSession): DualPrimalDifferentiableObjective = {
+    * objective loader that conforms to a generic loader API
+    * @param gamma regularization weight
+    * @param projectionType type of projection used
+    * @param args input arguments
+    * @param spark spark session
+    * @return
+    */
+  override def apply(gamma: Double, projectionType: ProjectionType, args: Array[String])(implicit spark: SparkSession): DualPrimalObjective = {
     val inputPaths = InputPathParamsParser.parseArgs(args)
 
     val (data, b) = MooSolverDualObjectiveFunction.loadData(inputPaths)
@@ -233,7 +203,7 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
     * @return
     */
   def applyWithCustomizedBoxCut(gamma: Double, projectionType: ProjectionType, boxCutUpperBound: Int, args: Array[String])
-                               (implicit spark: SparkSession): DualPrimalDifferentiableObjective = {
+    (implicit spark: SparkSession): DualPrimalObjective = {
     val inputPaths = InputPathParamsParser.parseArgs(args)
 
     val (data, b) = MooSolverDualObjectiveFunction.loadData(inputPaths)
@@ -243,20 +213,20 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
 }
 
 /**
- * This object encapsulates all data/objective loading specifics for Parallel MOO use case
- */
+  * This object encapsulates all data/objective loading specifics for Parallel MOO use case
+  */
 object ParallelMooSolverDualObjectiveFunction {
   /**
-   * Custom data loader.
-   *
-   * @param inputPaths input path for vectorB and ACblock
-   * @param gamma      gamma regularization
-   * @param projectionType type of projection used
-   * @param spark      spark session
-   * @return
-   */
+    * Custom data loader.
+    *
+    * @param inputPaths input path for vectorB and ACblock
+    * @param gamma      gamma regularization
+    * @param projectionType type of projection used
+    * @param spark      spark session
+    * @return
+    */
   def loadData(inputPaths: InputPaths, gamma: Double, projectionType: ProjectionType)
-    (implicit spark: SparkSession): Dataset[(Long, MapReduceArray[MooDataBlock], Array[(Int, Double)])] = {
+    (implicit spark: SparkSession): Dataset[(Long, MapReduceArray[MooData], Array[(Int, Double)])] = {
     import spark.implicits._
 
     val budgetData = IOUtility.readDataFrame(inputPaths.vectorBPath, inputPaths.format)
@@ -268,16 +238,16 @@ object ParallelMooSolverDualObjectiveFunction {
       .toDF("problemId", "budget")
 
     val mooData = IOUtility.readDataFrame(inputPaths.ACblocksPath, inputPaths.format)
-      .as[MooDataBlock]
-      .groupByKey(mooDataBlock => mooDataBlock.problemId)
+      .as[MooData]
+      .groupByKey(MooData => MooData.problemId)
       .mapGroups { case (problemId, dataIterator) =>
-        (problemId, MapReduceArray[MooDataBlock](dataIterator.toArray))
+        (problemId, MapReduceArray[MooData](dataIterator.toArray))
       }
       .toDF("problemId", "mooData")
 
     val retData = mooData.join(budgetData, "problemId")
       .select($"problemId", $"mooData", $"budget")
-      .as[(Long, MapReduceArray[MooDataBlock], Array[(Int, Double)])]
+      .as[(Long, MapReduceArray[MooData], Array[(Int, Double)])]
 
     retData
   }

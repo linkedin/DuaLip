@@ -1,9 +1,6 @@
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
-import com.linkedin.dualip.projection.{BoxCutProjection, GreedyProjection, SimplexProjection}
-import com.linkedin.dualip.slate.{DataBlock, SingleSlotOptimizer, SlateOptimizer}
-import com.linkedin.dualip.solver.AcceleratedGradientDescent
 import com.linkedin.spark.common.lib.TestUtils
 import org.apache.spark.sql.SparkSession
 import org.testng.Assert
@@ -17,40 +14,45 @@ case class MatchingSolverTestVar(value: Double, items: Array[Int])
 case class MatchingSolverTestRow(blockId: String, variables: Array[MatchingSolverTestVar])
 
 class MatchingSolverTest {
-  val enableHighDimOptimization = false // unit tests should work with both true/false settings, only using "false" to save runtime
+  // unit tests should work with both true/false settings, only using "false" to save runtime
+  val enableHighDimOptimization = false
 
-  val a = Map(
-    (0, 0) -> 0.307766110869125, (0, 10) -> 0.257672501029447, (0, 20) -> 0.552322433330119, (0, 30) -> 0.0563831503968686,(0, 40) -> 0.468549283919856,
-    (1, 1) -> 0.483770735096186, (1, 11) -> 0.812402617651969, (1, 21) -> 0.370320537127554, (1, 31) -> 0.546558595029637, (1, 41) -> 0.170262051047757,
-    (2, 2) -> 0.624996477039531, (2, 12) -> 0.882165518123657, (2, 22) -> 0.28035383997485,  (2, 32) -> 0.398487901547924, (2, 42) -> 0.76255108229816,
-    (3, 3) -> 0.669021712383255, (3, 13) -> 0.204612161964178, (3, 23) -> 0.357524853432551, (3, 33) -> 0.359475114848465, (3, 43) -> 0.690290528349578,
-    (4, 4) -> 0.535811153938994, (4, 14) -> 0.710803845431656, (4, 24) -> 0.538348698290065, (4, 34) -> 0.74897222686559,  (4, 44) -> 0.420101450523362
+  // a(i, j): cost associated with user i for item j
+  // c(i, j): objective function coefficient associated with user i for item j
+  val a: Map[(Int, Int), Double] = Map(
+    (0, 0) -> 0.307766110869125, (0, 1) -> 0.483770735096186, (0, 2) -> 0.624996477039531, (0, 3) -> 0.669021712383255, (0, 4) -> 0.535811153938994,
+    (1, 0) -> 0.257672501029447, (1, 1) -> 0.812402617651969, (1, 2) -> 0.882165518123657, (1, 3) -> 0.204612161964178, (1, 4) -> 0.710803845431656,
+    (2, 0) -> 0.552322433330119, (2, 1) -> 0.370320537127554, (2, 2) -> 0.28035383997485, (2, 3) -> 0.357524853432551, (2, 4) -> 0.538348698290065,
+    (3, 0) -> 0.0563831503968686, (3, 1) -> 0.546558595029637, (3, 2) -> 0.398487901547924, (3, 3) -> 0.359475114848465, (3, 4) -> 0.74897222686559,
+    (4, 0) -> 0.468549283919856, (4, 1) -> 0.170262051047757, (4, 2) -> 0.76255108229816, (4, 3) -> 0.690290528349578, (4, 4) -> 0.420101450523362
   )
-  val c = Map(
-    0 -> -0.307766110869125,   1 -> -0.483770735096186,  2 -> -0.624996477039531,  3 -> -0.669021712383255,  4 -> -0.535811153938994,
-    10 -> -0.257672501029447, 11 -> -0.812402617651969, 12 -> -0.882165518123657, 13 -> -0.204612161964178, 14 -> -0.710803845431656,
-    20 -> -0.552322433330119, 21 -> -0.370320537127554, 22 -> -0.28035383997485,  23 -> -0.357524853432551, 24 -> -0.538348698290065,
-    30 -> -0.0563831503968686,31 -> -0.546558595029637, 32 -> -0.398487901547924, 33 -> -0.359475114848465, 34 -> -0.74897222686559,
-    40 -> -0.468549283919856, 41 -> -0.170262051047757, 42 -> -0.76255108229816,  43 -> -0.690290528349578, 44 -> -0.420101450523362
+  val c: Map[(Int, Int), Double] = Map(
+    (0, 0) -> -0.307766110869125, (0, 1) -> -0.483770735096186, (0, 2) -> -0.624996477039531, (0, 3) -> -0.669021712383255, (0, 4) -> -0.535811153938994,
+    (1, 0) -> -0.257672501029447, (1, 1) -> -0.812402617651969, (1, 2) -> -0.882165518123657, (1, 3) -> -0.204612161964178, (1, 4) -> -0.710803845431656,
+    (2, 0) -> -0.552322433330119, (2, 1) -> -0.370320537127554, (2, 2) -> -0.28035383997485, (2, 3) -> -0.357524853432551, (2, 4) -> -0.538348698290065,
+    (3, 0) -> -0.0563831503968686, (3, 1) -> -0.546558595029637, (3, 2) -> -0.398487901547924, (3, 3) -> -0.359475114848465, (3, 4) -> -0.74897222686559,
+    (4, 0) -> -0.468549283919856, (4, 1) -> -0.170262051047757, (4, 2) -> -0.76255108229816, (4, 3) -> -0.690290528349578, (4, 4) -> -0.420101450523362
   )
   val metadata: Map[String, Double] = Map[String, Double]("boxCut" -> 2)
-  val data: Seq[DataBlock] = (0 to 4).map(i => DataBlock(i.toString, (0 to 4).map(j => j + 10 * i).map(j => (j % 10, c(j), a((j % 10, j)))), metadata))
+  val data: Seq[MatchingData] = (0 to 4).map(i =>
+    MatchingData(i.toString, (0 to 4).map(j => (j, c((i, j)), a((i, j)))), metadata))
   val b: Array[Double] = Array(0.7, 0.7, 0.7, 0.7, 0.7)
 
   // Expected values for this problem were computed with SCS
   val expectedDualObjective: Double = -3.4686
   val expectedLambda: Array[Double] = Array(0.0000000, 0.3327713, 0.3855439, 0.3212216, 0.5130992)
 
-  val expectedPrimalUpperBound: Double = -(0.307766110869125 + 0.204612161964178 + 0.28035383997485 + 0.0563831503968686 + 0.170262051047757)
+  // primal upper bound = \sum_i (max_j c(i, j))
+  val expectedPrimalUpperBound: Double = c(0, 0) + c(1, 3) + c(2, 2) + c(3, 0) + c(4, 1)
 
   @Test
   def testMaxSolver(): Unit = {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
-    import spark.implicits._
     spark.sparkContext.setLogLevel("warn")
 
-    val slateOptimizer: SlateOptimizer = new SingleSlotOptimizer(0, new GreedyProjection())
-    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateOptimizer, 1E-06, enableHighDimOptimization, None)
+    val gamma = 1E-6
+    val slateComposer: SlateComposer = new SingleSlotComposer(gamma, new GreedyProjection())
+    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateComposer, gamma, enableHighDimOptimization, None)
 
     val optimizer = new AcceleratedGradientDescent(maxIter = 100)
     val (lambda, value, _) = optimizer.maximize(f, BSV.fill(5)(0.1))
@@ -60,14 +62,15 @@ class MatchingSolverTest {
     Assert.assertTrue(Math.abs(value.dualObjective - expectedDualObjective) < 0.05)
   }
 
-  //@Test
+  @Test
   def testPrimal(): Unit = {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
     import spark.implicits._
     spark.sparkContext.setLogLevel("warn")
 
-    val slateOptimizer: SlateOptimizer = new SingleSlotOptimizer(0, new GreedyProjection())
-    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateOptimizer, 1E-06, enableHighDimOptimization, None)
+    val gamma = 1E-6
+    val slateComposer: SlateComposer = new SingleSlotComposer(gamma, new GreedyProjection())
+    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateComposer, gamma, enableHighDimOptimization, None)
     // compute value using calculate function
     val value = f.calculate(BSV(expectedLambda), mutable.Map.empty, 1)
 
@@ -78,26 +81,26 @@ class MatchingSolverTest {
         (r.blockId.toInt, x.items(0), x.value)
       }
     }
-    val primalObj = primal.map { case (i, j, x) => x * c(i * 10 + j) + 1E-6 * x * x / 2.0 }.sum
+    val primalObj = primal.map { case (i, j, x) => x * c((i, j)) + gamma * x * x / 2.0 }.sum
     Assert.assertTrue(Math.abs(value.primalObjective - primalObj) < 1E-8)
   }
 
   @Test
   def testSimplexSolver(): Unit = {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
-    import spark.implicits._
     spark.sparkContext.setLogLevel("warn")
 
     val gamma = 1E-3
-    val slateOptimizer: SlateOptimizer = new SingleSlotOptimizer(gamma, new SimplexProjection())
-    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateOptimizer, gamma, enableHighDimOptimization, None)
+    val slateComposer: SlateComposer = new SingleSlotComposer(gamma, new SimplexProjection())
+    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateComposer, gamma, enableHighDimOptimization, None)
 
     val primalUpperBound: Double = expectedPrimalUpperBound + 5 * gamma / 2
     Assert.assertTrue(Math.abs(f.getPrimalUpperBound - primalUpperBound) < 0.01)
 
     val optimizer = new AcceleratedGradientDescent(maxIter = 200)
 
-    val (lambda, value, _) = optimizer.maximize(f, BSV.fill(5)(0.1))
+    val initialLambda = BSV.fill(5)(0.1)
+    val (lambda, value, _) = optimizer.maximize(f, initialLambda)
     (0 to 4).foreach { i =>
       Assert.assertTrue(Math.abs(lambda(i) - expectedLambda(i)) < 0.01)
     }
@@ -107,12 +110,11 @@ class MatchingSolverTest {
   @Test
   def testBoxCutSolver(): Unit = {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
-    import spark.implicits._
     spark.sparkContext.setLogLevel("warn")
 
     val gamma = 1E-6
-    val slateOptimizer: SlateOptimizer = new SingleSlotOptimizer(gamma, new BoxCutProjection(1000))
-    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(Array(0.7, 0.7, 0.7, 0.7, 0.7)), slateOptimizer, gamma, enableHighDimOptimization, None)
+    val slateComposer: SlateComposer = new SingleSlotComposer(gamma, new BoxCutProjection(1000))
+    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateComposer, gamma, enableHighDimOptimization, None)
 
     val optimizer = new AcceleratedGradientDescent(maxIter = 200)
 
@@ -121,5 +123,28 @@ class MatchingSolverTest {
     (0 to 4).foreach { i =>
       Assert.assertTrue(Math.abs(lambda(i) - 1.0) < 0.01)
     }
+  }
+
+  /**
+   * The objective of this test is to simulate the optimal solution of x=0; which tests the correctness of the
+   * code-segment that handles the empty primal stats
+   */
+  @Test
+  def testBoxCutInequalitySolver(): Unit = {
+    implicit val spark: SparkSession = TestUtils.createSparkSession()
+
+    val data: Seq[MatchingData] = (0 to 4).map(i =>
+      MatchingData(i.toString, (0 to 4).map(j => (j, -c((i, j)), a((i, j)))), metadata))
+    val b: Array[Double] = Array(0.7, 0.7, 0.7, 0.7, 0.7)
+    val gamma = 1e-5
+
+    val slateComposer: SlateComposer = new SingleSlotComposer(gamma, new BoxCutProjection(1000,
+      inequality = true))
+    val f = new MatchingSolverDualObjectiveFunction(spark.createDataset(data), BSV(b), slateComposer, gamma,
+      enableHighDimOptimization, None)
+
+    val optimizer = new AcceleratedGradientDescent(maxIter = 100, dualTolerance = 1e-9)
+    val (_, value, _) = optimizer.maximize(f, BSV.fill(5)(0.1), 1)
+    Assert.assertTrue(value.primalObjective == 0.0)
   }
 }

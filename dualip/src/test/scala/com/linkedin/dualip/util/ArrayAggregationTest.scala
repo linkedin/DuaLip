@@ -61,10 +61,10 @@ class ArrayAggregationTest {
   }
 
   /**
-    * Profiling section, test is disabled. Generates large number of random arrays and aggregates
-    * them using naive spark approach and ArrayAggregation functions. Both methods are wrapped
-    * into a spark job to ensure fair overheads.
-    */
+   * Profiling section, test is disabled. Generates large number of random arrays and aggregates
+   * them using naive spark approach and ArrayAggregation functions. Both methods are wrapped
+   * into a spark job to ensure fair overheads.
+   */
   //@Test
   def profileArraysAggregation(): Unit = {
     implicit val spark: SparkSession = TestUtils.createSparkSession()

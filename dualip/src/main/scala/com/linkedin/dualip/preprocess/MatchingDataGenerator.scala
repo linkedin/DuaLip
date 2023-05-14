@@ -4,7 +4,6 @@ import com.linkedin.dualip.preprocess.CostGenerator.{CONSTANT, CostGenerator, DA
 import com.linkedin.dualip.slate.DataBlock
 import com.linkedin.dualip.util.DataFormat
 import com.linkedin.dualip.util.DataFormat.{AVRO, DataFormat}
-import com.linkedin.dualip.util.IOUtility
 import org.apache.log4j.Logger
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.functions.col

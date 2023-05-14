@@ -1,4 +1,12 @@
 package com.linkedin.dualip.util
+/**
+ * Case class to represent input path parameters
+ *
+ * @param ACblocksPath    - Path of matrix A & c encoded as data blocks
+ * @param vectorBPath     - Path of vector of budgets b (this should be a dense vector, every itemId should have a constraint)
+ * @param format          - The format of input data, e.g. avro or orc
+ */
+case class InputPaths(ACblocksPath: String, vectorBPath: String, format: DataFormat)
 
 /**
  * Input parameter parser. These are generic input parameters that are shared by most solvers now.

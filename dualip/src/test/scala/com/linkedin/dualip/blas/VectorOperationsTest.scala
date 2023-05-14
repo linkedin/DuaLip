@@ -1,7 +1,6 @@
 package com.linkedin.dualip.blas
 
 import breeze.linalg.{SparseVector => BSV}
-import com.linkedin.dualip.blas.VectorOperations.dot
 import org.testng.Assert
 import org.testng.annotations.Test
 
