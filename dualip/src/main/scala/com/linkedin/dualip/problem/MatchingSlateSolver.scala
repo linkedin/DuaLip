@@ -1,6 +1,14 @@
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
+import com.linkedin.dualip.data.MatchingData
+import com.linkedin.dualip.objective.distributedobjective.DistributedRegularizedObjective
+import com.linkedin.dualip.objective.{DualPrimalObjectiveLoader, PartialPrimalStats}
+import com.linkedin.dualip.projection.{BoxCutProjection, GreedyProjection, SimplexProjection, UnitBoxProjection}
+import com.linkedin.dualip.slate.{SecondPriceAuctionSlateComposer, SingleSlotComposer, Slate, SlateComposer}
+import com.linkedin.dualip.util.ProjectionType._
+import com.linkedin.dualip.util.VectorOperations.toBSV
+import com.linkedin.dualip.util.{IOUtility, InputPathParamsParser, InputPaths}
 import com.twitter.algebird.{Max, Tuple5Semigroup}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.functions.{col, lit}
@@ -17,7 +25,7 @@ import scala.util.Try
   *
   * @param problemDesign             - parallelized problem representation
   * @param b                         - constraints vector
-  * @param slateComposer            - algorithm to generate primal given dual
+  * @param slateComposer             - algorithm to generate primal given dual
   * @param gamma                     - behaves like a regularizer and controls the smoothness of the objective
   * @param enableHighDimOptimization - passthrough parameter to the parent class (spark optimization for very high dimensional problems)
   * @param numLambdaPartitions       - used when enableHighDimOptimization=true, dense lambda vectors coming from executors are partitioned
@@ -28,12 +36,12 @@ import scala.util.Try
   * @param spark
   */
 class MatchingSolverDualObjectiveFunction(
-                                           problemDesign: Dataset[MatchingData],
-                                           b: BSV[Double],
-                                           slateComposer: SlateComposer,
-                                           gamma: Double,
-                                           enableHighDimOptimization: Boolean,
-                                           numLambdaPartitions: Option[Int]
+  problemDesign: Dataset[MatchingData],
+  b: BSV[Double],
+  slateComposer: SlateComposer,
+  gamma: Double,
+  enableHighDimOptimization: Boolean,
+  numLambdaPartitions: Option[Int]
 )(implicit spark: SparkSession) extends DistributedRegularizedObjective(b, gamma, enableHighDimOptimization, numLambdaPartitions) with Serializable {
 
   import spark.implicits._
@@ -80,18 +88,18 @@ class MatchingSolverDualObjectiveFunction(
     * Get primal for saving. The schema is simplified for readability of clients:
     * some fields are dropped and some renamed:
     * {
-    *    blockId: String, // often corresponds to impression in matching problems
-    *    variables: Array[
-    *      {
-    *          value: Double // the value of the variable in primal solution, can be fractional
-    *                        // in matching problems we usually expect variables in a block to
-    *                        // sum to 1.0. More than one non-zero variable can have probabilistic
-    *                        // allocation interpretation.
-    *          items: Array[Int] // item ids in the variable. Often a single element if
-    *                            // we select one item per request. But may be a ranked list of items
-    *                            // if we need to fill a multi-slot slate.
-    *      }
-    *    ]
+    * blockId: String, // often corresponds to impression in matching problems
+    * variables: Array[
+    * {
+    * value: Double // the value of the variable in primal solution, can be fractional
+    * // in matching problems we usually expect variables in a block to
+    * // sum to 1.0. More than one non-zero variable can have probabilistic
+    * // allocation interpretation.
+    * items: Array[Int] // item ids in the variable. Often a single element if
+    * // we select one item per request. But may be a ranked list of items
+    * // if we need to fill a multi-slot slate.
+    * }
+    * ]
     * }
     * Note. There is a potential optimization to use last primal computed during the optimization.
     * Unlikely to help a lot - cost is equivalent to one extra iteration.

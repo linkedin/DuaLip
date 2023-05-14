@@ -1,6 +1,15 @@
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
+import com.linkedin.dualip.data._
+import com.linkedin.dualip.objective.distributedobjective.DistributedRegularizedObjective
+import com.linkedin.dualip.objective.{DualPrimalObjectiveLoader, PartialPrimalStats}
+import com.linkedin.dualip.projection.{BoxCutProjection, GreedyProjection, SimplexProjection, UnitBoxProjection}
+import com.linkedin.dualip.slate.{ConstrainedMatchingSlateComposer, Slate}
+import com.linkedin.dualip.util.DataFormat.DataFormat
+import com.linkedin.dualip.util.ProjectionType._
+import com.linkedin.dualip.util.VectorOperations.toBSV
+import com.linkedin.dualip.util.{DataFormat, IOUtility}
 import com.twitter.algebird.{Max, Tuple5Semigroup}
 import org.apache.spark.sql.functions.{col, lit}
 import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
@@ -9,34 +18,34 @@ import org.apache.spark.storage.StorageLevel
 import scala.util.Try
 
 /**
- * class for constrained matching solver
- *
- * @param problemDesign                    : dataset for the constrained matching solver
- * @param budget                           : budget vectors for the constrained matching solver
- * @param constrainedMatchingSlateComposer : optimizer for the constrained matching problem
- * @param gamma                            : weight for the squared term
- * @param enableHighDimOptimization        : flag to enable high dimensional optimization
- * @param numLambdaPartitions              : number of partitions for the duals
- * @param spark                            : spark session
- */
+  * class for constrained matching solver
+  *
+  * @param problemDesign                    : dataset for the constrained matching solver
+  * @param budget                           : budget vectors for the constrained matching solver
+  * @param constrainedMatchingSlateComposer : optimizer for the constrained matching problem
+  * @param gamma                            : weight for the squared term
+  * @param enableHighDimOptimization        : flag to enable high dimensional optimization
+  * @param numLambdaPartitions              : number of partitions for the duals
+  * @param spark                            : spark session
+  */
 class ConstrainedMatchingSolverDualObjectiveFunction(
-                                                      problemDesign: Dataset[ConstrainedMatchingData],
-                                                      budget: ConstrainedMatchingBudget,
-                                                      constrainedMatchingSlateComposer: ConstrainedMatchingSlateComposer,
-                                                      gamma: Double,
-                                                      enableHighDimOptimization: Boolean,
-                                                      numLambdaPartitions: Option[Int]
-                                                    )(implicit spark: SparkSession) extends
+  problemDesign: Dataset[ConstrainedMatchingData],
+  budget: ConstrainedMatchingBudget,
+  constrainedMatchingSlateComposer: ConstrainedMatchingSlateComposer,
+  gamma: Double,
+  enableHighDimOptimization: Boolean,
+  numLambdaPartitions: Option[Int]
+)(implicit spark: SparkSession) extends
   DistributedRegularizedObjective(BSV(budget.budgetLocal.toArray ++ budget.budgetGlobal.toArray), gamma,
     enableHighDimOptimization, numLambdaPartitions) with Serializable {
 
   import spark.implicits._
 
   /**
-   *
-   * @param dualsBSV : duals in the form of an object of ConstrainedMatchingDualsBSV
-   * @return
-   */
+    *
+    * @param dualsBSV : duals in the form of an object of ConstrainedMatchingDualsBSV
+    * @return
+    */
   override def getSardBound(lambda: BSV[Double]): Double = {
     val dualsBSV = convertBSVtoConstrainedMatchingDualsBSV(lambda)
     val lambdaLocal: Array[Double] = spark.sparkContext.broadcast(dualsBSV.lambdaLocal.toArray).value
@@ -54,11 +63,11 @@ class ConstrainedMatchingSolverDualObjectiveFunction(
   }
 
   /**
-   * converts slates (primal solution) into sufficient statistics of the solution
-   *
-   * @param lambda : the dual variables
-   * @return
-   */
+    * converts slates (primal solution) into sufficient statistics of the solution
+    *
+    * @param lambda : the dual variables
+    * @return
+    */
   override def getPrimalStats(lambda: BSV[Double]): Dataset[PartialPrimalStats] = {
     getPrimal(convertBSVtoConstrainedMatchingDualsBSV(lambda)).flatMap { case (_, slates) =>
       slates.map { slate => PartialPrimalStats(slate.costs.toArray, slate.objective, slate.x * slate.x) }
@@ -66,25 +75,25 @@ class ConstrainedMatchingSolverDualObjectiveFunction(
   }
 
   /**
-   * gets the primal values for further caching and evaluation
-   * {
-   * blockId: String, // often corresponds to impression in matching problems
-   * variables: Array[
-   * {
-   * value: Double // the value of the variable in primal solution, can be fractional
-   * // in matching problems we usually expect variables in a block to
-   * // sum to 1.0. More than one non-zero variable can have probabilistic
-   * // allocation interpretation.
-   * items: Array[Int] // item ids in the variable. Often a single element if
-   * // we select one item per request. But may be a ranked list of items
-   * // if we need to fill a multi-slot slate.
-   * }
-   * ]
-   * }
-   *
-   * @param lambda : the dual variables
-   * @return
-   */
+    * gets the primal values for further caching and evaluation
+    * {
+    * blockId: String, // often corresponds to impression in matching problems
+    * variables: Array[
+    * {
+    * value: Double // the value of the variable in primal solution, can be fractional
+    * // in matching problems we usually expect variables in a block to
+    * // sum to 1.0. More than one non-zero variable can have probabilistic
+    * // allocation interpretation.
+    * items: Array[Int] // item ids in the variable. Often a single element if
+    * // we select one item per request. But may be a ranked list of items
+    * // if we need to fill a multi-slot slate.
+    * }
+    * ]
+    * }
+    *
+    * @param lambda : the dual variables
+    * @return
+    */
   override def getPrimalForSaving(lambda: BSV[Double]): Option[DataFrame] = {
     val renamedSchema = "array<struct<value:double,items:array<int>>>"
     val primal = getPrimal(convertBSVtoConstrainedMatchingDualsBSV(lambda)).map { case (blockId, slates) =>
@@ -99,22 +108,22 @@ class ConstrainedMatchingSolverDualObjectiveFunction(
   }
 
   /**
-   * converts the duals from the sparse vector representation to a ConstrainedMatchingDualsBSV object
-   *
-   * @param lambda
-   * @return
-   */
+    * converts the duals from the sparse vector representation to a ConstrainedMatchingDualsBSV object
+    *
+    * @param lambda
+    * @return
+    */
   def convertBSVtoConstrainedMatchingDualsBSV(lambda: BSV[Double]): ConstrainedMatchingDualsBSV = {
     ConstrainedMatchingDualsBSV(BSV(lambda.toArray.takeRight(budget.budgetLocal.length)),
       BSV(lambda.toArray.take(budget.budgetGlobal.length)))
   }
 
   /**
-   * gets the primal value for the duals provided
-   *
-   * @param dualsBSV : duals in the form of an object of ConstrainedMatchingDualsBSV
-   * @return
-   */
+    * gets the primal value for the duals provided
+    *
+    * @param dualsBSV : duals in the form of an object of ConstrainedMatchingDualsBSV
+    * @return
+    */
   def getPrimal(dualsBSV: ConstrainedMatchingDualsBSV): Dataset[(String, Seq[Slate])] = {
     val duals = ConstrainedMatchingDuals(dualsBSV.lambdaLocal.toArray, dualsBSV.lambdaGlobal.toArray)
     problemDesign.map { block => {
@@ -127,10 +136,10 @@ class ConstrainedMatchingSolverDualObjectiveFunction(
 object ConstrainedMatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
 
   /**
-   * checks for consistency of the budget vectors
-   *
-   * @param budget : array of tuples of the form (Int, Double)
-   */
+    * checks for consistency of the budget vectors
+    *
+    * @param budget : array of tuples of the form (Int, Double)
+    */
   def checkBudget(budget: Array[(Int, Double)]): Unit = {
     val entityIds = budget.toMap.keySet
     budget.indices.foreach { i: Int =>
@@ -139,16 +148,16 @@ object ConstrainedMatchingSolverDualObjectiveFunction extends DualPrimalObjectiv
   }
 
   /**
-   * loads budget vectors
-   *
-   * @param localBudgetPath  : Path of the budgets corresponding to local constraints
-   * @param globalBudgetPath : Path of the budgets corresponding to global constraints
-   * @param format           : The format of input data, e.g. avro or orc
-   * @param spark            : spark session
-   * @return
-   */
+    * loads budget vectors
+    *
+    * @param localBudgetPath  : Path of the budgets corresponding to local constraints
+    * @param globalBudgetPath : Path of the budgets corresponding to global constraints
+    * @param format           : The format of input data, e.g. avro or orc
+    * @param spark            : spark session
+    * @return
+    */
   def loadBudgetData(localBudgetPath: String, globalBudgetPath: String, format: DataFormat)
-                    (implicit spark: SparkSession): ConstrainedMatchingBudget = {
+    (implicit spark: SparkSession): ConstrainedMatchingBudget = {
 
     println("invoking loadBudgetData ..")
 
@@ -169,16 +178,16 @@ object ConstrainedMatchingSolverDualObjectiveFunction extends DualPrimalObjectiv
   }
 
   /**
-   * loads A matrix, G matrix and c vector combined in the ConstrainedMatchingData
-   *
-   * @param constrainedMatchingDataPath : Path of A matrix, G matrix and c vector combined in a special data block
-   * @param numOfPartitions             : number of partitions
-   * @param format                      : The format of input data, e.g. avro or orc
-   * @param spark                       : spark session
-   * @return
-   */
+    * loads A matrix, G matrix and c vector combined in the ConstrainedMatchingData
+    *
+    * @param constrainedMatchingDataPath : Path of A matrix, G matrix and c vector combined in a special data block
+    * @param numOfPartitions             : number of partitions
+    * @param format                      : The format of input data, e.g. avro or orc
+    * @param spark                       : spark session
+    * @return
+    */
   def loadConstrainedMatchingData(constrainedMatchingDataPath: String, numOfPartitions: Int, format: DataFormat)
-                                 (implicit spark: SparkSession): Dataset[ConstrainedMatchingData] = {
+    (implicit spark: SparkSession): Dataset[ConstrainedMatchingData] = {
 
     println("invoking loadConstrainedMatchingData ..")
     var ConstrainedMatchingDatas = IOUtility.readDataFrame(constrainedMatchingDataPath, format)
@@ -198,19 +207,19 @@ object ConstrainedMatchingSolverDualObjectiveFunction extends DualPrimalObjectiv
   }
 
   /**
-   * loads data for constrained matching problem
-   *
-   * @param constrainedMatchingDataPath : Path of A matrix, G matrix and c vector combined in a special data block
-   * @param localBudgetPath             : Path of the budgets corresponding to local constraints
-   * @param globalBudgetPath            : Path of the budgets corresponding to global constraints
-   * @param numOfPartitions             : number of partitions
-   * @param format                      : The format of input data, e.g. avro or orc
-   * @param spark                       : spark session
-   * @return
-   */
+    * loads data for constrained matching problem
+    *
+    * @param constrainedMatchingDataPath : Path of A matrix, G matrix and c vector combined in a special data block
+    * @param localBudgetPath             : Path of the budgets corresponding to local constraints
+    * @param globalBudgetPath            : Path of the budgets corresponding to global constraints
+    * @param numOfPartitions             : number of partitions
+    * @param format                      : The format of input data, e.g. avro or orc
+    * @param spark                       : spark session
+    * @return
+    */
   def loadData(constrainedMatchingDataPath: String, localBudgetPath: String,
-               globalBudgetPath: String, numOfPartitions: Int, format: DataFormat)
-              (implicit spark: SparkSession): (Dataset[ConstrainedMatchingData],
+    globalBudgetPath: String, numOfPartitions: Int, format: DataFormat)
+    (implicit spark: SparkSession): (Dataset[ConstrainedMatchingData],
     ConstrainedMatchingBudget) = {
     println("invoking loadData from constrained matching solver ..")
 
@@ -219,12 +228,12 @@ object ConstrainedMatchingSolverDualObjectiveFunction extends DualPrimalObjectiv
   }
 
   /**
-   * selects appropriate slate optimizer
-   *
-   * @param gamma          : weight of the square term
-   * @param projectionType : type of projection
-   * @return
-   */
+    * selects appropriate slate optimizer
+    *
+    * @param gamma          : weight of the square term
+    * @param projectionType : type of projection
+    * @return
+    */
   def constrainedMatchingSlateComposerChooser(gamma: Double, projectionType: ProjectionType):
   ConstrainedMatchingSlateComposer = {
     projectionType match {
@@ -250,14 +259,14 @@ object ConstrainedMatchingSolverDualObjectiveFunction extends DualPrimalObjectiv
   }
 
   /**
-   * objective loader that conforms to a generic loader API
-   *
-   * @param gamma          : weight of the square term
-   * @param projectionType : type of projection
-   * @param args           : arguments for constrained matching solver
-   * @param spark          : spark session
-   * @return
-   */
+    * objective loader that conforms to a generic loader API
+    *
+    * @param gamma          : weight of the square term
+    * @param projectionType : type of projection
+    * @param args           : arguments for constrained matching solver
+    * @param spark          : spark session
+    * @return
+    */
   override def apply(gamma: Double, projectionType: ProjectionType, args: Array[String])(implicit spark: SparkSession):
   ConstrainedMatchingSolverDualObjectiveFunction = {
     val constrainedMatchingParams = ConstrainedMatchingParamsParser.parseArgs(args)
@@ -271,8 +280,8 @@ object ConstrainedMatchingSolverDualObjectiveFunction extends DualPrimalObjectiv
 }
 
 /**
- * parser for parameters of the constrained matching problem
- */
+  * parser for parameters of the constrained matching problem
+  */
 object ConstrainedMatchingParamsParser {
   def parseArgs(args: Array[String]): ConstrainedMatchingSolverParams = {
     val parser = new scopt.OptionParser[ConstrainedMatchingSolverParams]("parameter parser for " +

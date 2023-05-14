@@ -1,7 +1,13 @@
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
-import com.linkedin.dualip.util.MapReduceCollectionWrapper
+import com.linkedin.dualip.data.{ConstraintBlock, MooData}
+import com.linkedin.dualip.objective.distributedobjective.MooDistributedRegularizedObjective
+import com.linkedin.dualip.objective.{DualPrimalObjective, DualPrimalObjectiveLoader, PartialPrimalStats}
+import com.linkedin.dualip.projection.{BoxCutProjection, Projection, SimplexProjection, UnitBoxProjection}
+import com.linkedin.dualip.util.ProjectionType._
+import com.linkedin.dualip.util.VectorOperations.toBSV
+import com.linkedin.dualip.util.{ProjectionType, _}
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.functions.lit
@@ -10,15 +16,15 @@ import org.apache.spark.storage.StorageLevel
 import scala.math.max
 
 
-
 /**
   * Moo objective function, encapsulates problem design
-  * @param problemDesign - constraints matrix and objective vector
-  * @param b - constraints vector
-  * @param gamma - regularization parameter
-  * @param projectionType - type of projection used
+  *
+  * @param problemDesign    - constraints matrix and objective vector
+  * @param b                - constraints vector
+  * @param gamma            - regularization parameter
+  * @param projectionType   - type of projection used
   * @param boxCutUpperBound - upper bound for the box cut projection constraint
-  * @param spark - implicit spark session object
+  * @param spark            - implicit spark session object
   */
 class MooSolverDualObjectiveFunction(
   problemDesign: MapReduceCollectionWrapper[MooData],
@@ -48,12 +54,13 @@ class MooSolverDualObjectiveFunction(
 
   /**
     * Method called in the parent class
+    *
     * @param lambda the dual variable
     * @return
     */
   override def getPrimalStats(lambda: BSV[Double]): MapReduceCollectionWrapper[PartialPrimalStats] = {
     val primals = getPrimal(lambda)
-    primals.map( { case (_, _, stats) => stats } , MooSolverDualObjectiveFunction.encoderPartialPrimalStats)
+    primals.map({ case (_, _, stats) => stats }, MooSolverDualObjectiveFunction.encoderPartialPrimalStats)
   }
 
   /**
@@ -81,13 +88,14 @@ class MooSolverDualObjectiveFunction(
     * the solver.
     * This is the most expensive part of the algorithm, so we pay attention to code optimization
     * and use java arrays, while loops and mutable variables.
+    *
     * @param lambda the dual variable
     * @return (id, obj, sum(`x^2`), grad)
     */
   def getPrimal(lambda: BSV[Double]): MapReduceCollectionWrapper[(Long, Array[Double], PartialPrimalStats)] = {
     val lambdaArray = lambda.toArray
     val metadata: Map[String, Double] = Map[String, Double]("boxCut" -> boxCutUpperBound)
-    problemDesign.map( { block =>
+    problemDesign.map({ block =>
       // compute projection input
       val n = block.c.length // number of columns (variables) in block
       val m = block.a.length // number of rows (constraints) in block
@@ -140,28 +148,30 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
   val encoderIdPrimal: Encoder[(Long, Array[Double])] = ExpressionEncoder[(Long, Array[Double])]
   val encoderDouble: Encoder[Double] = Encoders.scalaDouble
 
-  val DUMMY_PROBLEM_ID: Long = -1  // this is used when we are solving just a single problem
+  val DUMMY_PROBLEM_ID: Long = -1 // this is used when we are solving just a single problem
+
   /**
     * Custom data loader.
+    *
     * @param inputPaths input path for vectorB and ACblock
-    * @param spark spark session
+    * @param spark      spark session
     * @return
     */
   def loadData(inputPaths: InputPaths)
     (implicit spark: SparkSession): (MapReduceDataset[MooData], BSV[Double]) = {
 
     val budget = IOUtility.readDataFrame(inputPaths.vectorBPath, inputPaths.format)
-      .map{case Row(_c0: Number, _c1: Number) => (_c0.intValue(), _c1.doubleValue()) }
+      .map { case Row(_c0: Number, _c1: Number) => (_c0.intValue(), _c1.doubleValue()) }
       .toDF("row", "value")
       .withColumn("problemId", lit(DUMMY_PROBLEM_ID))
       .as[ConstraintBlock]
-      .map{constraintBlock => (constraintBlock.row, constraintBlock.value) }
+      .map { constraintBlock => (constraintBlock.row, constraintBlock.value) }
       .collect
 
     val itemIds = budget.toMap.keySet
     // Check if every item has budget information encoded.
     budget.indices.foreach { i: Int =>
-      require(itemIds.contains(i), f"$i index does not have a specified constraint" )
+      require(itemIds.contains(i), f"$i index does not have a specified constraint")
     }
 
     val b = toBSV(budget, budget.length)
@@ -179,10 +189,11 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
 
   /**
     * objective loader that conforms to a generic loader API
-    * @param gamma regularization weight
+    *
+    * @param gamma          regularization weight
     * @param projectionType type of projection used
-    * @param args input arguments
-    * @param spark spark session
+    * @param args           input arguments
+    * @param spark          spark session
     * @return
     */
   override def apply(gamma: Double, projectionType: ProjectionType, args: Array[String])(implicit spark: SparkSession): DualPrimalObjective = {
@@ -195,11 +206,12 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
 
   /**
     * objective loader with a customized box cut projection upper bound
-    * @param gamma regularization weight
-    * @param projectionType type of projection used
+    *
+    * @param gamma            regularization weight
+    * @param projectionType   type of projection used
     * @param boxCutUpperBound upper bound for the box cut projection constraint
-    * @param args input arguments
-    * @param spark spark session
+    * @param args             input arguments
+    * @param spark            spark session
     * @return
     */
   def applyWithCustomizedBoxCut(gamma: Double, projectionType: ProjectionType, boxCutUpperBound: Int, args: Array[String])
@@ -219,10 +231,10 @@ object ParallelMooSolverDualObjectiveFunction {
   /**
     * Custom data loader.
     *
-    * @param inputPaths input path for vectorB and ACblock
-    * @param gamma      gamma regularization
+    * @param inputPaths     input path for vectorB and ACblock
+    * @param gamma          gamma regularization
     * @param projectionType type of projection used
-    * @param spark      spark session
+    * @param spark          spark session
     * @return
     */
   def loadData(inputPaths: InputPaths, gamma: Double, projectionType: ProjectionType)
@@ -233,7 +245,7 @@ object ParallelMooSolverDualObjectiveFunction {
       .as[ConstraintBlock]
       .groupByKey(constraintBlock => constraintBlock.problemId)
       .mapGroups { case (problemId, dataIterator) =>
-        (problemId, dataIterator.map{constraintBlock => (constraintBlock.row, constraintBlock.value) }.toArray)
+        (problemId, dataIterator.map { constraintBlock => (constraintBlock.row, constraintBlock.value) }.toArray)
       }
       .toDF("problemId", "budget")
 
