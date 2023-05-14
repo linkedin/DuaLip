@@ -1,5 +1,6 @@
 package com.linkedin.dualip.util
 
+import com.linkedin.dualip.util.DataFormat.{AVRO, CSV, DataFormat, JSON, ORC}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
@@ -8,21 +9,21 @@ import java.io.{BufferedWriter, OutputStreamWriter, PrintWriter}
 import scala.collection.mutable
 
 /**
- * Utils to read input matrix and convert to BlockMatrix/BlockVector
- */
+  * Utils to read input matrix and convert to BlockMatrix/BlockVector
+  */
 object IOUtility {
 
   /**
-   * Read dataframe by Spark, currently support AVRO, ORC, JSON or CSV formats.
-   *
-   * @param inputPath   Path for the input files
-   * @param inputFormat Input format, e.g. AVRO, ORC, JSON or CSV
-   * @param spark       Spark session
-   * @return the read dataframe
-   */
+    * Read dataframe by Spark, currently support AVRO, ORC, JSON or CSV formats.
+    *
+    * @param inputPath   Path for the input files
+    * @param inputFormat Input format, e.g. AVRO, ORC, JSON or CSV
+    * @param spark       Spark session
+    * @return the read dataframe
+    */
   def readDataFrame(inputPath: String,
-                    inputFormat: DataFormat
-                   )(implicit spark: SparkSession): DataFrame = {
+    inputFormat: DataFormat
+  )(implicit spark: SparkSession): DataFrame = {
     inputFormat match {
       case AVRO => spark.read.format(AVRO.toString).load(inputPath)
       case ORC => spark.read.format(ORC.toString).load(inputPath)
@@ -35,19 +36,19 @@ object IOUtility {
   }
 
   /**
-   * Save dataframe to HDFS
-   *
-   * @param dataFrame     The output dataframe
-   * @param outputPath    The output path
-   * @param outputFormat  The saved file format, either AVRO, ORC or JSON
-   * @param numPartitions Optional number of partitions of output dataframe,
-   *                      If not provided, partitioning is based on the upstream steps
-   */
+    * Save dataframe to HDFS
+    *
+    * @param dataFrame     The output dataframe
+    * @param outputPath    The output path
+    * @param outputFormat  The saved file format, either AVRO, ORC or JSON
+    * @param numPartitions Optional number of partitions of output dataframe,
+    *                      If not provided, partitioning is based on the upstream steps
+    */
   def saveDataFrame(dataFrame: DataFrame,
-                    outputPath: String,
-                    outputFormat: DataFormat = AVRO,
-                    numPartitions: Option[Int] = None
-                   ): Unit = {
+    outputPath: String,
+    outputFormat: DataFormat = AVRO,
+    numPartitions: Option[Int] = None
+  ): Unit = {
     val dataFrameWriter = {
       numPartitions match {
         case Some(partitions) => dataFrame.repartition(partitions)
@@ -68,11 +69,11 @@ object IOUtility {
   }
 
   /**
-   * Save log string to a text file
-   *
-   * @param log     The log in string format
-   * @param logPath The output path
-   */
+    * Save log string to a text file
+    *
+    * @param log     The log in string format
+    * @param logPath The output path
+    */
   def saveLog(log: String, logPath: String): Unit = {
     val fs = FileSystem.get(new Configuration())
     val outputStream = fs.create(new Path(logPath))
@@ -85,13 +86,13 @@ object IOUtility {
   }
 
   /**
-   * A generic timer function to time the block of code
-   *
-   * @param block the function or block of code that needs to be timed
-   * @param log   an overall log buffer to write the time
-   * @tparam R return type of the block of code being timed
-   * @return
-   */
+    * A generic timer function to time the block of code
+    *
+    * @param block the function or block of code that needs to be timed
+    * @param log   an overall log buffer to write the time
+    * @tparam R return type of the block of code being timed
+    * @return
+    */
   def time[R](block: => R, log: mutable.Map[String, String]): R = {
     val t0 = System.nanoTime()
     val result = block // call-by-name
@@ -108,11 +109,11 @@ object IOUtility {
   }
 
   /**
-   * Print the argument list
-   *
-   * @param args argument list passed as an array of string.
-   * @return
-   */
+    * Print the argument list
+    *
+    * @param args argument list passed as an array of string.
+    * @return
+    */
   def printCommandLineArgs(args: Array[String]): Unit = {
     for (i <- args.indices by 2) {
       println(f"${args(i)} ${args(i + 1)}")

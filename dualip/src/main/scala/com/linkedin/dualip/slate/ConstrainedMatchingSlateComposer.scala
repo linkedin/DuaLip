@@ -1,24 +1,26 @@
 package com.linkedin.dualip.slate
 
 import breeze.linalg.SparseVector
+import com.linkedin.dualip.data.{ConstrainedMatchingData, ConstrainedMatchingDuals}
+import com.linkedin.dualip.projection.{GreedyProjection, Projection}
 import com.twitter.algebird.Max
 
 /**
- * class for constrained matching slate optimizer
- *
- * @param gamma      : weight for the squared loss term
- * @param projection : type of projection
- */
+  * class for constrained matching slate optimizer
+  *
+  * @param gamma      : weight for the squared loss term
+  * @param projection : type of projection
+  */
 class ConstrainedMatchingSlateComposer(gamma: Double, projection: Projection) extends Serializable {
 
   def getProjection: Projection = projection
 
   /**
-   * normalize the xHat by gamma when except for the case of greedy projection
-   *
-   * @param xHat
-   * @return
-   */
+    * normalize the xHat by gamma when except for the case of greedy projection
+    *
+    * @param xHat
+    * @return
+    */
   def normalize(xHat: Double): Double = {
     projection match {
       case _: GreedyProjection => xHat
@@ -27,12 +29,12 @@ class ConstrainedMatchingSlateComposer(gamma: Double, projection: Projection) ex
   }
 
   /**
-   * computes the primal variables
-   *
-   * @param data
-   * @param duals
-   * @return
-   */
+    * computes the primal variables
+    *
+    * @param data
+    * @param duals
+    * @return
+    */
   def computeReducedCosts(data: Array[(Int, Double, Double, Seq[(Int, Double)])], duals: ConstrainedMatchingDuals):
   Array[Double] = {
     data.map { case (localConstraintIndex, c, localA, globalAs) =>
@@ -43,12 +45,12 @@ class ConstrainedMatchingSlateComposer(gamma: Double, projection: Projection) ex
   }
 
   /**
-   * computes primal values and creates the slates
-   *
-   * @param block
-   * @param duals
-   * @return
-   */
+    * computes primal values and creates the slates
+    *
+    * @param block
+    * @param duals
+    * @return
+    */
   def getSlate(block: ConstrainedMatchingData, duals: ConstrainedMatchingDuals): Seq[Slate] = {
     val data = block.data.toArray
     val scaledReducedCosts = computeReducedCosts(data, duals)
@@ -64,22 +66,22 @@ class ConstrainedMatchingSlateComposer(gamma: Double, projection: Projection) ex
   }
 
   /**
-   * Get max x^Tx - min x^Tx which is used to estimate the next gamma
-   *
-   * @param block
-   * @return
-   */
+    * Get max x^Tx - min x^Tx which is used to estimate the next gamma
+    *
+    * @param block
+    * @return
+    */
   def normBound(block: ConstrainedMatchingData): Double = {
     val data = block.data.toArray
     projection.maxNorm(data.length) - projection.minNorm(data.length)
   }
 
   /**
-   *
-   * @param block
-   * @param duals
-   * @return
-   */
+    *
+    * @param block
+    * @param duals
+    * @return
+    */
   def sardBound(block: ConstrainedMatchingData, duals: ConstrainedMatchingDuals): (Int, Double, Max[Int]) = {
     val data = block.data.toArray
     val scaledReducedCosts = computeReducedCosts(data, duals)

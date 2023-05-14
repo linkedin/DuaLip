@@ -1,9 +1,12 @@
 package com.linkedin.dualip.slate
 
+import com.linkedin.dualip.data.MatchingData
+
 import scala.collection.mutable.ArrayBuffer
 
 /**
   * Second price slate optimizer component
+  *
   * @param slateSize
   */
 class SecondPriceAuctionSlateComposer(slateSize: Int) extends SlateComposer with Serializable {
@@ -11,8 +14,8 @@ class SecondPriceAuctionSlateComposer(slateSize: Int) extends SlateComposer with
     * Slate optimizer API implementation, simply bridges slate API with DP solver
     * currently only returns one slate
     *
-    * @param block     - data block, usually all parameters related to individual impression
-    * @param lambda    - vector of dual variables (note the use of java array for performance
+    * @param block  - data block, usually all parameters related to individual impression
+    * @param lambda - vector of dual variables (note the use of java array for performance
     * @return generated slate
     */
   override def getSlate(block: MatchingData, lambda: Array[Double]): Seq[Slate] = {
@@ -90,7 +93,7 @@ object SecondPriceAuctionSlateComposer {
         var residual = 0.0
         while (move < n) {
           residual = c(move) * (1.0 - lambda(state)) + nextStateResiduals(move)
-          if (residual > bestValue ) {
+          if (residual > bestValue) {
             currentStateResiduals(state) = residual
             bestValue = residual
             bestMoves(pos)(state) = move

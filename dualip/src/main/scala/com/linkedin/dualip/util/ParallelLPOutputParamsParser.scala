@@ -1,5 +1,7 @@
 package com.linkedin.dualip.util
 
+import com.linkedin.dualip.util.DataFormat.DataFormat
+
 /**
  * Case class to represent parallel LP output parameters
  *

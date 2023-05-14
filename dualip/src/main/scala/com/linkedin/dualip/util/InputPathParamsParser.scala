@@ -1,4 +1,7 @@
 package com.linkedin.dualip.util
+
+import com.linkedin.dualip.util.DataFormat.DataFormat
+
 /**
  * Case class to represent input path parameters
  *
