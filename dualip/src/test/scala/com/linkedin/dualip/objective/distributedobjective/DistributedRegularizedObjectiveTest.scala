@@ -18,6 +18,7 @@ class DistributedRegularizedObjectiveTest {
   @Test
   def testTwoStepGradientAggregation(): Unit = {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
+    import spark.implicits._
     val ds = spark.createDataset(partialGradientsTestData).repartition(2)
     val aggPrimalStats = DistributedRegularizedObjective.twoStepGradientAggregator(ds, 9, 2)
     assertAlmostEqual(aggPrimalStats.costs.toMap, expectedAx)

@@ -3,12 +3,12 @@ package com.linkedin.dualip.problem
 import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.data.MatchingData
 import com.linkedin.dualip.objective.distributedobjective.DistributedRegularizedObjective
-import com.linkedin.dualip.objective.{DualPrimalObjectiveLoader, PartialPrimalStats}
+import com.linkedin.dualip.objective.{DualPrimalObjective, DualPrimalObjectiveLoader, PartialPrimalStats}
 import com.linkedin.dualip.projection.{BoxCutProjection, GreedyProjection, SimplexProjection, UnitBoxProjection}
 import com.linkedin.dualip.slate.{SecondPriceAuctionSlateComposer, SingleSlotComposer, Slate, SlateComposer}
 import com.linkedin.dualip.util.ProjectionType._
-import com.linkedin.dualip.util.VectorOperations.toBSV
 import com.linkedin.dualip.util.{IOUtility, InputPathParamsParser, InputPaths}
+import com.linkedin.optimization.util.VectorOperations.toBSV
 import com.twitter.algebird.{Max, Tuple5Semigroup}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.functions.{col, lit}
@@ -159,6 +159,7 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
     * @return
     */
   def loadData(inputPaths: InputPaths)(implicit spark: SparkSession): (Dataset[MatchingData], BSV[Double]) = {
+    import spark.implicits._
     val budget = IOUtility.readDataFrame(inputPaths.vectorBPath, inputPaths.format)
       .map { case Row(_c0: Number, _c1: Number) => (_c0.intValue(), _c1.doubleValue()) }
       .collect

@@ -1,6 +1,7 @@
 package com.linkedin.dualip.objective
 
 import breeze.linalg.{SparseVector => BSV}
+import com.linkedin.dualip.util.SolverUtility.SlackMetadata
 import org.testng.Assert
 import org.testng.annotations.Test
 

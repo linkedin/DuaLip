@@ -1,6 +1,6 @@
 package com.linkedin.dualip.util
 
-import com.linkedin.dualip.util.SolverUtility.{estimateLipschitzConstant, expandGroupedStepSize, stepSizeFromLipschitzConstants, updateDualGradientHistory}
+import com.linkedin.dualip.util.SolverUtility._
 import org.testng.Assert
 import org.testng.annotations.Test
 
@@ -9,8 +9,8 @@ import scala.collection.mutable.ListBuffer
 
 class SolverUtilityTest {
   /**
-   * tests the utilities related to step-size calculation
-   */
+    * tests the utilities related to step-size calculation
+    */
   val expectedStepSizes: Array[Double] = Array(0.1, 0.1, 0.1, 0.1, 1.0E-5, 1.0E-5)
   val expectedExpandedStepSizes: Array[Double] = Array(0.1, 0.1, 0.25, 0.25, 0.25, 0.35, 0.35, 0.35, 0.35, 0.35)
   val pivotPositionsForStepSize: Array[Int] = Array(2, 5)
@@ -29,14 +29,14 @@ class SolverUtilityTest {
   expectedLambdaHistory.append(Array(0.8, 0.9))
 
   /**
-   * checks whether the historical values for both gradients and lambdas are equal
-   *
-   * @param gradientHistory
-   * @param lambdaHistory
-   * @param maxHistoryLength
-   */
+    * checks whether the historical values for both gradients and lambdas are equal
+    *
+    * @param gradientHistory
+    * @param lambdaHistory
+    * @param maxHistoryLength
+    */
   def checkEqualityOfGradientLambdaHistory(gradientHistory: ListBuffer[Array[Double]],
-                                           lambdaHistory: ListBuffer[Array[Double]], maxHistoryLength: Int): Unit = {
+    lambdaHistory: ListBuffer[Array[Double]], maxHistoryLength: Int): Unit = {
     (0 until maxHistoryLength).foreach {
       index =>
         Assert.assertEquals(expectedGradientHistory(index), gradientHistory(index))
@@ -45,9 +45,9 @@ class SolverUtilityTest {
   }
 
   /**
-   * checks the correctness of updateDualGradientHistory method when the length of history is less than the
-   * maxHistoryLength
-   */
+    * checks the correctness of updateDualGradientHistory method when the length of history is less than the
+    * maxHistoryLength
+    */
   @Test
   def updateDualGradientHistoryTestOne(): Unit = {
     val gradientHistory: ListBuffer[Array[Double]] = mutable.ListBuffer[Array[Double]]()
@@ -63,8 +63,8 @@ class SolverUtilityTest {
   }
 
   /**
-   * checks the correctness of updateDualGradientHistory method when the length of history equals maxHistoryLength
-   */
+    * checks the correctness of updateDualGradientHistory method when the length of history equals maxHistoryLength
+    */
   @Test
   def updateDualGradientHistoryTestTwo(): Unit = {
     val gradientHistory: ListBuffer[Array[Double]] = mutable.ListBuffer[Array[Double]]()
@@ -112,8 +112,6 @@ class SolverUtilityTest {
     val expectedStepSizeThree = 1e-5
     Assert.assertEquals(expectedStepSizeThree, stepSizeFromLipschitzConstants(lipschitzConstantsThree, 10, 1e-5, 0.1))
   }
-
-  def calculateGroupStepSize(gradient: Array[Double], lambda: Array[Double], gradientHistory: ListBuffer[Array[Double]], lambdaHistory: ListBuffer[Array[Double]], pivotPositionsForStepSize: Array[Int], i: Int, d: Double, d1: Double) = ???
 
   @Test
   def calculateStepSizeTest(): Unit = {

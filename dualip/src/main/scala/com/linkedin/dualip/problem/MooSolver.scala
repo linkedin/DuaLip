@@ -6,8 +6,8 @@ import com.linkedin.dualip.objective.distributedobjective.MooDistributedRegulari
 import com.linkedin.dualip.objective.{DualPrimalObjective, DualPrimalObjectiveLoader, PartialPrimalStats}
 import com.linkedin.dualip.projection.{BoxCutProjection, Projection, SimplexProjection, UnitBoxProjection}
 import com.linkedin.dualip.util.ProjectionType._
-import com.linkedin.dualip.util.VectorOperations.toBSV
 import com.linkedin.dualip.util._
+import com.linkedin.optimization.util.VectorOperations.toBSV
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.functions.lit
@@ -70,6 +70,8 @@ class MooSolverDualObjectiveFunction(
     * @return Optionally the DataFrame with primal solution. None if the functionality is not supported.
     */
   override def getPrimalForSaving(lambda: BSV[Double]): Option[DataFrame] = {
+
+    import spark.implicits._
 
     val primalsDataFrame = getPrimal(lambda).map({ case (id, primal, _) => (id, primal) },
       MooSolverDualObjectiveFunction.encoderIdPrimal)
@@ -159,6 +161,7 @@ object MooSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
     */
   def loadData(inputPaths: InputPaths)
     (implicit spark: SparkSession): (MapReduceDataset[MooData], BSV[Double]) = {
+    import spark.implicits._
 
     val budget = IOUtility.readDataFrame(inputPaths.vectorBPath, inputPaths.format)
       .map { case Row(_c0: Number, _c1: Number) => (_c0.intValue(), _c1.doubleValue()) }

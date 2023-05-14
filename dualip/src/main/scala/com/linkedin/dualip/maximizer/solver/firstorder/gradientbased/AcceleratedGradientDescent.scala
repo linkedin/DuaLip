@@ -1,7 +1,7 @@
 package com.linkedin.dualip.maximizer.solver.firstorder.gradientbased
 
 import breeze.linalg.{SparseVector => BSV}
-import com.linkedin.dualip.maximizer.OptimizerState
+import com.linkedin.dualip.maximizer.{DualPrimalMaximizer, OptimizerState}
 import com.linkedin.dualip.objective.{DualPrimalComputationResult, DualPrimalObjective}
 import com.linkedin.dualip.util.IOUtility.{iterationLog, time}
 import com.linkedin.dualip.util.SolverUtility.{calculateGroupStepSize, calculateStepSize, expandGroupedStepSize}
@@ -12,25 +12,25 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 /**
- * Implementation of accelerated gradient descent.
- *
- * @param maxIter                   The maximum number of iterations (default is 1000).
- * @param dualTolerance             The dual tolerance limit (default is 1e-6).
- * @param slackTolerance            The slack tolerance limit (default is 0.05).
- * @param designInequality          True if Ax <= b (default), false if Ax = b or have mixed constraints.
- * @param mixedDesignPivotNum       The pivot number if we have mixed A_1x <= b1 and A_2x = b2, i.e. how many inequality
- *                                  constraints come first (default is 0).
- * @param pivotPositionsForStepSize Pivot positions that mark different groups for which the step-sizes need to be tuned
- *                                  For example, if the total length of the Duals is 10 and we have three groups of
- *                                  sizes 3, 4, and 3 respectively, then pivotPositionsForStepSize must be set at [3, 7].
- */
+  * Implementation of accelerated gradient descent.
+  *
+  * @param maxIter                   The maximum number of iterations (default is 1000).
+  * @param dualTolerance             The dual tolerance limit (default is 1e-6).
+  * @param slackTolerance            The slack tolerance limit (default is 0.05).
+  * @param designInequality          True if Ax <= b (default), false if Ax = b or have mixed constraints.
+  * @param mixedDesignPivotNum       The pivot number if we have mixed A_1x <= b1 and A_2x = b2, i.e. how many inequality
+  *                                  constraints come first (default is 0).
+  * @param pivotPositionsForStepSize Pivot positions that mark different groups for which the step-sizes need to be tuned
+  *                                  For example, if the total length of the Duals is 10 and we have three groups of
+  *                                  sizes 3, 4, and 3 respectively, then pivotPositionsForStepSize must be set at [3, 7].
+  */
 class AcceleratedGradientDescent(maxIter: Int = 1000,
-                                 dualTolerance: Double = 1e-6,
-                                 slackTolerance: Double = 0.05,
-                                 designInequality: Boolean = true,
-                                 mixedDesignPivotNum: Int = 0,
-                                 pivotPositionsForStepSize: Array[Int] = Array(-1)
-                                ) extends Serializable with DualPrimalMaximizer {
+  dualTolerance: Double = 1e-6,
+  slackTolerance: Double = 0.05,
+  designInequality: Boolean = true,
+  mixedDesignPivotNum: Int = 0,
+  pivotPositionsForStepSize: Array[Int] = Array(-1)
+) extends Serializable with DualPrimalMaximizer {
   // Initialize betaSeq sequence for acceleration
   val betaSeq: Array[Double] = {
     val tseq = Array.ofDim[Double](maxIter + 2)
@@ -46,13 +46,13 @@ class AcceleratedGradientDescent(maxIter: Int = 1000,
   }
 
   /**
-   * Implementation of the gradient maximizer API for dual-primal solvers
-   *
-   * @param f
-   * @param initialValue
-   * @param verbosity
-   * @return
-   */
+    * Implementation of the gradient maximizer API for dual-primal solvers
+    *
+    * @param f
+    * @param initialValue
+    * @param verbosity
+    * @return
+    */
   override def maximize(f: DualPrimalObjective, initialValue: BSV[Double], verbosity: Int = 1):
   (BSV[Double], DualPrimalComputationResult, OptimizerState) = {
     val log = new mutable.StringBuilder()

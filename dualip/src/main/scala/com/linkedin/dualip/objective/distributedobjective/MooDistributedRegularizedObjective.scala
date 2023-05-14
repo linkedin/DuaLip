@@ -3,8 +3,8 @@ package com.linkedin.dualip.objective.distributedobjective
 import breeze.linalg.SparseVector
 import com.linkedin.dualip.objective.{DualPrimalComputationResult, DualPrimalObjective, PartialPrimalStats}
 import com.linkedin.dualip.util.SolverUtility.SlackMetadata
-import com.linkedin.dualip.util.VectorOperations.toBSV
 import com.linkedin.dualip.util.{MapReduceCollectionWrapper, SolverUtility}
+import com.linkedin.optimization.util.VectorOperations.toBSV
 import com.twitter.algebird.Tuple3Semigroup
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.{Dataset, Encoder, SparkSession}

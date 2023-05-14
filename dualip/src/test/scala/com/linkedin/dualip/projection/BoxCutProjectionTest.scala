@@ -1,6 +1,8 @@
 package com.linkedin.dualip.projection
 
 import breeze.linalg.{SparseVector => BSV}
+import com.linkedin.dualip.projection.PolytopeProjectionTest.tol
+import com.linkedin.optimization.util.VectorOperations.dot
 import org.testng.Assert
 import org.testng.annotations.Test
 
@@ -16,7 +18,7 @@ class BoxCutProjectionTest {
         input = new BSV(Array(1, 2, 3), Array(0.8, 0.4, 0.7), 4),
         closest = new BSV(Array(1, 3), Array(1.0, 1.0), 4),
         cScore = 1.5,
-        farthest =  new BSV(Array(2, 3), Array(1.0, 1.0), 4),
+        farthest = new BSV(Array(2, 3), Array(1.0, 1.0), 4),
         fScore = 1.1
       ),
       CheckVertexData(
@@ -24,7 +26,7 @@ class BoxCutProjectionTest {
         input = new BSV(Array(), Array(), 4),
         closest = new BSV(Array(), Array(), 4),
         cScore = 0.0,
-        farthest =  new BSV(Array(), Array(), 4),
+        farthest = new BSV(Array(), Array(), 4),
         fScore = 0.0
       ),
       CheckVertexData(
@@ -32,7 +34,7 @@ class BoxCutProjectionTest {
         input = new BSV(Array(1, 2, 3, 5, 7, 8), Array(0.8, 0.5, 0.7, 0.4, 0.9, 0.6), 10),
         closest = new BSV(Array(1, 7), Array(1.0, 1.0), 10),
         cScore = 1.7,
-        farthest =  new BSV(Array(2, 5), Array(1.0, 1.0), 10),
+        farthest = new BSV(Array(2, 5), Array(1.0, 1.0), 10),
         fScore = 0.9
       )
     )
@@ -80,7 +82,7 @@ class BoxCutProjectionTest {
       val xStar = boxedSimplexProjection.project(point.input, metadata)
       // The the norm of ||xHat - xStar|| should be equal to
       // (xHat - xStar) dot (xHat - q) for every point q in the final corral
-      point.finalCorral.foreach{ i =>
+      point.finalCorral.foreach { i =>
         Assert.assertTrue(Math.abs(dot(xStar, xStar) - dot(xStar, i)) > tol)
       }
     }

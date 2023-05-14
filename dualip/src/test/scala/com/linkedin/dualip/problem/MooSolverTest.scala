@@ -3,7 +3,7 @@ package com.linkedin.dualip.problem
 import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.data.MooData
 import com.linkedin.dualip.maximizer.solver.secondorder.LBFGSB
-import com.linkedin.dualip.util.{MapReduceArray, MapReduceDataset}
+import com.linkedin.dualip.util.{MapReduceArray, MapReduceDataset, ProjectionType}
 import com.linkedin.spark.common.lib.TestUtils
 import org.apache.spark.sql.SparkSession
 import org.testng.Assert
@@ -34,6 +34,7 @@ class MooSolverTest {
   @Test
   def testSolver(): Unit = {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
+    import spark.implicits._
     spark.sparkContext.setLogLevel("warn")
 
     val f = new MooSolverDualObjectiveFunction(MapReduceDataset[MooData](spark.createDataset(data)), BSV(b), 1e-6, ProjectionType.Simplex)
@@ -60,6 +61,7 @@ class MooSolverTest {
   @Test
   def testInfeasibleSolver(): Unit = {
     implicit val spark: SparkSession = TestUtils.createSparkSession()
+    import spark.implicits._
     spark.sparkContext.setLogLevel("warn")
 
     val f = new MooSolverDualObjectiveFunction(MapReduceDataset[MooData](spark.createDataset(data)), BSV(infeasible_b), 1e-6, ProjectionType.Simplex)

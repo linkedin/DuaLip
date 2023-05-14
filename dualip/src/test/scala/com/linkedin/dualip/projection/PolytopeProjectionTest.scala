@@ -2,6 +2,7 @@ package com.linkedin.dualip.projection
 
 import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.projection.PolytopeProjectionTest._
+import com.linkedin.optimization.util.VectorOperations.dot
 import org.testng.Assert
 import org.testng.annotations.Test
 

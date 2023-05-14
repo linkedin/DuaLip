@@ -1,6 +1,7 @@
 package com.linkedin.dualip.projection
 
 import breeze.linalg.{SparseVector => BSV}
+import com.linkedin.dualip.projection.PolytopeProjectionTest.VertexTest
 import org.testng.Assert
 import org.testng.annotations.Test
 
@@ -25,7 +26,7 @@ class UnitBoxProjectionTest {
     )
     val unitBoxProjection = new UnitBoxProjection()
     inputExpectedPairs.foreach { item =>
-        Assert.assertEquals(unitBoxProjection.project(item.input, Map[String, Double]()), item.expected)
+      Assert.assertEquals(unitBoxProjection.project(item.input, Map[String, Double]()), item.expected)
     }
   }
 }

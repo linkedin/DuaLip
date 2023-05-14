@@ -1,14 +1,15 @@
 package com.linkedin.dualip.driver
 
 import breeze.linalg.{SparseVector => BSV}
-import com.linkedin.dualip.maximizer.DualPrimalMaximizer
+import com.linkedin.dualip.maximizer.{DualPrimalMaximizer, DualPrimalMaximizerLoader}
 import com.linkedin.dualip.objective._
 import com.linkedin.dualip.problem.MooSolverDualObjectiveFunction
 import com.linkedin.dualip.util.DataFormat.DataFormat
 import com.linkedin.dualip.util.IOUtility.{printCommandLineArgs, readDataFrame, saveDataFrame, saveLog}
-import com.linkedin.dualip.util.ProjectionType.ProjectionType
-import com.linkedin.dualip.util.VectorOperations.toBSV
-import com.linkedin.dualip.util.{SolverUtility, VectorOperations}
+import com.linkedin.dualip.util.ProjectionType.{Greedy, ProjectionType}
+import com.linkedin.dualip.util.SolverUtility
+import com.linkedin.optimization.util.VectorOperations
+import com.linkedin.optimization.util.VectorOperations.toBSV
 import org.apache.log4j.Logger
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
@@ -53,6 +54,7 @@ object LPSolverDriver {
     * @return Initial lambda values as a sparse vector.
     */
   def loadInitialLambda(path: String, format: DataFormat, size: Int)(implicit spark: SparkSession): BSV[Double] = {
+    import spark.implicits._
     val (idx, vals) = readDataFrame(path, format).as[IndexValuePair]
       .collect()
       .sortBy(_.index)
