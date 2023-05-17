@@ -1,7 +1,8 @@
 package com.linkedin.dualip.projection
 
 import breeze.linalg.{DenseMatrix => BDM, DenseVector => BDV, SparseVector => BSV}
-import com.linkedin.dualip.blas.VectorOperations._
+import com.linkedin.optimization.util.VectorOperations._
+
 import scala.collection.mutable
 
 
@@ -13,13 +14,13 @@ object VertexType extends Enumeration {
   val Closest = Value("closest")
   val Farthest = Value("farthest")
 }
-import VertexType._
+import com.linkedin.dualip.projection.VertexType._
 
 /**
- * Polytope projection where the polytope is represented by a set of points. maxIter bounds the number of iterations
- * of Wolfe's algorithm.
- *
- */
+  * Polytope projection where the polytope is represented by a set of points. maxIter bounds the number of iterations
+  * of Wolfe's algorithm.
+  *
+  */
 class PolytopeProjection(polytope: mutable.Set[BSV[Double]], maxIter: Int) extends Projection with Serializable {
 
   case class VertexSolution(firstBest: BSV[Double], nextBest: BSV[Double], isOptimal: Boolean)
@@ -28,10 +29,11 @@ class PolytopeProjection(polytope: mutable.Set[BSV[Double]], maxIter: Int) exten
 
   /**
     * Pick the top-k elements from an iterable in O(Nlogk) time using a priority queue
+    *
     * @param k        - top k elements needed
     * @param iterable - sequence of elements
     * @param ord      - for complex types, we specify an ordering to help pick top k
-    * @tparam T       - type of element in the sequence
+    * @tparam T - type of element in the sequence
     * @return
     */
   def pickTopN[T](k: Int, iterable: Iterable[T])(implicit ord: Ordering[T]): Seq[T] = {
@@ -43,13 +45,14 @@ class PolytopeProjection(polytope: mutable.Set[BSV[Double]], maxIter: Int) exten
   /**
     * Given a vertex (v) that is not inside the polytope find the closest (max dot product) or farthest (min dot product)
     * vertex from v.
+    *
     * @param v          - vertex representing primal solution without any polytope constraints
     * @param vertexType - closest or farthest vertex
     * @return
     */
   def candidateVertex(v: BSV[Double], vertexType: VertexType, metadata: Metadata): (BSV[Double], Double) = {
     val ordering: Ordering[BSV[Double]] = vertexType match {
-      case Closest => Ordering.by(vertex =>  dot(vertex, v))
+      case Closest => Ordering.by(vertex => dot(vertex, v))
       case Farthest => Ordering.by(vertex => -dot(vertex, v))
     }
     val vertex: BSV[Double] = pickTopN[BSV[Double]](1, polytope)(ordering).head
@@ -60,12 +63,13 @@ class PolytopeProjection(polytope: mutable.Set[BSV[Double]], maxIter: Int) exten
     * Find the best vertex & check if the best vertex satisfies optimality. If it does, we return
     * it along with its distance from v. If not, we find the second best vertex and return its distance
     * from v
+    *
     * @param v - vertex representing primal solution without any polytope constraints
     * @return the top 2 vertices closest to v, along with a check for optimality
     */
   def checkVertexSolution(v: BSV[Double], metadata: Metadata): VertexSolution = {
     def getNearestVertex(v: BSV[Double]): BSV[Double] = {
-      pickTopN[BSV[Double]](1, polytope)(Ordering.by(vertex =>  -dot(vertex - v, vertex - v))).head
+      pickTopN[BSV[Double]](1, polytope)(Ordering.by(vertex => -dot(vertex - v, vertex - v))).head
     }
 
     val firstBest = getNearestVertex(v)
@@ -83,7 +87,7 @@ class PolytopeProjection(polytope: mutable.Set[BSV[Double]], maxIter: Int) exten
     * Find the min norm point in an affine hull along with its barycentric coordinates
     * i.e. find an x where min_x 0.5 ||Sλ||^2 such that e^Tλ = 1
     *
-    * @param S  - sequence of points representing the affine hull
+    * @param S - sequence of points representing the affine hull
     * @return
     */
   def affineMinimizer(S: Array[BSV[Double]]): (BSV[Double], Array[Double]) = {
@@ -115,6 +119,7 @@ class PolytopeProjection(polytope: mutable.Set[BSV[Double]], maxIter: Int) exten
 
   /**
     * Minor cycle of Wolfe's algorithm
+    *
     * @param affineHull             - the sequence of points representing the affine hull
     * @param previousMinimizer      - the min norm solution found so far
     * @param barycentricCoordinates - corresponding to the min norm solution
@@ -122,18 +127,19 @@ class PolytopeProjection(polytope: mutable.Set[BSV[Double]], maxIter: Int) exten
     */
   def minorCycle(affineHull: Seq[BSV[Double]],
     previousMinimizer: BSV[Double],
-    barycentricCoordinates: Array[Double]): (Seq[BSV[Double]],BSV[Double], Array[Double]) = {
+    barycentricCoordinates: Array[Double]): (Seq[BSV[Double]], BSV[Double], Array[Double]) = {
     // Making a copy of the variables since they will be re-assigned in the algorithm.
     var S: Seq[BSV[Double]] = affineHull
     var x: BSV[Double] = previousMinimizer
     var lambdas: Array[Double] = barycentricCoordinates
 
     var searchMinorCycle = true
-    while(searchMinorCycle) {
+    while (searchMinorCycle) {
       // y = arg min_{z ∈ aff(S)} ‖z‖
       val (y, alphas): (BSV[Double], Array[Double]) = affineMinimizer(S.toArray)
-      if (alphas.forall(_ >= 0)) {  // If y ∈ conv(S), then end minor cycle
-        x = y; lambdas = alphas
+      if (alphas.forall(_ >= 0)) { // If y ∈ conv(S), then end minor cycle
+        x = y;
+        lambdas = alphas
         searchMinorCycle = false
       } else {
         // If !(y ∈ conv(S)), then update x to the intersection of the boundary of conv(S) and the segment joining y
@@ -141,7 +147,7 @@ class PolytopeProjection(polytope: mutable.Set[BSV[Double]], maxIter: Int) exten
         val (theta, thetaIndex): (Double, Int) = lambdas.zip(alphas).zipWithIndex
           .flatMap { case ((lambda, alpha), index) =>
             if (alpha < 0 && (lambda - alpha > 0)) {
-            Some(lambda / (lambda - alpha), index)
+              Some(lambda / (lambda - alpha), index)
             } else {
               None
             }
@@ -152,7 +158,7 @@ class PolytopeProjection(polytope: mutable.Set[BSV[Double]], maxIter: Int) exten
         lambdas = sum(multiply(alphas, theta), multiply(lambdas, 1 - theta))
         // Delete points which have λ_i = 0
         S.zip(lambdas).zipWithIndex.filter { case ((_, lambda), index) => index != thetaIndex && lambda > 0 }
-          .map { case ((point, lambda), index) => (point, lambda)}
+          .map { case ((point, lambda), index) => (point, lambda) }
           .unzip match {
           case (newHull, newCoordinates) => S = newHull; lambdas = newCoordinates.toArray
           case _ => // Scala uses patten matching for multiple assignment https://stackoverflow.com/a/6197785
@@ -165,8 +171,9 @@ class PolytopeProjection(polytope: mutable.Set[BSV[Double]], maxIter: Int) exten
   /**
     * Check to detect if we have found the min norm solution. If it fails, the vertex can be used to reduce the min
     * norm solution further
-    * @param solution  - the min norm solution found so far
-    * @param vertex    - the next vertex we want to evaluate
+    *
+    * @param solution - the min norm solution found so far
+    * @param vertex   - the next vertex we want to evaluate
     * @return
     */
   def checkOptimality(solution: BSV[Double], vertex: BSV[Double]): Boolean = {
@@ -228,8 +235,9 @@ class PolytopeProjection(polytope: mutable.Set[BSV[Double]], maxIter: Int) exten
 
   /**
     * The entry point to project a point onto polytope contraints
+    *
     * @param xHat - solution to the primal that does not satisfy polytope constraints
-    *  @return projected primal variable
+    * @return projected primal variable
     */
   override def project(xHat: BSV[Double], metadata: Metadata): BSV[Double] = {
     equalityConstraint(xHat, metadata)

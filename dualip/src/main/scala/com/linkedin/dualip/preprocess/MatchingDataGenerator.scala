@@ -1,14 +1,13 @@
 package com.linkedin.dualip.preprocess
 
+import com.linkedin.dualip.data.MatchingData
 import com.linkedin.dualip.preprocess.CostGenerator.{CONSTANT, CostGenerator, DATA, REWARD}
-import com.linkedin.dualip.slate.DataBlock
-import com.linkedin.dualip.util.DataFormat
 import com.linkedin.dualip.util.DataFormat.{AVRO, DataFormat}
-import com.linkedin.dualip.util.IOUtility
+import com.linkedin.dualip.util.{DataFormat, IOUtility}
 import org.apache.log4j.Logger
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.{Column, DataFrame, Dataset, Row, SparkSession}
+import org.apache.spark.sql._
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -20,10 +19,10 @@ import scala.collection.mutable.ListBuffer
   */
 object MatchingDataGenerator {
 
-  val dataFolder: String = "/data"          // Encodes the reward (c) and cost (a) information
-  val budgetFolder: String = "/budget"      // Encodes the budget per item
-  val mappingFolder: String = "/mapping"    // Mapping from 0 based index to item id
-  val metadataFolder: String = "/metadata"  // Metadata around the size of the data, global features for re-ranking
+  val dataFolder: String = "/data" // Encodes the reward (c) and cost (a) information
+  val budgetFolder: String = "/budget" // Encodes the budget per item
+  val mappingFolder: String = "/mapping" // Mapping from 0 based index to item id
+  val metadataFolder: String = "/metadata" // Metadata around the size of the data, global features for re-ranking
 
   val logger: Logger = Logger.getLogger(getClass)
 
@@ -33,6 +32,7 @@ object MatchingDataGenerator {
 
   /**
     * Create an index map using the column specifed in a dataframe
+    *
     * @param itemData   - the dataframe containing all the items
     * @param itemColumn - column representing itemId
     * @param spark
@@ -50,6 +50,7 @@ object MatchingDataGenerator {
 
   /**
     * Create a 0 based index for itemId which helps in creating a sparse vector later on
+    *
     * @param params
     * @param spark
     * @return
@@ -69,8 +70,9 @@ object MatchingDataGenerator {
 
   /**
     * Use the index map to generate the final budget data based on the index
-    * @param params   - data paths and columns corresponding to the fields
-    * @param indexer  - index map for itemId
+    *
+    * @param params  - data paths and columns corresponding to the fields
+    * @param indexer - index map for itemId
     * @param spark
     */
   def indexBudget(params: MatchingDataGeneratorParams, indexer: Broadcast[Map[Int, Int]])(implicit spark: SparkSession)
@@ -103,12 +105,13 @@ object MatchingDataGenerator {
 
   /**
     * Use the index map to generate the cost and reward data using the DataBlock API
-    * @param params   - data paths and columns corresponding to the fields
-    * @param indexer  - index map for itemId
+    *
+    * @param params  - data paths and columns corresponding to the fields
+    * @param indexer - index map for itemId
     * @param spark
     */
   def indexData(params: MatchingDataGeneratorParams, indexer: Broadcast[Map[Int, Int]])(implicit spark: SparkSession)
-  : Dataset[DataBlock] = {
+  : Dataset[MatchingData] = {
     import spark.implicits._
 
     val minBlockSize: Int = params.minBlockSize.getOrElse(0)
@@ -123,7 +126,7 @@ object MatchingDataGenerator {
     }
 
     val data = IOUtility.readDataFrame(params.dataBasePath + dataFolder, params.dataFormat)
-      .select(columns:_*)
+      .select(columns: _*)
       .map {
         row: Row =>
           val cost: Option[Double] = params.costGenerator match {
@@ -136,9 +139,9 @@ object MatchingDataGenerator {
             cost)
       }
       .as[DataRecord]
-      .groupByKey(_.dataBlockId)  // corresponds to the i dimension
+      .groupByKey(_.dataBlockId) // corresponds to the i dimension
       .flatMapGroups { case (blockId, records) =>
-        val dat = records.flatMap {record =>
+        val dat = records.flatMap { record =>
           indexer.value.get(record.itemId) match {
             case Some(j) => {
               // Cost can either be pre-generate by the client, or they specify a flag to use
@@ -153,11 +156,11 @@ object MatchingDataGenerator {
             case None => None
           }
         }.toSeq
-          .sortBy { case (j, c, a) => -c}
+          .sortBy { case (j, c, a) => -c }
 
         // Sometimes not every item has a budget, so they never get assgined an id, we drop them
         if (dat.length > minBlockSize)
-          Some(DataBlock(blockId.toString, dat, null))
+          Some(MatchingData(blockId.toString, dat, null))
         else
           None
       }
@@ -168,9 +171,10 @@ object MatchingDataGenerator {
 
 
   /**
-   * Entry point to spark job
-   * @param args
-   */
+    * Entry point to spark job
+    *
+    * @param args
+    */
   def main(args: Array[String]): Unit = {
 
     implicit val spark = SparkSession
@@ -223,18 +227,18 @@ object CostGenerator extends Enumeration {
 }
 
 /**
-  * @param dataFormat     - Use Avro, JSON or ORC data as the input
-  * @param dataBasePath   - This dataset contains dataBlockId, itemId, reward and optionally cost information for every record
-  * @param dataBlockDim   - Column name corresponding to dataBlockId (i)
-  * @param constraintDim  - Column name corresponding to itemId (j)
-  * @param rewardDim      - Column name corresponding to reward information c_ij
-  * @param budgetDim      - Column name corresponding to budget information b_j
-  * @param budgetValue    - Override the budget information b_j with the value
-  * @param costGenerator  - Pre-specified methods to fill in cost when cost is not generated in the data
-  * @param costDim        - Column name corresponding to cost information a_ij
-  * @param costValue      - Pre-specified cost when costGenerator is set to "constant"
-  * @param minBlockSize   - If this is set, we filter out data blocks that have too few items
-  * @param outputPath     - Output path to write the processed data
+  * @param dataFormat    - Use Avro, JSON or ORC data as the input
+  * @param dataBasePath  - This dataset contains dataBlockId, itemId, reward and optionally cost information for every record
+  * @param dataBlockDim  - Column name corresponding to dataBlockId (i)
+  * @param constraintDim - Column name corresponding to itemId (j)
+  * @param rewardDim     - Column name corresponding to reward information c_ij
+  * @param budgetDim     - Column name corresponding to budget information b_j
+  * @param budgetValue   - Override the budget information b_j with the value
+  * @param costGenerator - Pre-specified methods to fill in cost when cost is not generated in the data
+  * @param costDim       - Column name corresponding to cost information a_ij
+  * @param costValue     - Pre-specified cost when costGenerator is set to "constant"
+  * @param minBlockSize  - If this is set, we filter out data blocks that have too few items
+  * @param outputPath    - Output path to write the processed data
   */
 case class MatchingDataGeneratorParams(
   dataFormat: DataFormat = AVRO,
@@ -252,8 +256,8 @@ case class MatchingDataGeneratorParams(
 )
 
 /**
- * Preprocessing parameters parser
- */
+  * Preprocessing parameters parser
+  */
 object MatchingDataGeneratorParamsParser {
   def parseArgs(args: Array[String]): MatchingDataGeneratorParams = {
     val parser = new scopt.OptionParser[MatchingDataGeneratorParams]("Parsing matching data generator parameters") {
@@ -267,9 +271,9 @@ object MatchingDataGeneratorParamsParser {
       opt[String]("preprocess.budgetDim") required() action { (x, c) => c.copy(budgetDim = x) }
       opt[String]("preprocess.budgetValue") optional() action { (x, c) => c.copy(budgetValue = Some(x.toDouble)) }
       opt[String]("preprocess.costGenerator") optional() action { (x, c) => c.copy(costGenerator = CostGenerator.withName(x)) }
-      opt[String]("preprocess.costDim") optional() action { (x, c) => c.copy(costDim = Some(x))}
-      opt[String]("preprocess.costValue") optional() action { (x, c) => c.copy(costValue = Some(x.toDouble))}
-      opt[String]("preprocess.minBlockSize") optional() action { (x, c) => c.copy(minBlockSize = Some(x.toInt))}
+      opt[String]("preprocess.costDim") optional() action { (x, c) => c.copy(costDim = Some(x)) }
+      opt[String]("preprocess.costValue") optional() action { (x, c) => c.copy(costValue = Some(x.toDouble)) }
+      opt[String]("preprocess.minBlockSize") optional() action { (x, c) => c.copy(minBlockSize = Some(x.toInt)) }
       opt[String]("preprocess.outputPath") required() action { (x, c) => c.copy(outputPath = x) }
     }
 
