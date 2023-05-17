@@ -139,6 +139,7 @@ object MultipleMatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLo
     */
   def loadData(inputPaths: InputPaths)(implicit spark: SparkSession):
   (Dataset[MultipleMatchingData], BSV[Double], Int) = {
+    import spark.implicits._
 
     // the budget data has three columns
     // entityIndex: the index of the entity
