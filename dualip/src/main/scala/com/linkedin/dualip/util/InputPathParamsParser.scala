@@ -1,8 +1,19 @@
 package com.linkedin.dualip.util
 
+import com.linkedin.dualip.util.DataFormat.DataFormat
+
 /**
- * Input parameter parser. These are generic input parameters that are shared by most solvers now.
- */
+  * Case class to represent input path parameters
+  *
+  * @param ACblocksPath - Path of matrix A & c encoded as data blocks
+  * @param vectorBPath  - Path of vector of budgets b (this should be a dense vector, every itemId should have a constraint)
+  * @param format       - The format of input data, e.g. avro or orc
+  */
+case class InputPaths(ACblocksPath: String, vectorBPath: String, format: DataFormat)
+
+/**
+  * Input parameter parser. These are generic input parameters that are shared by most solvers now.
+  */
 object InputPathParamsParser {
   def parseArgs(args: Array[String]): InputPaths = {
     val parser = new scopt.OptionParser[InputPaths]("Input data parameters parser") {
