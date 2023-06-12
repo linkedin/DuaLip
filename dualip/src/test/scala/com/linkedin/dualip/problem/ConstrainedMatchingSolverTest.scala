@@ -83,7 +83,7 @@ class ConstrainedMatchingSolverTest {
   val initialValueDualsBSV: BSV[Double] = BSV(initialValuesGlobalDuals.toArray ++ initialValuesLocalDuals.toArray)
 
   // expected values for this problem were computed with SCS
-  val expectedDualObjective: Double = -32.470503
+  val expectedDualObjective: Double = -34.81553
   val localDuals: BSV[Double] = BSV(Array(3.991200, 2.252802))
   val globalDuals: BSV[Double] = BSV(Array(2.320209))
   val duals: ConstrainedMatchingDualsBSV = ConstrainedMatchingDualsBSV(localDuals, globalDuals)

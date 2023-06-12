@@ -36,7 +36,7 @@ class ConstrainedMatchingSolverDualObjectiveFunction(
   enableHighDimOptimization: Boolean,
   numLambdaPartitions: Option[Int]
 )(implicit spark: SparkSession) extends
-  DistributedRegularizedObjective(BSV(budget.budgetLocal.toArray ++ budget.budgetGlobal.toArray), gamma,
+  DistributedRegularizedObjective(BSV(budget.budgetGlobal.toArray ++ budget.budgetLocal.toArray), gamma,
     enableHighDimOptimization, numLambdaPartitions) with Serializable {
 
   import spark.implicits._
