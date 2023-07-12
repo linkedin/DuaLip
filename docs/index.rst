@@ -22,7 +22,7 @@ This library was created by `Yao Pan
 <https://www.linkedin.com/in/ksalomatin/>`_, `Amol Ghoting
 <https://www.linkedin.com/in/amolghoting/>`_, `Sathiya Keerthi
 <https://www.linkedin.com/in/sathiya-keerthi-selvaraj-ba963414/>`_, and `Miao Cheng
-<https://www.linkedin.com/in/miaoch/>`_ from LinkedIn.
+<https://www.linkedin.com/in/miaocheng0808/>`_ from LinkedIn.
 
 **Code available on** `GitHub
 <https://github.com/linkedin/DuaLip>`_.
