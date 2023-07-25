@@ -330,6 +330,32 @@ object LPSolverDriver {
   }
 
   /**
+    * This method runs the solver with a spark session, which is useful when the solver needs to be run under a single
+    * spark context/session.
+    *
+    * @param args  Command line arguments.
+    * @param spark spark session
+    */
+  def runSolverWithSparkSession(args: Array[String])(implicit spark: SparkSession): Unit = {
+    val driverParams = LPSolverDriverParamsParser.parseArgs(args)
+
+    println("-----------------------------------------------------------------------")
+    println("                      DuaLip v2.0     2022")
+    println("            Dual Decomposition based Linear Program Solver")
+    println("-----------------------------------------------------------------------")
+    println("Settings:")
+    printCommandLineArgs(args)
+    println("")
+    print("Optimizer: ")
+
+    if (driverParams.autotune) {
+      autotune(driverParams, args)
+    } else {
+      singleRun(driverParams, args, None)
+    }
+  }
+
+  /**
     * Entry point to spark job.
     *
     * @param args Command line arguments.
@@ -342,23 +368,7 @@ object LPSolverDriver {
       .getOrCreate()
 
     try {
-      val driverParams = LPSolverDriverParamsParser.parseArgs(args)
-
-      println("-----------------------------------------------------------------------")
-      println("                      DuaLip v4.0     2023")
-      println("            Dual Decomposition based Linear Program Solver")
-      println("-----------------------------------------------------------------------")
-      println("Settings:")
-      printCommandLineArgs(args)
-      println("")
-      print("Optimizer: ")
-
-      if (driverParams.autotune) {
-        autotune(driverParams, args)
-      } else {
-        singleRun(driverParams, args, None)
-      }
-
+      runSolverWithSparkSession(args)
     } catch {
       case other: Exception => sys.error("Got an exception: " + other)
     } finally {
