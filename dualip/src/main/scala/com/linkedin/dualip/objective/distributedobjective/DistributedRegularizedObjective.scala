@@ -133,6 +133,42 @@ object DistributedRegularizedObjective {
   }
 
   /**
+    * This method accumulates sufficient statistics (i.e. ax, cx and xx) from a dataset of PartialPrimalStats.
+    * It returns an Array[(Int, Array[Double])] where the first entry corresponds to the index of the dual vector.
+    * We always store cx and xx in the last two indices. For example, if the dual is of dimension 20, the maximum value
+    * of the returned indices would be 21 (0 to 19 for the indices of the dual vector and 20 and 21 for cx and xx
+    * respectively).
+    *
+    * @param primalStats
+    * @param lambdaDim
+    * @param numPartitions
+    * @param sparkSession
+    * @return
+    */
+  def accumulateSufficientStatistics(primalStats: Dataset[PartialPrimalStats], lambdaDim: Int, numPartitions: Int)
+    (implicit sparkSession: SparkSession): Array[(Int, Array[Double])] = {
+    import sparkSession.implicits._
+    primalStats.mapPartitions { partitionIterator =>
+      val acxxAgg = new Array[Double](lambdaDim + 2)
+      partitionIterator.foreach { stats =>
+        val ax = stats.costs
+        var i = 0
+        val axLen = ax.length
+        while (i < axLen) {
+          val (axIndex, axValue) = ax(i)
+          acxxAgg(axIndex) += axValue
+          i += 1
+        }
+        acxxAgg(lambdaDim) += stats.objective
+        acxxAgg(lambdaDim + 1) += stats.xx
+      }
+      // partition array
+      val x = ArrayAggregation.partitionArray(acxxAgg, numPartitions)
+      x.iterator
+    }.rdd.reduceByKey(ArrayAggregation.aggregateArrays(_, _)).collect()
+  }
+
+  /**
     * Does aggregation in the following way:
     * 1. each data partition performs aggregation of the gradients into java Array (dense)
     * 2. we partition array into roughly equal subarrays
@@ -158,37 +194,43 @@ object DistributedRegularizedObjective {
     */
   def twoStepGradientAggregator(primalStats: Dataset[PartialPrimalStats], lambdaDim: Int, numPartitions: Int)
     (implicit sparkSession: SparkSession): PartialPrimalStats = {
-    import sparkSession.implicits._
-    val aggregate = primalStats.mapPartitions { partitionIterator =>
-      val acxxAgg = new Array[Double](lambdaDim + 2)
-      partitionIterator.foreach { stats =>
-        val ax = stats.costs
-        var i = 0
-        while (i < ax.length) {
-          val (axIndex, axValue) = ax(i)
-          acxxAgg(axIndex) += axValue
-          i += 1
-        }
-        acxxAgg(lambdaDim) += stats.objective
-        acxxAgg(lambdaDim + 1) += stats.xx
-      }
-      // partition array
-      val x = ArrayAggregation.partitionArray(acxxAgg, numPartitions)
-      x.iterator
-    }.rdd.reduceByKey(ArrayAggregation.aggregateArrays(_, _)).collect()
 
+    val aggregatedStats = accumulateSufficientStatistics(primalStats, lambdaDim, numPartitions)
     val ax = new Array[Double](lambdaDim)
     var cx = 0.0
     var xx = 0.0
-    aggregate.foreach { case (partition, subarray) =>
-      val (start, end) = ArrayAggregation.partitionBounds(lambdaDim + 2, numPartitions, partition)
-      if (partition == numPartitions - 1) {
-        // special case for last partition, as it holds 'xx' and 'cx' in the last two positions
-        cx = subarray(subarray.length - 2)
-        xx = subarray(subarray.length - 1)
-        System.arraycopy(subarray, 0, ax, start, subarray.length - 2)
-      } else {
-        System.arraycopy(subarray, 0, ax, start, subarray.length)
+    val axLen = ax.length
+    aggregatedStats.foreach { case (partition, subarray) =>
+      val (startIndex, endIndex) = ArrayAggregation.partitionBounds(lambdaDim + 2, numPartitions, partition)
+      if (partition < (numPartitions - 2) || (partition == numPartitions - 2 && endIndex <= axLen)) {
+        // aggregation of the ax values for different indices of the dual when we haven't reached the last two
+        // partitions or we have reached the second last partition and it still contains dual values only (i.e. no cx)
+        System.arraycopy(subarray, 0, ax, startIndex, subarray.length)
+      }
+      else if (partition == (numPartitions - 2)) {
+        // once we hit the second last partition with endIndex > axLen, we definitely have cx in here
+        cx = subarray(subarray.length - 1)
+        if (subarray.length > 1) {
+          // along with some of the remaining duals
+          System.arraycopy(subarray, 0, ax, startIndex, subarray.length - 1)
+        }
+      }
+      else {
+        // when we hit the last partition
+        if (subarray.length == 1) {
+          // and it contains only one element, it has to be xx
+          xx = subarray(0)
+        }
+        else {
+          // if the last partition has more than one element, then the last two elements must be cx and xx respectively
+          cx = subarray(subarray.length - 2)
+          xx = subarray(subarray.length - 1)
+          if (subarray.length > 2) {
+            // if the last partition has more than two elements then it must contain few of the remaining duals and cx
+            // and xx
+            System.arraycopy(subarray, 0, ax, startIndex, subarray.length - 2)
+          }
+        }
       }
     }
     PartialPrimalStats(ax.zipWithIndex.map { case (v, i) => (i, v) }, cx, xx)
