@@ -1,7 +1,7 @@
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
-import com.linkedin.dualip.data.MatchingData
+import com.linkedin.dualip.data.{BudgetData, MatchingData}
 import com.linkedin.dualip.objective.distributedobjective.DistributedRegularizedObjective
 import com.linkedin.dualip.objective.{DualPrimalObjective, DualPrimalObjectiveLoader, PartialPrimalStats}
 import com.linkedin.dualip.projection.{BoxCutProjection, GreedyProjection, SimplexProjection, UnitBoxProjection}
@@ -12,7 +12,7 @@ import com.linkedin.optimization.util.VectorOperations.toBSV
 import com.twitter.algebird.{Max, Tuple5Semigroup}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.functions.{col, lit}
-import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
+import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 import org.apache.spark.storage.StorageLevel
 
 import scala.util.Try
@@ -160,8 +160,8 @@ object MatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLoader {
     */
   def loadData(inputPaths: InputPaths)(implicit spark: SparkSession): (Dataset[MatchingData], BSV[Double]) = {
     import spark.implicits._
-    val budget = IOUtility.readDataFrame(inputPaths.vectorBPath, inputPaths.format)
-      .map { case Row(_c0: Number, _c1: Number) => (_c0.intValue(), _c1.doubleValue()) }
+    val budget = IOUtility.readDataFrame(inputPaths.vectorBPath, inputPaths.format).as[BudgetData]
+      .map { budgetRecord => (budgetRecord.itemId, budgetRecord.budget) }
       .collect
 
     val itemIds = budget.toMap.keySet

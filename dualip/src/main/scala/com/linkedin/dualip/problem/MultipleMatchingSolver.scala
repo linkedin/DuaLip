@@ -1,7 +1,7 @@
 package com.linkedin.dualip.problem
 
 import breeze.linalg.{SparseVector => BSV}
-import com.linkedin.dualip.data.MultipleMatchingData
+import com.linkedin.dualip.data.{MultipleMatchingBudgetData, MultipleMatchingData}
 import com.linkedin.dualip.objective.distributedobjective.DistributedRegularizedObjective
 import com.linkedin.dualip.objective.{DualPrimalObjective, DualPrimalObjectiveLoader, PartialPrimalStats}
 import com.linkedin.dualip.projection.{BoxCutProjection, GreedyProjection, SimplexProjection, UnitBoxProjection}
@@ -146,8 +146,8 @@ object MultipleMatchingSolverDualObjectiveFunction extends DualPrimalObjectiveLo
     // constraintIndex: index for the constraint; for a multiple-matching problem with three matching constraints per
     // entity, this column may assume values 0, 1 and 2
     // budgetValue: value of the budget
-    val budgetDF = IOUtility.readDataFrame(inputPaths.vectorBPath, inputPaths.format)
-      .toDF("entityIndex", "constraintIndex", "budgetValue")
+    val budgetDF = IOUtility.readDataFrame(inputPaths.vectorBPath, inputPaths.format).as[MultipleMatchingBudgetData]
+      .toDF()
 
     val matchingConstraintsPerIndex = budgetDF.select("constraintIndex").distinct().count().toInt
     val reindexBudgetDF = budgetDF
