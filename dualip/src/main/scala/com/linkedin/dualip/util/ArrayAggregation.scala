@@ -49,9 +49,9 @@ object ArrayAggregation {
     * Method to find [start, end) positions in the array of a given partition.
     * Array is partitioned into roughly identical partitions, the length of a partition may differ by one.
     *
-    * @param arrayLength
-    * @param numPartitions
-    * @param partition
+    * @param arrayLength   - length of the array whose slicing positions are being considered
+    * @param numPartitions - the total number of partitions that the array of length arrayLength is stored in
+    * @param partition     - the index value for the partitions that can assume values from 0 to numPartitions - 1
     * @return
     */
   def partitionBounds(arrayLength: Int, numPartitions: Int, partition: Int): (Int, Int) = {
@@ -61,12 +61,16 @@ object ArrayAggregation {
     // we will stack larger partitions in the beginning of the array
     val basePartitionSize = arrayLength / numPartitions
     val numLargerPartitions = arrayLength - basePartitionSize * numPartitions
-    // second term accounts for larger partitions stacked prior to partition in question
-    val startIndex = partition * basePartitionSize + math.min(partition, numLargerPartitions)
+
     val partitionSize = if (partition < numLargerPartitions) {
       basePartitionSize + 1
     } else {
       basePartitionSize
+    }
+    val startIndex = if (partition < numLargerPartitions) {
+      partition * partitionSize
+    } else {
+      numLargerPartitions + partition * partitionSize
     }
     val endIndex = startIndex + partitionSize
     (startIndex, endIndex)

@@ -1,5 +1,6 @@
 package com.linkedin.dualip.util
 
+import com.linkedin.dualip.objective.distributedobjective.DistributedRegularizedObjective.accumulateSufficientStatistics
 import com.linkedin.spark.common.lib.TestUtils
 import org.apache.spark.sql.{Dataset, SparkSession}
 import org.testng.Assert
@@ -31,11 +32,13 @@ class ArrayAggregationTest {
   @Test
   def testPartitionBounds(): Unit = {
     // even split into partitions
-    Assert.assertEquals(partitionBounds(arrayLength = 8, numPartitions = 2, partition = 1), (4,8))
+    Assert.assertEquals(partitionBounds(arrayLength = 8, numPartitions = 2, partition = 1), (4, 8))
     // uneven split, larger partitions should be stacked first
-    Assert.assertEquals(partitionBounds(arrayLength = 8, numPartitions = 3, partition = 0), (0,3))
-    Assert.assertEquals(partitionBounds(arrayLength = 8, numPartitions = 3, partition = 1), (3,6))
-    Assert.assertEquals(partitionBounds(arrayLength = 8, numPartitions = 3, partition = 2), (6,8))
+    Assert.assertEquals(partitionBounds(arrayLength = 8, numPartitions = 3, partition = 0), (0, 3))
+    Assert.assertEquals(partitionBounds(arrayLength = 8, numPartitions = 3, partition = 1), (3, 6))
+    Assert.assertEquals(partitionBounds(arrayLength = 8, numPartitions = 3, partition = 2), (6, 8))
+    Assert.assertEquals(partitionBounds(arrayLength = 40, numPartitions = 20, partition = 10), (20, 22))
+    Assert.assertEquals(partitionBounds(arrayLength = 40, numPartitions = 38, partition = 37), (39, 40))
   }
 
   @Test(

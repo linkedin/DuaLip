@@ -1,6 +1,8 @@
 package com.linkedin.dualip.objective.distributedobjective
 
 import com.linkedin.dualip.objective.PartialPrimalStats
+import com.linkedin.dualip.objective.distributedobjective.DistributedRegularizedObjective.accumulateSufficientStatistics
+import com.linkedin.dualip.util.ArrayAggregation.partitionBounds
 import com.linkedin.spark.common.lib.TestUtils
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
@@ -16,14 +18,37 @@ class DistributedRegularizedObjectiveTest {
   val expectedXx: Double = partialGradientsTestData.map(_.xx).sum
 
   @Test
-  def testTwoStepGradientAggregation(): Unit = {
-    implicit val spark: SparkSession = TestUtils.createSparkSession()
+  def testAccumulateSufficientStatistics(): Unit = {
+    implicit val spark: SparkSession = TestUtils.createSparkSession("testAccumulateSufficientStatistics")
     import spark.implicits._
-    val ds = spark.createDataset(partialGradientsTestData).repartition(2)
-    val aggPrimalStats = DistributedRegularizedObjective.twoStepGradientAggregator(ds, 9, 2)
-    assertAlmostEqual(aggPrimalStats.costs.toMap, expectedAx)
-    assertAlmostEqual(aggPrimalStats.objective, expectedCx)
-    assertAlmostEqual(aggPrimalStats.xx, expectedXx)
+
+    val lambdaDim = 9
+    val numPartitions = 4
+    val primalStats = spark.createDataset(partialGradientsTestData)
+    val aggregatedStats = accumulateSufficientStatistics(primalStats, lambdaDim, 4).toMap
+
+    (0 until numPartitions - 1).foreach { partitionNumber =>
+      val (startIndex, endIndex) = partitionBounds(arrayLength = lambdaDim + 2, numPartitions = numPartitions,
+        partition = partitionNumber)
+      (startIndex until endIndex).zipWithIndex.foreach { case (arrayIndex, index) =>
+        Assert.assertEquals(aggregatedStats(partitionNumber)(index), expectedAx(arrayIndex), 0.01)
+      }
+    }
+  }
+
+  @Test
+  def testTwoStepGradientAggregation(): Unit = {
+    implicit val spark: SparkSession = TestUtils.createSparkSession("testTwoStepGradientAggregation")
+    import spark.implicits._
+
+    Array(2, 5, 9).foreach { numPartitions =>
+      print("number of partitions " + numPartitions + "\n")
+      val ds = spark.createDataset(partialGradientsTestData).repartition(numPartitions)
+      val aggPrimalStats = DistributedRegularizedObjective.twoStepGradientAggregator(ds, 9, numPartitions)
+      assertAlmostEqual(aggPrimalStats.costs.toMap, expectedAx)
+      assertAlmostEqual(aggPrimalStats.objective, expectedCx)
+      assertAlmostEqual(aggPrimalStats.xx, expectedXx)
+    }
   }
 
   @Test
