@@ -345,7 +345,7 @@ object LPSolverDriver {
       val driverParams = LPSolverDriverParamsParser.parseArgs(args)
 
       println("-----------------------------------------------------------------------")
-      println("                      DuaLip v2.0     2022")
+      println("                      DuaLip v4.0     2023")
       println("            Dual Decomposition based Linear Program Solver")
       println("-----------------------------------------------------------------------")
       println("Settings:")
