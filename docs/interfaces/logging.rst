@@ -31,22 +31,23 @@ The solver logs all the parameter information before execution:
 
 In-Execution Logging
 --------------------
-The solver prints the following information during execution:
+The solver prints the following information during execution. (Note: Which variables are reported depends on the solver.)
 
 ================================  ====================================================================================
 Variables                         Description
 ================================  ====================================================================================
 :code:`gradientCall`              The number of calls to compute the gradient in the solver.
 :code:`iter`                      Iteration number.
-:code:`dual_obj`                  Dual objective value.
-:code:`max_pos_slack`             If :math:`\lambda_j` is not 0, :code:`max_pos_slack` = :math:`\max \{ (Ax-b)_j, 0 \} / (1 + |b_j|)`.
-:code:`max_zero_slack`            If :math:`\lambda_j` is 0, :code:`max_zero_slack` = :math:`\max\{ (Ax-b)_j, 0\} / (1 + |b_j|)`.
-:code:`abs_slack_sum`             Sum of constraint violations.
-:code:`feasibility`               :math:`\max \{ r_j/(1 + |b_j|)\}`.
-:code:`cx`                        Primal objective value, i.e. :math:`c^T x`.
-:math:`\lambda(Ax-b)`             Gradient.
+:code:`dual_obj`                  Dual objective value (including regularization term).
+:code:`cx`                        Primal objective value without regularization term, i.e. :math:`c^\top x`.
+:code:`feasibility`               :math:`\max_j \{ (Ax-b)_j / (1 + |b_j|)\}`.
+:math:`\lambda(Ax-b)`             :math:`\lambda^\top (Ax - b)`.
 :math:`\frac{\gamma}{2}||x||^2`   Regularization term.
+:code:`max_pos_slack`             :math:`\max_{j: \lambda_j \neq 0} | (Ax-b)_j | / (1 + |b_j|)` (only over inequality constraints).
+:code:`max_zero_slack`            :math:`\max_{j: \lambda_j = 0} \{ (Ax-b)_j, 0\} / (1 + |b_j|)` (only over inequality constraints).
+:code:`abs_slack_sum`             Sum of constraint violations.
 :code:`time`                      Execution time of this iteration in seconds.
+:code:`step`                      Step size for the gradient optimizer.
 ================================  ====================================================================================
 
 Termination Logging
@@ -57,7 +58,7 @@ The solver prints one of the four possible results at termination:
 ================================  ====================================================================================
 Status                            Description
 ================================  ====================================================================================
-:code:`Converged`                 The Algorithm has converged according to the convergence criteria.
+:code:`Converged`                 The algorithm has converged according to the convergence criteria.
 :code:`Infeasible`                This happens when the dual objective has exceeded the primal upper bound.
 :code:`Terminated`                The solver has reached maximum number of iterations. Users can look at the log to determine if the results are good enough to be used.
 :code:`Failed`                    The solver failed during execution. Specific failure reason will be given in logs.
