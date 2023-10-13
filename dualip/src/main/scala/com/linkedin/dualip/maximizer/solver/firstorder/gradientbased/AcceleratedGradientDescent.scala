@@ -14,6 +14,8 @@ import scala.collection.mutable.ListBuffer
 /**
   * Implementation of accelerated gradient descent.
   *
+  * @param initialStepSize           The initial step size (default is 1e-5).
+  * @param maxStepSize               The maximum step size (default is 0.1).
   * @param maxIter                   The maximum number of iterations (default is 1000).
   * @param dualTolerance             The dual tolerance limit (default is 1e-6).
   * @param slackTolerance            The slack tolerance limit (default is 0.05).
@@ -24,7 +26,10 @@ import scala.collection.mutable.ListBuffer
   *                                  For example, if the total length of the Duals is 10 and we have three groups of
   *                                  sizes 3, 4, and 3 respectively, then pivotPositionsForStepSize must be set at [3, 7].
   */
-class AcceleratedGradientDescent(maxIter: Int = 1000,
+class AcceleratedGradientDescent(
+  initialStepSize: Double = 1e-5,
+  maxStepSize: Double = 0.1,
+  maxIter: Int = 1000,
   dualTolerance: Double = 1e-6,
   slackTolerance: Double = 0.05,
   designInequality: Boolean = true,
@@ -100,9 +105,10 @@ class AcceleratedGradientDescent(maxIter: Int = 1000,
       var stepSize = 0.0
       if (useGroupedStepSize)
         groupedStepSize = calculateGroupStepSize(result.dualGradient.data, y.data, gradientHistory, lambdaHistory,
-          pivotPositionsForStepSize)
+          pivotPositionsForStepSize, initialStepSize = initialStepSize, maxStepSize = maxStepSize)
       else
-        stepSize = calculateStepSize(result.dualGradient.data, y.data, gradientHistory, lambdaHistory)
+        stepSize = calculateStepSize(result.dualGradient.data, y.data, gradientHistory, lambdaHistory,
+          initialStepSize = initialStepSize, maxStepSize = maxStepSize)
 
       // log adaptive step size
       if (useGroupedStepSize) {

@@ -17,11 +17,12 @@ object DualPrimalMaximizerLoader {
     val solver: DualPrimalMaximizer = solverType match {
       case OptimizerType.LBFGSB => new LBFGSB(maxIter = maxIter, dualTolerance = dualTolerance, slackTolerance = slackTolerance)
       case OptimizerType.LBFGS => new LBFGS(alpha = alpha, maxIter = maxIter, dualTolerance = dualTolerance, slackTolerance = slackTolerance)
-      case OptimizerType.AGD => new AcceleratedGradientDescent(maxIter = maxIter, dualTolerance = dualTolerance,
+      case OptimizerType.AGD => new AcceleratedGradientDescent(initialStepSize = initialStepSize, maxStepSize = maxStepSize,
+        maxIter = maxIter, dualTolerance = dualTolerance,
         slackTolerance = slackTolerance, designInequality = designInequality, mixedDesignPivotNum = mixedDesignPivotNum,
         pivotPositionsForStepSize = pivotPositionsForStepSize)
-      case OptimizerType.GD => new GradientDescent(maxIter = maxIter, dualTolerance = dualTolerance, slackTolerance = slackTolerance)
-      case OptimizerType.SUBGD => new SubgradientDescent(maxIter = maxIter, dualTolerance = dualTolerance, slackTolerance = slackTolerance)
+      case OptimizerType.GD => new GradientDescent(initialStepSize = initialStepSize, maxStepSize = maxStepSize, maxIter = maxIter, dualTolerance = dualTolerance, slackTolerance = slackTolerance)
+      case OptimizerType.SUBGD => new SubgradientDescent(initialStepSize = initialStepSize, maxStepSize = maxStepSize, maxIter = maxIter, dualTolerance = dualTolerance, slackTolerance = slackTolerance)
     }
     solver
   }
@@ -33,7 +34,9 @@ object DualPrimalMaximizerLoader {
   * @param solverType                Solver type
   * @param designInequality          True if Ax <= b, false if Ax = b or have mixed constraints
   * @param mixedDesignPivotNum       The pivot number if we have mixed A_1x <= b1 and A_2x = b2, i.e. how many inequality constraints come first
-  * @param alpha                     LBFGS positivity constraint relaxation
+  * @param alpha                     LBFGS positivity constraint relaxation (optional)
+  * @param initialStepSize           Initial step-size for gradient descent (optional)
+  * @param maxStepSize               Maximum step-size for gradient descent (optional)
   * @param dualTolerance             Tolerance criteria for dual variable change
   * @param slackTolerance            Tolerance criteria for slack
   * @param maxIter                   Number of iterations
@@ -43,6 +46,8 @@ case class DualPrimalMaximizerParams(solverType: OptimizerType = OptimizerType.L
   designInequality: Boolean = true,
   mixedDesignPivotNum: Int = 0,
   alpha: Double = 1E-6,
+  initialStepSize: Double = 1E-5,
+  maxStepSize: Double = 0.1,
   dualTolerance: Double = 1E-8,
   slackTolerance: Double = 5E-6,
   maxIter: Int = 100,
@@ -63,6 +68,8 @@ object DualPrimalMaximizerParamsParser {
       opt[Boolean](s"$namespace.designInequality") optional() action { (x, c) => c.copy(designInequality = x) }
       opt[Int](s"$namespace.mixedDesignPivotNum") optional() action { (x, c) => c.copy(mixedDesignPivotNum = x) }
       opt[Double](s"$namespace.alpha") optional() action { (x, c) => c.copy(alpha = x) }
+      opt[Double](s"$namespace.initialStepSize") optional() action { (x, c) => c.copy(initialStepSize = x) }
+      opt[Double](s"$namespace.maxStepSize") optional() action { (x, c) => c.copy(maxStepSize = x) }
       opt[Double](s"$namespace.dualTolerance") required() action { (x, c) => c.copy(dualTolerance = x) }
       opt[Double](s"$namespace.slackTolerance") required() action { (x, c) => c.copy(slackTolerance = x) }
       opt[Int](s"$namespace.maxIter") required() action { (x, c) => c.copy(maxIter = x) }

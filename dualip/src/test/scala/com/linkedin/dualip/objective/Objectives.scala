@@ -7,6 +7,25 @@ import org.testng.annotations.Test
 
 import scala.collection.mutable
 
+// This file contains a collection of simple objective functions for testing purposes.
+
+/**
+  * Just a 1-d objective function f = -(x-3)^2. We maximize it subject to x>=0.
+  * Maximum is at x=3. dualObjective = 0, there is no primalObjective.
+  */
+class Quadratic1DObjective() extends DualPrimalObjective {
+  override def dualDimensionality: Int = 1
+
+  override def calculate(lambda: BSV[Double], log: mutable.Map[String, String]=null, verbosity: Int = 1, designInequality: Boolean = true, mixedDesignPivotNum: Int = 0): DualPrimalComputationResult = {
+    val Array(x) = lambda.toArray
+    val obj = -(x - 3.0)*(x - 3.0)
+    val grad = Array(-2.0 * (x - 3.0))
+    // primal, slack and maxSlack are dummy, they are used for logging and extra convergence criteria,
+    // so they should not impact the testing of basic functionality
+    DualPrimalComputationResult(lambda, obj, obj, BSV(grad), 0.0, BSV(Array(0.0)), SlackMetadata(null, 0.0, 0.0, 0.0, 0.0))
+  }
+}
+
 /**
   * Just a simple 2-d objective function f = -(x-3)^2 - (y+5)^2
   * because we maximize subject to x>=0 and y>=0
@@ -22,14 +41,6 @@ class SimpleObjective() extends DualPrimalObjective {
     // primal, slack and maxSlack are dummy, they are used for logging and extra convergence criteria,
     // so they should not impact the testing of basic functionality
     DualPrimalComputationResult(lambda, obj, obj, BSV(grad), 0.0, BSV(Array(0.0, 0.0)), SlackMetadata(null, 0.0, 0.0, 0.0, 0.0))
-  }
-
-  @Test
-  def testObjectiveFunction(): Unit = {
-    val x = BSV(Array(1.0, 1.0))
-    val result = new SimpleObjective().calculate(x)
-    Assert.assertEquals(result.dualObjective, -40.0)
-    Assert.assertEquals(result.dualGradient, BSV(Array(4.0, -12.0)))
   }
 }
 

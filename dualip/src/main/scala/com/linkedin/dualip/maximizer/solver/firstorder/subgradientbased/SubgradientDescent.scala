@@ -14,6 +14,8 @@ import scala.collection.mutable.ListBuffer
 /**
  * Implementation of subgradient descent.
  *
+ * @param initialStepSize     The initial step size (default is 1e-5).
+ * @param maxStepSize         The maximum step size (default is 0.1).
  * @param maxIter             The maximum number of iterations (default is 1000).
  * @param dualTolerance       The dual tolerance limit (default is 1e-6).
  * @param slackTolerance      The slack tolerance limit (default is 0.05).
@@ -21,7 +23,9 @@ import scala.collection.mutable.ListBuffer
  * @param mixedDesignPivotNum The pivot number if we have mixed A_1x <= b1 and A_2x = b2, i.e. how many inequality
  *                            constraints come first (default is 0).
  */
-class SubgradientDescent(maxIter: Int = 1000,
+class SubgradientDescent(initialStepSize: Double = 1e-5,
+                         maxStepSize: Double = 0.1,
+                         maxIter: Int = 1000,
                          dualTolerance: Double = 1e-6,
                          slackTolerance: Double = 0.05,
                          designInequality: Boolean = true,
@@ -76,7 +80,8 @@ class SubgradientDescent(maxIter: Int = 1000,
       }
 
       // calculate step-size
-      val stepSize = calculateStepSize(result.dualGradient.data, result.lambda.data, gradientHistory, lambdaHistory)
+      val stepSize = calculateStepSize(result.dualGradient.data, result.lambda.data, gradientHistory, lambdaHistory,
+        initialStepSize = initialStepSize, maxStepSize = maxStepSize)
 
       // log adaptive step size
       iLog += ("step" -> f"$stepSize%1.2E")

@@ -61,7 +61,7 @@ object SolverUtility {
     * @param gradientHistory  - The gradient history
     * @param lambdaHistory    - The dual variable history
     * @param maxHistoryLength - The length of the history
-    * @param minStepSize      - Minimum step size
+    * @param initialStepSize  - Initial step size
     * @param maxStepSize      - Maximum step size
     * @return
     */
@@ -71,7 +71,7 @@ object SolverUtility {
     gradientHistory: ListBuffer[Array[Double]],
     lambdaHistory: ListBuffer[Array[Double]],
     maxHistoryLength: Int = 15,
-    minStepSize: Double = 1e-5,
+    initialStepSize: Double = 1e-5,
     maxStepSize: Double = 0.1
   ): Double = {
 
@@ -85,7 +85,7 @@ object SolverUtility {
           lambdaHistory(timeIndex + 1)
         )
       }
-    stepSizeFromLipschitzConstants(lipschitzConstants, maxHistoryLength, minStepSize, maxStepSize)
+    stepSizeFromLipschitzConstants(lipschitzConstants, maxHistoryLength, initialStepSize, maxStepSize)
   }
 
   /**
@@ -97,7 +97,7 @@ object SolverUtility {
     * @param lambdaHistory             - The dual variable history
     * @param pivotPositionsForStepSize - Pivot positions that mark different groups for which the step-sizes need to be tuned
     * @param maxHistoryLength          - The length of the history
-    * @param minStepSize               - Minimum step size
+    * @param initialStepSize           - Initial step size
     * @param maxStepSize               - Maximum step size
     * @return
     */
@@ -108,7 +108,7 @@ object SolverUtility {
     lambdaHistory: ListBuffer[Array[Double]],
     pivotPositionsForStepSize: Array[Int],
     maxHistoryLength: Int = 15,
-    minStepSize: Double = 1e-5,
+    initialStepSize: Double = 1e-5,
     maxStepSize: Double = 0.1
   ): Array[Double] = {
 
@@ -147,7 +147,8 @@ object SolverUtility {
     prevPivotIndex = 0
     (pivotPositionsForStepSize :+ dualLength).map { pivotIndex =>
       val lipschitzConstants = lipschitzConstantCollection(prevPivotIndex)
-      val stepSizeValuesPerGroup = stepSizeFromLipschitzConstants(lipschitzConstants, lipschitzConstants.length, minStepSize, maxStepSize)
+      val stepSizeValuesPerGroup = stepSizeFromLipschitzConstants(lipschitzConstants,
+        lipschitzConstants.length, initialStepSize, maxStepSize)
       prevPivotIndex = pivotIndex
       stepSizeValuesPerGroup
     }
@@ -213,15 +214,15 @@ object SolverUtility {
     *
     * @param lipschitzConstants
     * @param maxHistoryLength
-    * @param minStepSize
+    * @param initialStepSize
     * @param maxStepSize
     * @return
     */
-  def stepSizeFromLipschitzConstants(lipschitzConstants: Seq[Double], maxHistoryLength: Int, minStepSize: Double,
+  def stepSizeFromLipschitzConstants(lipschitzConstants: Seq[Double], maxHistoryLength: Int, initialStepSize: Double,
     maxStepSize: Double): Double = {
     if (lipschitzConstants.isEmpty || lipschitzConstants.max.isNaN || lipschitzConstants.max.isInfinite ||
       lipschitzConstants.length < maxHistoryLength - 1)
-      minStepSize else math.min(1.0 / lipschitzConstants.max, maxStepSize)
+      initialStepSize else math.min(1.0 / lipschitzConstants.max, maxStepSize)
   }
 
   /**

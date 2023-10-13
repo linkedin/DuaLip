@@ -17,11 +17,15 @@ import scala.math.abs
  * A custom implementation of Gradient Descent to solve a maximization problem with non-negativity constraints on the solution
  *
  * @see breeze.optimize.StochasticGradientDescent for the structure of an optimizer
- * @param maxIter        is the maximum number of gradient descent iterations to run
- * @param dualTolerance  change in dual (tolerance) to decide convergence
- * @param slackTolerance change in max slack (tolerance) to decide convergence
+ * @param initialStepSize The initial step size (default is 1e-5).
+ * @param maxStepSize     The maximum step size (default is 0.1).
+ * @param maxIter         The maximum number of gradient descent iterations to run
+ * @param dualTolerance   Change in dual (tolerance) to decide convergence
+ * @param slackTolerance  Change in max slack (tolerance) to decide convergence
  */
-class GradientDescent(maxIter: Int = 100,
+class GradientDescent(initialStepSize: Double = 1e-5,
+                      maxStepSize: Double = 0.1,
+                      maxIter: Int = 100,
                       dualTolerance: Double = 1e-8,
                       slackTolerance: Double = 5e-6
                      ) extends Serializable with DualPrimalMaximizer {
@@ -136,7 +140,8 @@ class GradientDescent(maxIter: Int = 100,
       val grad = state.grad
       val ff = functionFromSearchDirection(f, x, dir)
 
-      val init = SolverUtility.calculateStepSize(grad.data, x.data, GradHist, XHist)
+      val init = SolverUtility.calculateStepSize(grad.data, x.data, GradHist, XHist, initialStepSize = initialStepSize,
+        maxStepSize = maxStepSize)
       bisectionLineSearch(ff, init, 20)
     }
 
