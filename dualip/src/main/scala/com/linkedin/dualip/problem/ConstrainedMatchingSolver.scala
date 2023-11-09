@@ -9,7 +9,7 @@ import com.linkedin.dualip.slate.{ConstrainedMatchingSlateComposer, Slate}
 import com.linkedin.dualip.util.DataFormat.DataFormat
 import com.linkedin.dualip.util.ProjectionType._
 import com.linkedin.dualip.util.{DataFormat, IOUtility}
-import com.linkedin.optimization.util.VectorOperations.toBSV
+import com.linkedin.dualip.util.VectorOperations.toBSV
 import com.twitter.algebird.{Max, Tuple5Semigroup}
 import org.apache.spark.sql.functions.{col, lit}
 import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}

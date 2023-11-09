@@ -2,7 +2,8 @@ package com.linkedin.dualip.projection
 
 import breeze.linalg.{SparseVector => BSV}
 import com.linkedin.dualip.projection.PolytopeProjectionTest._
-import com.linkedin.optimization.util.VectorOperations.dot
+import com.linkedin.dualip.util.VectorOperations.dot
+import org.scalatest.matchers.should.Matchers._
 import org.testng.Assert
 import org.testng.annotations.Test
 
@@ -126,6 +127,23 @@ class PolytopeProjectionTest {
         Assert.assertTrue(Math.abs(dot(solution, solution) - dot(solution, i)) > tol)
       }
     }
+  }
+
+  @Test
+  def testCheckOptimality(): Unit = {
+    // We encountered this issue in an application that used boxCutInequality = 1. The error showed up as a
+    // singular matrix issue in `affineMinimizer()`, but the bug occurred before that. For this vector, the corral
+    // had two vertices {s1, s2} and the best solution x was a convex combination of the two. In the next Wolfe
+    // iteration, `BoxCutProjection.candidateVertex()` chose s1 as a candidate vertex to add to the corral. The
+    // subsequent call to `checkOptimality(x, s1)` should have returned true, but it did not because of incorrect
+    // tolerance value.
+    val projection = new BoxCutProjection(maxIter = 10, inequality = true)
+    val metadata = Map[String, Double]("boxCut" -> 1)
+
+    val v = new BSV(Array(0, 1, 2), Array(0.6622921563625779, 0.33783878252149596, 0.0), 3)
+    val actualProjection = projection.project(v, metadata)
+    val expectedProjection = new BSV(Array(0, 1, 2), Array(0.6622266869205409, 0.3377733130794591, 0.0), 3)
+    actualProjection should be(expectedProjection)
   }
 }
 

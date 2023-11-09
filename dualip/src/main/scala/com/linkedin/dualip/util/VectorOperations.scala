@@ -1,4 +1,4 @@
-package com.linkedin.optimization.util
+package com.linkedin.dualip.util
 
 import breeze.linalg.{SparseVector => BSV}
 

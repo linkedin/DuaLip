@@ -8,8 +8,8 @@ import com.linkedin.dualip.util.DataFormat.DataFormat
 import com.linkedin.dualip.util.IOUtility.{printCommandLineArgs, readDataFrame, saveDataFrame, saveLog}
 import com.linkedin.dualip.util.ProjectionType.{Greedy, ProjectionType}
 import com.linkedin.dualip.util.SolverUtility
-import com.linkedin.optimization.util.VectorOperations
-import com.linkedin.optimization.util.VectorOperations.toBSV
+import com.linkedin.dualip.util.VectorOperations
+import com.linkedin.dualip.util.VectorOperations.toBSV
 import org.apache.log4j.Logger
 import org.apache.spark.sql.{DataFrame, SparkSession}
 

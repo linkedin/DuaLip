@@ -4,7 +4,7 @@ import breeze.linalg.SparseVector
 import com.linkedin.dualip.objective.{DualPrimalComputationResult, DualPrimalObjective, PartialPrimalStats}
 import com.linkedin.dualip.util.SolverUtility.SlackMetadata
 import com.linkedin.dualip.util.{ArrayAggregation, SolverUtility}
-import com.linkedin.optimization.util.VectorOperations.toBSV
+import com.linkedin.dualip.util.VectorOperations.toBSV
 import com.twitter.algebird.Tuple3Semigroup
 import org.apache.log4j.Logger
 import org.apache.spark.sql.{Dataset, SparkSession}

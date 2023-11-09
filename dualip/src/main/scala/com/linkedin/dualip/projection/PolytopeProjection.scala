@@ -1,7 +1,7 @@
 package com.linkedin.dualip.projection
 
 import breeze.linalg.{DenseMatrix => BDM, DenseVector => BDV, SparseVector => BSV}
-import com.linkedin.optimization.util.VectorOperations._
+import com.linkedin.dualip.util.VectorOperations._
 
 import scala.collection.mutable
 
@@ -25,7 +25,7 @@ class PolytopeProjection(polytope: mutable.Set[BSV[Double]], maxIter: Int) exten
 
   case class VertexSolution(firstBest: BSV[Double], nextBest: BSV[Double], isOptimal: Boolean)
 
-  val tolerance = 10e-10
+  val tolerance = 1e-9
 
   /**
     * Pick the top-k elements from an iterable in O(Nlogk) time using a priority queue
@@ -170,15 +170,16 @@ class PolytopeProjection(polytope: mutable.Set[BSV[Double]], maxIter: Int) exten
 
   /**
     * Check to detect if we have found the min norm solution. If it fails, the vertex can be used to reduce the min
-    * norm solution further
+    * norm solution further.
     *
     * @param solution - the min norm solution found so far
     * @param vertex   - the next vertex we want to evaluate
-    * @return
+    * @return True if solution is optimal, false otherwise.
     */
   def checkOptimality(solution: BSV[Double], vertex: BSV[Double]): Boolean = {
-    // s^Ts <= s^T v + tolerance * s^Ts
-    dot(solution, solution) - dot(solution, vertex) <= tolerance * dot(solution, solution)
+    // Mathematically, the check is s^Ts - s^T v< = 0, but due to numerical precision issues we relax it to
+    // s^T s - s^T v <= tolerance * max(s^Ts, 1.0).
+    dot(solution, solution) <= dot(solution, vertex) + tolerance * Math.max(dot(solution, solution), 1.0)
   }
 
   def wolfe(xHat: BSV[Double], firstBest: BSV[Double], nextBest: BSV[Double], metadata: Metadata): BSV[Double] = {
