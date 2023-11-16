@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="scala" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Matching Problem &mdash; DuaLip 2.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=4671d03f"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Citing DuaLip" href="../citing/index.html" />
+    <link rel="prev" title="A Multi-Objective Optimization Problem" href="moo.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DuaLip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../solver/index.html">The DuaLip Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../interfaces/index.html">Interfaces</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Demo</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="moo.html">A Multi-Objective Optimization Problem</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">A Matching Problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#an-example-problem-movie-recommendations">An example problem: Movie recommendations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-frame-the-problem-mathematically">How to frame the problem mathematically?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-formulate-the-training-data">How to formulate the training data?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-execute-the-solver">How to execute the solver?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#install-spark">Install Spark</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#get-and-build-the-code">Get and build the code</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#get-the-dataset">Get the dataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-the-solver">Run the solver</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-read-the-results">How to read the results?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-do-inference">How to do inference?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../citing/index.html">Citing DuaLip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgement/index.html">Acknowledgements</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DuaLip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Demo</a></li>
+      <li class="breadcrumb-item active">A Matching Problem</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/demo/matching.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="a-matching-problem">
+<h1>A Matching Problem<a class="headerlink" href="#a-matching-problem" title="Link to this heading"></a></h1>
+<p>Large-scale matching problems occur naturally in many two-sided marketplaces. Usually in these settings, there are creators and consumers.
+Each item created has an associated budget and the problem is to maximize utility under budget constraints.
+For example, in the ads marketplace, each ad campaign has a budget and we need to distribute impressions across campaigns without going over the budget for any of the campaigns.
+For the jobs marketplace, each paid job has a budget and the impressions need to be appropriately allocated to maximize job applies (again without going over budget).
+Here we work with a simple example to showcase how we can formulate and solve such matching problems through DuaLip.</p>
+<section id="an-example-problem-movie-recommendations">
+<h2>An example problem: Movie recommendations<a class="headerlink" href="#an-example-problem-movie-recommendations" title="Link to this heading"></a></h2>
+<p>One example of a matching problem is movie recommendations. Imagine that we want to recommend movies to users in a way that maximizes the total expected ratings, but without recommending any one movie too many times. We will use the <a class="reference external" href="https://grouplens.org/datasets/movielens/">&quot;MovieLens dataset&quot;</a> (<a class="reference external" href="https://dl.acm.org/doi/10.1145^2/2827872">Harper et. al. 2015</a>), which contains user rating of movies, for this example. (Similar problems have been framed in <a class="reference external" href="https://dl.acm.org/doi/10.14778^2/2536360.2536362">Makari et. al. (2013)</a>.</p>
+</section>
+<section id="how-to-frame-the-problem-mathematically">
+<h2>How to frame the problem mathematically?<a class="headerlink" href="#how-to-frame-the-problem-mathematically" title="Link to this heading"></a></h2>
+<p>To frame this problem mathematically, define the following quantities:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(x_{ik}\)</span>: Probability of recommmending movie <span class="math notranslate nohighlight">\(k\)</span> to user <span class="math notranslate nohighlight">\(i\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(c_{ik}\)</span>: Movie rating of movie <span class="math notranslate nohighlight">\(k\)</span> by user <span class="math notranslate nohighlight">\(i\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(b_{k}\)</span>: Maximum number of times movie <span class="math notranslate nohighlight">\(k\)</span> can be recommended.</p></li>
+</ul>
+<p>The optimization problem can be written as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{ll}
+  \mbox{Maximize} &amp; \sum_{i,k} x_{ik} c_{ik} \\
+  \mbox{subject to} &amp; \sum_i x_{ik} \leq b_k \;\; \text{for all}\;\; k = 1,\ldots, K \\
+  &amp; \sum_{k} x_{ik} \leq 1, \;\; \text{and} \;\; 0 \leq x_{i,k} \leq 1 \;\; \text{for all}\; i,k
+\end{array}\end{split}\]</div>
+<p>We can further frame this in the vector matrix notation by writing <span class="math notranslate nohighlight">\(x,b,c\)</span> as the vectorized versions of <span class="math notranslate nohighlight">\(x_{ik},b_k,c_{ik}\)</span>
+respectively, e.g., <span class="math notranslate nohighlight">\(x_i = (x_{i,1}, \ldots, x_{i,K})\)</span>. With this notation and changing the maximization to a
+minimization problem, we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{ll}
+  \mbox{Minimize} &amp; - x^T c \\
+  \mbox{subject to} &amp; Ax \leq b \\
+  &amp; x_i \in \mathcal{C}_i \;\; \text{for all}\; i
+\end{array}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span> is the closed simplex defined as</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K \leq 1, \;\; x_k \geq 0\big\}\]</div>
+<p>and <span class="math notranslate nohighlight">\(A_{K \times IK}\)</span> is the matrix that encodes the <span class="math notranslate nohighlight">\(K\)</span> movie limit constraints.</p>
+</section>
+<section id="how-to-formulate-the-training-data">
+<h2>How to formulate the training data?<a class="headerlink" href="#how-to-formulate-the-training-data" title="Link to this heading"></a></h2>
+<p>Let's consider a simple dataset. We have 4 users and 3 movies, each with their given rating.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>UserID</p></th>
+<th class="head"><p>MovieId</p></th>
+<th class="head"><p>Rating</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>3</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>2</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>3</p></td>
+<td><p>NA</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>NA</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>3</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>NA</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>1</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>2</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>3</p></td>
+<td><p>3</p></td>
+</tr>
+</tbody>
+</table>
+<p>The matrix A will be</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A =
+\begin{bmatrix}
+  1 &amp;0 &amp;0 &amp;0 &amp;0 &amp;0 &amp;0 &amp;0 &amp;0 &amp;1 &amp;0 &amp;0 \\
+  0 &amp;1 &amp;0 &amp;0 &amp;1 &amp;0 &amp;0 &amp;1 &amp;0 &amp;0 &amp;1 &amp;0 \\
+  0 &amp;0 &amp;0 &amp;0 &amp;0 &amp;1 &amp;0 &amp;0 &amp;1 &amp;0 &amp;0 &amp;1 \\
+\end{bmatrix}\end{split}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In many matching problems, the connections are very sparse, i.e. users only rate a small percentage of movies. If user i does not rate movie k (corresponding to NAs in the &quot;Rating&quot; column), the corresponding entry in A should be 0 because it will not contribute to the objective value. To save memory, ACBlock only records the non-zero entries.</p>
+</div>
+<p>The vector b will be (1, 1, 1), and the vector c will be (-3, -4, 0, 0, -1, -2, 0, -2, -1, -2, -4, -3).</p>
+<p>The solver takes ACBlock and vectorB as two inputs. We require the input to be in the <a class="reference internal" href="../interfaces/format.html#input-format"><span class="std std-ref">Input Format</span></a>.</p>
+<p>The format of ACBlock:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;id&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;items&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;record&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;fields&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rowId&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;int&quot;</span>
+<span class="w">        </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;c&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;double&quot;</span>
+<span class="w">        </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;double&quot;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Here id is a unique identifier of the block, i.e. user id for this problem. Each id corresponds to an array of tuples, which is in the format of (rowId, c(rowId), a(rowId)). rowId corresponds to movieId in this problem.</p>
+<p>ACBlock in JSON format:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&quot;data&quot;</span><span class="p">:[[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">-4</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]]}</span>
+<span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nt">&quot;data&quot;</span><span class="p">:[[</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]]}</span>
+<span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nt">&quot;data&quot;</span><span class="p">:[[</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]]}</span>
+<span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="nt">&quot;data&quot;</span><span class="p">:[[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">-4</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]]}</span>
+</pre></div>
+</div>
+<p>vectorB in JSON format:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;row&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;row&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;row&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="how-to-execute-the-solver">
+<h2>How to execute the solver?<a class="headerlink" href="#how-to-execute-the-solver" title="Link to this heading"></a></h2>
+<p>Here is a step-by-step tutorial on run a matching solver on your machine.</p>
+<section id="install-spark">
+<h3>Install Spark<a class="headerlink" href="#install-spark" title="Link to this heading"></a></h3>
+<p>This step is platform-dependent. On OS X, you can install Spark with Homebrew using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>apache-spark
+</pre></div>
+</div>
+<p>For more information, see the <a class="reference external" href="http://spark.apache.org/docs/latest/index.html">Spark docs</a>.</p>
+</section>
+<section id="get-and-build-the-code">
+<h3>Get and build the code<a class="headerlink" href="#get-and-build-the-code" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./gradlew<span class="w"> </span>build
+</pre></div>
+</div>
+</section>
+<section id="get-the-dataset">
+<h3>Get the dataset<a class="headerlink" href="#get-the-dataset" title="Link to this heading"></a></h3>
+<p>Run the code below to download the 20M <a class="reference external" href="https://grouplens.org/datasets/movielens/">MovieLens dataset</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-O<span class="w"> </span>https://files.grouplens.org/datasets/movielens/ml-20m.zip
+unzip<span class="w"> </span>ml-20m.zip
+mkdir<span class="w"> </span>data/ml-20m/data
+mv<span class="w"> </span>ml-20m/rating.csv<span class="w"> </span>data/ml-20m/data
+</pre></div>
+</div>
+<p>Next, use DuaLip's <code class="code docutils literal notranslate"><span class="pre">MatchingDataGenerator</span></code> to convert the dataset to the input format DuaLip needs for matching problems. (<strong>Note:</strong> The name of the <code class="code docutils literal notranslate"><span class="pre">.jar</span></code> file on your machine might be slightly different from <code class="code docutils literal notranslate"><span class="pre">./dualip/build/libs/dualip_2.12.jar</span></code> due to differing version numbers. Please replace the filename with the one on your machine if necessary.)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$SPARK_HOME</span>/bin/spark-submit<span class="w"> </span>--packages<span class="w"> </span>org.apache.spark:spark-avro_2.12:3.1.1<span class="w"> </span>--class<span class="w"> </span>com.linkedin.dualip.preprocess.MatchingDataGenerator<span class="w"> </span>./dualip/build/libs/dualip_2.12.jar<span class="w"> </span><span class="se">\</span>
+--preprocess.dataBasePath<span class="w"> </span>data/ml-20m/<span class="w"> </span><span class="se">\</span>
+--preprocess.dataFormat<span class="w"> </span>csv<span class="w"> </span><span class="se">\</span>
+--preprocess.dataBlockDim<span class="w"> </span>userId<span class="w"> </span><span class="se">\</span>
+--preprocess.constraintDim<span class="w"> </span>movieId<span class="w"> </span><span class="se">\</span>
+--preprocess.budgetDim<span class="w"> </span>budget<span class="w"> </span><span class="se">\</span>
+--preprocess.budgetValue<span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="se">\</span>
+--preprocess.rewardDim<span class="w"> </span>rating<span class="w"> </span><span class="se">\</span>
+--preprocess.costGenerator<span class="w"> </span>constant<span class="w"> </span><span class="se">\</span>
+--preprocess.costValue<span class="w"> </span><span class="m">1</span>.0<span class="w"> </span><span class="se">\</span>
+--preprocess.outputPath<span class="w"> </span>data/movielens/
+</pre></div>
+</div>
+<p>In the code above,</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">rewardDim</span></code> is the column name corresponding to reward information <span class="math notranslate nohighlight">\(c_{ik}\)</span>.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">dataBlockDim</span></code> is the column name corresponding to dataBlockId(i).</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">constraintDim</span></code> is the column name corresponding to itemId(k).</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">budgetValue</span></code> is the budget constraint <span class="math notranslate nohighlight">\(b_{k}\)</span>.</p></li>
+</ul>
+</section>
+<section id="run-the-solver">
+<h3>Run the solver<a class="headerlink" href="#run-the-solver" title="Link to this heading"></a></h3>
+<p>The solver can be run locally with spark-submit:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$SPARK_HOME</span>/bin/spark-submit<span class="w"> </span>--packages<span class="w"> </span>org.apache.spark:spark-avro_2.12:3.1.1<span class="w"> </span><span class="se">\</span>
+--class<span class="w"> </span>com.linkedin.dualip.solver.LPSolverDriver<span class="w"> </span>./dualip/build/libs/dualip_2.12.jar<span class="w"> </span><span class="se">\</span>
+--driver.objectiveClass<span class="w"> </span>com.linkedin.dualip.problem.MatchingSolverDualObjectiveFunction<span class="w"> </span><span class="se">\</span>
+--driver.solverOutputPath<span class="w"> </span>/output/matching/<span class="w"> </span><span class="se">\</span>
+--driver.gamma<span class="w"> </span><span class="m">0</span>.1<span class="w"> </span><span class="se">\</span>
+--driver.outputFormat<span class="w"> </span>json<span class="w"> </span><span class="se">\</span>
+--driver.projectionType<span class="w"> </span>simplexInequality<span class="w"> </span><span class="se">\</span>
+--input.ACblocksPath<span class="w"> </span>data/movielens/data<span class="w"> </span><span class="se">\</span>
+--input.vectorBPath<span class="w"> </span>data/movielens/budget<span class="w"> </span><span class="se">\</span>
+--input.format<span class="w"> </span>avro<span class="w"> </span><span class="se">\</span>
+--matching.slateSize<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+--optimizer.solverType<span class="w"> </span>LBFGSB<span class="w"> </span><span class="se">\</span>
+--optimizer.dualTolerance<span class="w"> </span>1E-8<span class="w"> </span><span class="se">\</span>
+--optimizer.slackTolerance<span class="w"> </span>5E-6<span class="w"> </span><span class="se">\</span>
+--optimizer.maxIter<span class="w"> </span><span class="m">500</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="how-to-read-the-results">
+<h2>How to read the results?<a class="headerlink" href="#how-to-read-the-results" title="Link to this heading"></a></h2>
+<p>We can see that as the solver progresses, <code class="code docutils literal notranslate"><span class="pre">dual_obj</span></code> increases while <code class="code docutils literal notranslate"><span class="pre">max_pos_slack</span></code> and <code class="code docutils literal notranslate"><span class="pre">max_zero_slack</span></code> decrease.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>------------------------------------------------------------------------
+                          DuaLip v1.0     2021
+             Dual Decomposition based Linear Program Solver
+------------------------------------------------------------------------
+
+Optimizer: LBFGSB solver
+primalUpperBound: -1.64155850e+05, maxIter: 500, dualTolerance: 1.0E-8 slackTolerance: 5.0E-6
+
+iter:     0     dual_obj: -6.86709416e+05       cx: -6.87890000e+05     feasibility: 9.650435e+01       λ(Ax-b): 0.000000e+00   γ||x||^2/2: 1.180584e+03        max_pos_slack: -Infinity        max_zero_slack: 9.650435e+01    abs_slack_sum: 8.828194e+04     time(sec): 8.987
+iter:     1     dual_obj: -6.86709416e+05       cx: -6.87890000e+05     feasibility: 9.650435e+01       λ(Ax-b): 0.000000e+00   γ||x||^2/2: 1.180584e+03        max_pos_slack: -Infinity        max_zero_slack: 9.650435e+01    abs_slack_sum: 8.828194e+04     time(sec): 6.738
+iter:     2     dual_obj: -3.26194182e+06       cx: -6.19067400e+05     feasibility: 3.907679e+01       λ(Ax-b): -2.646088e+06  γ||x||^2/2: 3.213506e+03        max_pos_slack: 1.680045e+01     max_zero_slack: 3.907679e+01    abs_slack_sum: 6.284022e+04     time(sec): 4.228
+iter:     3     dual_obj: -1.44149679e+06       cx: -6.24132300e+05     feasibility: 3.448183e+01       λ(Ax-b): -8.206471e+05  γ||x||^2/2: 3.282595e+03        max_pos_slack: 2.642451e+01     max_zero_slack: 3.448183e+01    abs_slack_sum: 6.233273e+04     time(sec): 4.558
+iter:     4     dual_obj: -8.82622744e+05       cx: -6.39467479e+05     feasibility: 3.030013e+01       λ(Ax-b): -2.466456e+05  γ||x||^2/2: 3.490308e+03        max_pos_slack: 2.471272e+01     max_zero_slack: 3.030013e+01    abs_slack_sum: 6.188493e+04     time(sec): 4.206
+iter:     5     dual_obj: -7.22368086e+05       cx: -6.58265033e+05     feasibility: 2.397677e+01       λ(Ax-b): -6.780186e+04  γ||x||^2/2: 3.698804e+03        max_pos_slack: 2.397677e+01     max_zero_slack: 2.053982e+01    abs_slack_sum: 6.032372e+04     time(sec): 4.321
+iter:     6     dual_obj: -6.82631528e+05       cx: -6.72533898e+05     feasibility: 1.847038e+01       λ(Ax-b): -1.381724e+04  γ||x||^2/2: 3.719608e+03        max_pos_slack: 1.847038e+01     max_zero_slack: 8.919135e+00    abs_slack_sum: 5.726833e+04     time(sec): 4.120
+iter:     7     dual_obj: -6.82631528e+05       cx: -6.72533898e+05     feasibility: 1.847038e+01       λ(Ax-b): -1.381724e+04  γ||x||^2/2: 3.719608e+03        max_pos_slack: 1.847038e+01     max_zero_slack: 8.919135e+00    abs_slack_sum: 5.726833e+04     time(sec): 4.442
+iter:     8     dual_obj: -6.82631528e+05       cx: -6.72533898e+05     feasibility: 1.847038e+01       λ(Ax-b): -1.381724e+04  γ||x||^2/2: 3.719608e+03        max_pos_slack: 1.847038e+01     max_zero_slack: 8.919135e+00    abs_slack_sum: 5.726833e+04     time(sec): 4.235
+iter:     9     dual_obj: -6.70900248e+05       cx: -6.73704610e+05     feasibility: 1.584054e+01       λ(Ax-b): -1.984704e+03  γ||x||^2/2: 4.789067e+03        max_pos_slack: 1.584054e+01     max_zero_slack: 1.676255e+00    abs_slack_sum: 4.087020e+04     time(sec): 3.694
+iter:    10     dual_obj: -6.70900248e+05       cx: -6.73704610e+05     feasibility: 1.584054e+01       λ(Ax-b): -1.984704e+03  γ||x||^2/2: 4.789067e+03        max_pos_slack: 1.584054e+01     max_zero_slack: 1.676255e+00    abs_slack_sum: 4.087020e+04     time(sec): 3.596
+</pre></div>
+</div>
+<p>The solver converges after 413 iterations, while the combined number of iterations (including the
+internal iterations of LBFGS) is 1293. We also show the final dual and primal objectives, as well
+as the number of active constraints in the problem.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>iter:  1290     dual_obj: -6.28011839e+05       cx: -6.32627842e+05     feasibility: 1.289256e-02       λ(Ax-b): -5.876918e+00  γ||x||^2/2: 4.621880e+03        max_pos_slack: 1.813359e-02     max_zero_slack: 0.000000e+00    abs_slack_sum: 1.094879e+01     time(sec): 4.170
+iter:  1291     dual_obj: -6.28011839e+05       cx: -6.32660904e+05     feasibility: 9.317112e-02       λ(Ax-b): 2.721294e+01   γ||x||^2/2: 4.621852e+03        max_pos_slack: 9.317112e-02     max_zero_slack: 0.000000e+00    abs_slack_sum: 1.918328e+01     time(sec): 3.758
+iter:  1292     dual_obj: -6.28011839e+05       cx: -6.32660904e+05     feasibility: 9.317112e-02       λ(Ax-b): 2.721294e+01   γ||x||^2/2: 4.621852e+03        max_pos_slack: 9.317112e-02     max_zero_slack: 0.000000e+00    abs_slack_sum: 1.918328e+01     time(sec): 3.855
+Total LBFGS iterations: 413
+Status:Converged
+Total number of iterations: 1293
+Primal: -628012.671815458
+Dual: -628011.8409963399
+Number of Active Constraints: 2992
+</pre></div>
+</div>
+<p>The detailed log is given <a class="reference internal" href="../logs/matching.html#matching-log"><span class="std std-ref">here</span></a>.</p>
+</section>
+<section id="how-to-do-inference">
+<h2>How to do inference?<a class="headerlink" href="#how-to-do-inference" title="Link to this heading"></a></h2>
+<p>There are two scenarios when reading the results. First, we can use the optimal primal values directly as decision variables. This is useful for a static system or batch processing.</p>
+<p>Second, we can use the optimal dual values to recover primal. This is useful when the system is dynamic and there are new items coming in. We can get the primal decision variable
+<span class="math notranslate nohighlight">\(x_{ij}\)</span> without solving the extreme-scale optimization problem again. This allows us to work in a low-latency environment as required by most internet applications.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The above method for re-using the dual variable works as long as the score distribution of the new items
+matches that of the old items which were used to solve the MOO problem. To prevent staleness in practice, the optimization problem is re-solved at a regular cadence.</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="moo.html" class="btn btn-neutral float-left" title="A Multi-Objective Optimization Problem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../citing/index.html" class="btn btn-neutral float-right" title="Citing DuaLip" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, LinkedIn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

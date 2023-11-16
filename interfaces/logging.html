@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="scala" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logging &mdash; DuaLip 2.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=4671d03f"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tips for using DuaLip" href="tips.html" />
+    <link rel="prev" title="Parameters" href="parameters.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DuaLip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../solver/index.html">The DuaLip Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Interfaces</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="format.html">Input Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html">Parameters</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Logging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pre-execution-logging">Pre-Execution Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#in-execution-logging">In-Execution Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#termination-logging">Termination Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sample-log">Sample log</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tips.html">Tips for using DuaLip</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../demo/index.html">Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing/index.html">Citing DuaLip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgement/index.html">Acknowledgements</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DuaLip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Interfaces</a></li>
+      <li class="breadcrumb-item active">Logging</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/interfaces/logging.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="logging">
+<span id="id1"></span><h1>Logging<a class="headerlink" href="#logging" title="Link to this heading"></a></h1>
+<section id="pre-execution-logging">
+<h2>Pre-Execution Logging<a class="headerlink" href="#pre-execution-logging" title="Link to this heading"></a></h2>
+<p>The solver logs all the parameter information before execution:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>------------------------------------------------------------------------
+                          DuaLip v1.0     2021
+             Dual Decomposition based Linear Program Solver
+------------------------------------------------------------------------
+Settings:
+--driver.objectiveClass com.linkedin.dualip.problem.MooSolverDualObjectiveFunction
+--driver.solverOutputPath /dualip/test
+--driver.gamma 1E-6
+--driver.outputFormat avro
+--driver.projectionType simplex
+--driver.verbosity 1
+--input.ACblocksPath /unit-test/moo/60/data
+--input.vectorBPath /unit-test/moo/60/constraint
+--input.format avro
+--optimizer.solverType LBFGSB
+--optimizer.dualTolerance 1E-8
+--optimizer.slackTolerance 5E-6
+--optimizer.maxIter 100
+</pre></div>
+</div>
+</section>
+<section id="in-execution-logging">
+<h2>In-Execution Logging<a class="headerlink" href="#in-execution-logging" title="Link to this heading"></a></h2>
+<p>The solver prints the following information during execution. (Note: Which variables are reported depends on the solver.)</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variables</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">gradientCall</span></code></p></td>
+<td><p>The number of calls to compute the gradient in the solver.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">iter</span></code></p></td>
+<td><p>Iteration number.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">dual_obj</span></code></p></td>
+<td><p>Dual objective value (including regularization term).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">cx</span></code></p></td>
+<td><p>Primal objective value without regularization term, i.e. <span class="math notranslate nohighlight">\(c^\top x\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">feasibility</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(\max_j \{ (Ax-b)_j / (1 + |b_j|)\}\)</span>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\lambda(Ax-b)\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\lambda^\top (Ax - b)\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\frac{\gamma}{2}||x||^2\)</span></p></td>
+<td><p>Regularization term.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">max_pos_slack</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(\max_{j: \lambda_j \neq 0} | (Ax-b)_j | / (1 + |b_j|)\)</span> (only over inequality constraints).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">max_zero_slack</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(\max_{j: \lambda_j = 0} \{ (Ax-b)_j, 0\} / (1 + |b_j|)\)</span> (only over inequality constraints).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">abs_slack_sum</span></code></p></td>
+<td><p>Sum of constraint violations.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">time</span></code></p></td>
+<td><p>Execution time of this iteration in seconds.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">step</span></code></p></td>
+<td><p>Step size for the gradient optimizer.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="termination-logging">
+<h2>Termination Logging<a class="headerlink" href="#termination-logging" title="Link to this heading"></a></h2>
+<p>The solver prints one of the four possible results at termination:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Status</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">Converged</span></code></p></td>
+<td><p>The algorithm has converged according to the convergence criteria.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">Infeasible</span></code></p></td>
+<td><p>This happens when the dual objective has exceeded the primal upper bound.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">Terminated</span></code></p></td>
+<td><p>The solver has reached maximum number of iterations. Users can look at the log to determine if the results are good enough to be used.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">Failed</span></code></p></td>
+<td><p>The solver failed during execution. Specific failure reason will be given in logs.</p></td>
+</tr>
+</tbody>
+</table>
+<p>We also show the number of iterations, the final primal and dual objective values and the number of active constraints.</p>
+</section>
+<section id="sample-log">
+<h2>Sample log<a class="headerlink" href="#sample-log" title="Link to this heading"></a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>------------------------------------------------------------------------
+                          DuaLip v1.0     2021
+             Dual Decomposition based Linear Program Solver
+------------------------------------------------------------------------
+Settings:
+--driver.objectiveClass com.linkedin.dualip.problem.MooSolverDualObjectiveFunction
+--driver.solverOutputPath /dualip/test
+--driver.gamma 1E-6
+--driver.outputFormat avro
+--driver.projectionType simplex
+--driver.verbosity 1
+--input.ACblocksPath /unit-test/moo/60/data
+--input.vectorBPath /unit-test/moo/60/constraint
+--input.format avro
+--optimizer.solverType LBFGSB
+--optimizer.dualTolerance 1E-8
+--optimizer.slackTolerance 5E-6
+--optimizer.maxIter 100
+
+Optimizer: LBFGSB solver
+primalUpperBound: 2.50000000e-05, maxIter: 100, dualTolerance: 1.0E-8 slackTolerance: 5.0E-6
+
+gradientCall:     0     iter:     0     dual_obj: -4.99999750e+01       cx: -5.00000000e+01     feasibility: 2.217486e+01       λ(Ax-b): 0.000000e+00   γ||x||/2: 2.500000e-05  max_pos_slack: -Infinity        max_zero_slack: 2.217486e+01    abs_slack_sum: 3.146621e+01     time(sec): 5.135
+gradientCall:     1     iter:     1     dual_obj: -4.99999750e+01       cx: -5.00000000e+01     feasibility: 2.217486e+01       λ(Ax-b): 0.000000e+00   γ||x||/2: 2.500000e-05  max_pos_slack: -Infinity        max_zero_slack: 2.217486e+01    abs_slack_sum: 3.146621e+01     time(sec): 1.035
+gradientCall:     2     iter:     1     dual_obj: -1.36522019e+01       cx: -1.00000000e+00     feasibility: -2.833599e-01      λ(Ax-b): -1.265221e+01  γ||x||/2: 5.400000e-06  max_pos_slack: 2.833599e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 2.079
+gradientCall:     3     iter:     1     dual_obj: -1.36522019e+01       cx: -1.00000000e+00     feasibility: -2.833599e-01      λ(Ax-b): -1.265221e+01  γ||x||/2: 5.400000e-06  max_pos_slack: 2.833599e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 1.038
+gradientCall:     4     iter:     2     dual_obj: -1.36522019e+01       cx: -1.00000000e+00     feasibility: -2.833599e-01      λ(Ax-b): -1.265221e+01  γ||x||/2: 5.400000e-06  max_pos_slack: 2.833599e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 1.552
+gradientCall:     5     iter:     2     dual_obj: -1.34925665e+01       cx: -1.00000000e+00     feasibility: -2.833599e-01      λ(Ax-b): -1.249257e+01  γ||x||/2: 5.400000e-06  max_pos_slack: 2.833599e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.945
+gradientCall:     6     iter:     2     dual_obj: -1.34127487e+01       cx: -1.00000000e+00     feasibility: -2.833599e-01      λ(Ax-b): -1.241275e+01  γ||x||/2: 5.400000e-06  max_pos_slack: 2.833599e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 1.392
+gradientCall:     7     iter:     2     dual_obj: -1.32930221e+01       cx: -1.00000000e+00     feasibility: -2.833599e-01      λ(Ax-b): -1.229303e+01  γ||x||/2: 5.400000e-06  max_pos_slack: 2.833599e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 1.279
+gradientCall:     8     iter:     2     dual_obj: -1.31134322e+01       cx: -1.00000000e+00     feasibility: -2.833599e-01      λ(Ax-b): -1.211344e+01  γ||x||/2: 5.400000e-06  max_pos_slack: 2.833599e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.580
+gradientCall:     9     iter:     2     dual_obj: -1.28440474e+01       cx: -1.00000000e+00     feasibility: -2.833599e-01      λ(Ax-b): -1.184405e+01  γ||x||/2: 5.400000e-06  max_pos_slack: 2.833599e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.965
+gradientCall:    10     iter:     2     dual_obj: -1.24399701e+01       cx: -1.00000000e+00     feasibility: -2.833599e-01      λ(Ax-b): -1.143998e+01  γ||x||/2: 5.400000e-06  max_pos_slack: 2.833599e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.690
+gradientCall:    11     iter:     2     dual_obj: -1.18338541e+01       cx: -1.00000000e+00     feasibility: -2.833599e-01      λ(Ax-b): -1.083386e+01  γ||x||/2: 5.400000e-06  max_pos_slack: 2.833599e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.832
+gradientCall:    12     iter:     2     dual_obj: -1.09246802e+01       cx: -1.00000000e+00     feasibility: -2.833599e-01      λ(Ax-b): -9.924686e+00  γ||x||/2: 5.400000e-06  max_pos_slack: 2.833599e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 1.559
+gradientCall:    13     iter:     2     dual_obj: -9.56091935e+00       cx: -1.00000000e+00     feasibility: -2.833599e-01      λ(Ax-b): -8.560925e+00  γ||x||/2: 5.400000e-06  max_pos_slack: 2.833599e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 1.265
+gradientCall:    14     iter:     2     dual_obj: -7.68762043e+00       cx: -2.00000000e+00     feasibility: -2.473638e-01      λ(Ax-b): -5.687626e+00  γ||x||/2: 5.800000e-06  max_pos_slack: 2.473638e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.594
+gradientCall:    15     iter:     2     dual_obj: -7.68762043e+00       cx: -2.00000000e+00     feasibility: -2.473638e-01      λ(Ax-b): -5.687626e+00  γ||x||/2: 5.800000e-06  max_pos_slack: 2.473638e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 1.231
+gradientCall:    16     iter:     3     dual_obj: -7.68762043e+00       cx: -2.00000000e+00     feasibility: -2.473638e-01      λ(Ax-b): -5.687626e+00  γ||x||/2: 5.800000e-06  max_pos_slack: 2.473638e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.664
+gradientCall:    17     iter:     3     dual_obj: -4.99999750e+01       cx: -5.00000000e+01     feasibility: 2.217486e+01       λ(Ax-b): 0.000000e+00   γ||x||/2: 2.500000e-05  max_pos_slack: -Infinity        max_zero_slack: 2.217486e+01    abs_slack_sum: 3.146621e+01     time(sec): 0.859
+gradientCall:    18     iter:     3     dual_obj: -5.59665447e+00       cx: -7.00000000e+00     feasibility: 1.518062e-01       λ(Ax-b): 1.403338e+00   γ||x||/2: 7.800000e-06  max_pos_slack: 1.518062e-01     max_zero_slack: -Infinity       abs_slack_sum: 2.154136e-01     time(sec): 0.611
+gradientCall:    19     iter:     3     dual_obj: -5.59665447e+00       cx: -7.00000000e+00     feasibility: 1.518062e-01       λ(Ax-b): 1.403338e+00   γ||x||/2: 7.800000e-06  max_pos_slack: 1.518062e-01     max_zero_slack: -Infinity       abs_slack_sum: 2.154136e-01     time(sec): 0.385
+gradientCall:    20     iter:     4     dual_obj: -5.59665447e+00       cx: -7.00000000e+00     feasibility: 1.518062e-01       λ(Ax-b): 1.403338e+00   γ||x||/2: 7.800000e-06  max_pos_slack: 1.518062e-01     max_zero_slack: -Infinity       abs_slack_sum: 2.154136e-01     time(sec): 0.448
+gradientCall:    21     iter:     4     dual_obj: -5.84994265e+00       cx: -4.00000000e+00     feasibility: -1.278211e-01      λ(Ax-b): -1.849949e+00  γ||x||/2: 6.600000e-06  max_pos_slack: 1.278211e-01     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 1.024
+gradientCall:    22     iter:     4     dual_obj: -5.53061009e+00       cx: -5.00000000e+00     feasibility: -4.952939e-02      λ(Ax-b): -5.306171e-01  γ||x||/2: 7.000000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.842
+gradientCall:    23     iter:     4     dual_obj: -5.53061009e+00       cx: -5.00000000e+00     feasibility: -4.952939e-02      λ(Ax-b): -5.306171e-01  γ||x||/2: 7.000000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 1.021
+gradientCall:    24     iter:     5     dual_obj: -5.53061009e+00       cx: -5.00000000e+00     feasibility: -4.952939e-02      λ(Ax-b): -5.306171e-01  γ||x||/2: 7.000000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.855
+gradientCall:    25     iter:     5     dual_obj: -5.51271230e+00       cx: -5.00000000e+00     feasibility: -4.952939e-02      λ(Ax-b): -5.127193e-01  γ||x||/2: 7.000000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.645
+gradientCall:    26     iter:     5     dual_obj: -5.50376340e+00       cx: -5.00000000e+00     feasibility: -4.952939e-02      λ(Ax-b): -5.037704e-01  γ||x||/2: 7.000000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.730
+gradientCall:    27     iter:     5     dual_obj: -5.50964555e+00       cx: -6.00000000e+00     feasibility: 4.952939e-02       λ(Ax-b): 4.903471e-01   γ||x||/2: 7.400000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 7.028239e-02     time(sec): 0.779
+gradientCall:    28     iter:     5     dual_obj: -5.50037908e+00       cx: -5.00000000e+00     feasibility: -4.952939e-02      λ(Ax-b): -5.003861e-01  γ||x||/2: 7.000000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.915
+gradientCall:    29     iter:     5     dual_obj: -5.50110192e+00       cx: -6.00000000e+00     feasibility: 4.952939e-02       λ(Ax-b): 4.988907e-01   γ||x||/2: 7.400000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 7.028239e-02     time(sec): 2.274
+gradientCall:    30     iter:     5     dual_obj: -5.50002401e+00       cx: -5.00000000e+00     feasibility: -4.952939e-02      λ(Ax-b): -5.000310e-01  γ||x||/2: 7.000000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.460
+gradientCall:    31     iter:     5     dual_obj: -5.50012824e+00       cx: -6.00000000e+00     feasibility: 4.952939e-02       λ(Ax-b): 4.998644e-01   γ||x||/2: 7.400000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 7.028239e-02     time(sec): 1.187
+gradientCall:    32     iter:     5     dual_obj: -5.49999490e+00       cx: -6.00000000e+00     feasibility: 4.952939e-02       λ(Ax-b): 4.999977e-01   γ||x||/2: 7.400000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 7.028239e-02     time(sec): 0.341
+gradientCall:    33     iter:     5     dual_obj: -5.49999588e+00       cx: -5.00000000e+00     feasibility: -4.952939e-02      λ(Ax-b): -5.000029e-01  γ||x||/2: 7.000000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.770
+gradientCall:    34     iter:     5     dual_obj: -5.49999301e+00       cx: -5.82333310e+00     feasibility: 3.202898e-02       λ(Ax-b): 3.233328e-01   γ||x||/2: 7.242060e-06  max_pos_slack: 3.202898e-02     max_zero_slack: -Infinity       abs_slack_sum: 4.544925e-02     time(sec): 0.691
+gradientCall:    35     iter:     5     dual_obj: -5.49999301e+00       cx: -5.82333310e+00     feasibility: 3.202898e-02       λ(Ax-b): 3.233328e-01   γ||x||/2: 7.242060e-06  max_pos_slack: 3.202898e-02     max_zero_slack: -Infinity       abs_slack_sum: 4.544925e-02     time(sec): 0.758
+gradientCall:    36     iter:     6     dual_obj: -5.49999301e+00       cx: -5.82333310e+00     feasibility: 3.202898e-02       λ(Ax-b): 3.233328e-01   γ||x||/2: 7.242060e-06  max_pos_slack: 3.202898e-02     max_zero_slack: -Infinity       abs_slack_sum: 4.544925e-02     time(sec): 0.713
+gradientCall:    37     iter:     6     dual_obj: -5.51201647e+00       cx: -5.00000000e+00     feasibility: -4.952939e-02      λ(Ax-b): -5.120235e-01  γ||x||/2: 7.000000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.748
+gradientCall:    38     iter:     6     dual_obj: -5.50127583e+00       cx: -5.00000000e+00     feasibility: -4.952939e-02      λ(Ax-b): -5.012828e-01  γ||x||/2: 7.000000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 1.102
+gradientCall:    39     iter:     6     dual_obj: -5.50012959e+00       cx: -5.00000000e+00     feasibility: -4.952939e-02      λ(Ax-b): -5.001366e-01  γ||x||/2: 7.000000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.500
+gradientCall:    40     iter:     6     dual_obj: -5.50000727e+00       cx: -5.00000000e+00     feasibility: -4.952939e-02      λ(Ax-b): -5.000143e-01  γ||x||/2: 7.000000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.686
+gradientCall:    41     iter:     6     dual_obj: -5.49999421e+00       cx: -5.00000000e+00     feasibility: -4.952939e-02      λ(Ax-b): -5.000012e-01  γ||x||/2: 7.000000e-06  max_pos_slack: 4.952939e-02     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.484
+gradientCall:    42     iter:     6     dual_obj: -5.49999295e+00       cx: -5.44549277e+00     feasibility: -5.399420e-03      λ(Ax-b): -5.450721e-02  γ||x||/2: 7.029980e-06  max_pos_slack: 5.399420e-03     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.777
+gradientCall:    43     iter:     6     dual_obj: -5.49999295e+00       cx: -5.44549277e+00     feasibility: -5.399420e-03      λ(Ax-b): -5.450721e-02  γ||x||/2: 7.029980e-06  max_pos_slack: 5.399420e-03     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.735
+gradientCall:    44     iter:     7     dual_obj: -5.49999295e+00       cx: -5.44549277e+00     feasibility: -5.399420e-03      λ(Ax-b): -5.450721e-02  γ||x||/2: 7.029980e-06  max_pos_slack: 5.399420e-03     max_zero_slack: -Infinity       abs_slack_sum: 0.000000e+00     time(sec): 0.925
+gradientCall:    45     iter:     7     dual_obj: -5.49999295e+00       cx: -5.50000000e+00     feasibility: 9.492812e-13       λ(Ax-b): 9.583005e-12   γ||x||/2: 7.050000e-06  max_pos_slack: 9.492812e-13     max_zero_slack: -Infinity       abs_slack_sum: 1.347034e-12     time(sec): 0.934
+gradientCall:    46     iter:     7     dual_obj: -5.49999295e+00       cx: -5.50000000e+00     feasibility: 9.492812e-13       λ(Ax-b): 9.583005e-12   γ||x||/2: 7.050000e-06  max_pos_slack: 9.492812e-13     max_zero_slack: -Infinity       abs_slack_sum: 1.347034e-12     time(sec): 1.155
+Total LBFGS iterations: 7
+Status:Converged
+Total number of iterations: 47
+Primal: -5.44548574018906
+Dual: -5.499992951782625
+Number of Active Constraints: 1
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="parameters.html" class="btn btn-neutral float-left" title="Parameters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tips.html" class="btn btn-neutral float-right" title="Tips for using DuaLip" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, LinkedIn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

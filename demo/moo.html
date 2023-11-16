@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="scala" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Multi-Objective Optimization Problem &mdash; DuaLip 2.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=4671d03f"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="A Matching Problem" href="matching.html" />
+    <link rel="prev" title="Demo" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DuaLip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../solver/index.html">The DuaLip Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../interfaces/index.html">Interfaces</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Demo</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">A Multi-Objective Optimization Problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-frame-the-problem-mathematically">How to frame the problem mathematically?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-formulate-the-training-data">How to formulate the training data?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-execute-the-solver">How to execute the solver?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#install-spark">Install Spark</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#get-and-build-the-code">Get and build the code</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#get-the-dataset">Get the dataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-the-solver">Run the solver</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-read-the-results-and-do-inference">How to read the results and do inference?</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="matching.html">A Matching Problem</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../citing/index.html">Citing DuaLip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgement/index.html">Acknowledgements</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DuaLip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Demo</a></li>
+      <li class="breadcrumb-item active">A Multi-Objective Optimization Problem</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/demo/moo.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="a-multi-objective-optimization-problem">
+<h1>A Multi-Objective Optimization Problem<a class="headerlink" href="#a-multi-objective-optimization-problem" title="Link to this heading"></a></h1>
+<p>Multi-objective optimization problems (MOO) are optimization problems where more than one objective function needs to be optimized simultaneously. MOO problems appear frequently in machine learning and web applications where we need to make trade-offs between conflicting objectives, e.g., balancing multiple business metrics in a ranking or recommendation system. We can formulate such problems as an optimization problem by considering one of the objectives as primary and the others as constraints.</p>
+<p>An example problem: Email volume optimization
+---------------------------------------------s
+<a class="reference external" href="https://www.kdd.org/kdd2016/papers/files/adf0710-guptaA.pdf">Volume optimization</a> is an example of a MOO problem in the real world.
+A core problem for any internet company is to send out emails to the users. These could be sent for any number of reasons, e.g., marketing, gaining user attention, bringing users back to the platform. While emails distribute information quickly, too many emails may lead to a bad user experience.</p>
+<p>The email optimization problem can be framed in the following way: given a set of emails and a set of users, determine which emails to send to which users to maximize the overall number of sessions, but such that:</p>
+<ol class="arabic simple">
+<li><p>The total number of emails that are sent is bounded,</p></li>
+<li><p>The overall click rate is above a threshold, and</p></li>
+<li><p>The overall disable rate is bounded above.</p></li>
+</ol>
+<section id="how-to-frame-the-problem-mathematically">
+<h2>How to frame the problem mathematically?<a class="headerlink" href="#how-to-frame-the-problem-mathematically" title="Link to this heading"></a></h2>
+<p>To frame this problem mathematically, define the following quantites:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(x_{ik}\)</span>: Probability of sending the k-th email to the i-th user.</p></li>
+<li><p><span class="math notranslate nohighlight">\(c_{ik}\)</span>: Probability of i-th user visits the site if k-th email is sent.</p></li>
+<li><p><span class="math notranslate nohighlight">\(p_{ik}\)</span>: Probability of i-th user clicks k-th email.</p></li>
+<li><p><span class="math notranslate nohighlight">\(r_{ik}\)</span>: Probability of i-th user disables/unsubscribes k-th email.</p></li>
+</ul>
+<p>The optimization problem can be written as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{ll}
+  \mbox{Maximize} &amp; \sum_{ik} x_{ik} c_{ik} &amp;\\
+  \mbox{subject to} &amp; \sum_{ik} x_{ik} \leq b_1 &amp; \text{Sends are bounded} \\
+  &amp; \sum_{ik} x_{ik} p_{ik} \geq b_2 &amp; \text{Clicks above a threshold} \\
+  &amp; \sum_{ik} x_{ik} r_{ik} \leq b_3 &amp; \text{Disables below a threshold} \\
+  &amp; 0 \leq x \leq 1 &amp; \text{Probability constraint} \\
+\end{array}\end{split}\]</div>
+<p>We can further frame this using vector and matrix notation:</p>
+<ol class="arabic">
+<li><p>The constraint matrix is</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{split}A = \begin{bmatrix}
+       1 &amp; \ldots &amp; 1 &amp; \ldots &amp; 1 &amp; \ldots &amp; 1\\
+       -p_{11} &amp; \ldots &amp; -p_{1K} &amp; \ldots &amp; -p_{I1} &amp; \ldots &amp; -p_{IK}\\
+       r_{11}  &amp; \ldots &amp; r_{1K} &amp; \ldots &amp; r_{I1} &amp; \ldots &amp; r_{IK}
+   \end{bmatrix}\end{split}\]</div>
+</div></blockquote>
+<p><strong>Note</strong>: There is a sign change for the second constraint to get the <span class="math notranslate nohighlight">\(\leq\)</span> form.</p>
+</li>
+<li><p>The constraint vector <span class="math notranslate nohighlight">\(b\)</span> is <span class="math notranslate nohighlight">\(\\(b_1, -b_2, b_3)\)</span>.</p></li>
+<li><p>The objective vector <span class="math notranslate nohighlight">\(c\)</span> is vectorized version of <span class="math notranslate nohighlight">\(c_{ik}\)</span>.</p></li>
+</ol>
+<p>By changing the maximization to a minimization problem, the problem is now in a standard LP format for our solver:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{ll}
+  \mbox{Minimize} &amp; - x^T c \\
+  \mbox{subject to} &amp; Ax \leq b \\
+  &amp; x_i \in \mathcal{C}_i \;\; \text{for all}\; i
+\end{array}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span> is the unit box.</p>
+</section>
+<section id="how-to-formulate-the-training-data">
+<h2>How to formulate the training data?<a class="headerlink" href="#how-to-formulate-the-training-data" title="Link to this heading"></a></h2>
+<p>Let's consider a simple dataset. We have 3 emails to be sent to a single user (i.e. <span class="math notranslate nohighlight">\(i = 1\)</span> and <span class="math notranslate nohighlight">\(k = 3\)</span>), each with their predicted utilities. We would like to send less or equal to 2 emails, have at least 1 or more clicks, and have the disable probability &lt;= 0.03.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Email</p></th>
+<th class="head"><p>Psession (<span class="math notranslate nohighlight">\(c_{1k}\)</span>)</p></th>
+<th class="head"><p>Pclick (<span class="math notranslate nohighlight">\(p_{1k}\)</span>)</p></th>
+<th class="head"><p>PDisable (<span class="math notranslate nohighlight">\(r_{1k}\)</span>)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>0.3</p></td>
+<td><p>0.4</p></td>
+<td><p>0.02</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>0.5</p></td>
+<td><p>0.6</p></td>
+<td><p>0.01</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>0.1</p></td>
+<td><p>0.1</p></td>
+<td><p>0.03</p></td>
+</tr>
+</tbody>
+</table>
+<p>The matrix A will be</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  &amp; 1    &amp;\; 1    &amp;\; 1 \\
+  &amp; -0.4  &amp;\; -0.6  &amp;\; -0.1 \\
+  &amp; 0.02 &amp;\; 0.01 &amp;\; 0.03 \\
+\end{bmatrix},\end{split}\]</div>
+<p>the vector <span class="math notranslate nohighlight">\(b\)</span> will be <span class="math notranslate nohighlight">\((2, -1, 0.03)\)</span>, and the vector <span class="math notranslate nohighlight">\(c\)</span> will be <span class="math notranslate nohighlight">\((-0.3, -0.5, -0.1)\)</span>.
+The solver takes ACBlock and vectorB as two inputs. We require the input to be in the <a class="reference internal" href="../interfaces/format.html#input-format"><span class="std std-ref">Input Format</span></a>.</p>
+<p>ACBlock:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&quot;a&quot;</span><span class="p">:[[</span><span class="mf">1.0</span><span class="p">],[</span><span class="mf">-0.4</span><span class="p">],[</span><span class="mf">0.02</span><span class="p">]],</span><span class="nt">&quot;c&quot;</span><span class="p">:[</span><span class="mf">-0.3</span><span class="p">]}</span>
+<span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nt">&quot;a&quot;</span><span class="p">:[[</span><span class="mf">1.0</span><span class="p">],[</span><span class="mf">-0.6</span><span class="p">],[</span><span class="mf">0.01</span><span class="p">]],</span><span class="nt">&quot;c&quot;</span><span class="p">:[</span><span class="mf">-0.5</span><span class="p">]}</span>
+<span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nt">&quot;a&quot;</span><span class="p">:[[</span><span class="mf">1.0</span><span class="p">],[</span><span class="mf">-0.1</span><span class="p">],[</span><span class="mf">0.03</span><span class="p">]],</span><span class="nt">&quot;c&quot;</span><span class="p">:[</span><span class="mf">-0.1</span><span class="p">]}</span>
+</pre></div>
+</div>
+<p>Each line in the data above correponds to one email (indexed by <cite>k</cite>). Index <cite>i</cite> of <code class="code docutils literal notranslate"><span class="pre">a</span></code> in line <cite>k</cite> is the coefficient associated with email <cite>k</cite> in constraint <cite>i</cite>. <code class="code docutils literal notranslate"><span class="pre">c</span></code> in line <cite>k</cite> is the coefficient associated with email <cite>k</cite> in the objective function to be minimized.</p>
+<p>vectorB:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;row&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;row&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="mf">-1.0</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;row&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="mf">0.03</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Each line in the data above correponds to one constraint. The <code class="code docutils literal notranslate"><span class="pre">value</span></code> is simply the right-hand side of that constraint.</p>
+</section>
+<section id="how-to-execute-the-solver">
+<h2>How to execute the solver?<a class="headerlink" href="#how-to-execute-the-solver" title="Link to this heading"></a></h2>
+<p>Here is a step-by-step tutorial on run a moo solver on your machine.</p>
+<section id="install-spark">
+<h3>Install Spark<a class="headerlink" href="#install-spark" title="Link to this heading"></a></h3>
+<p>This step is platform-dependent. On OS X, you can install Spark with Homebrew using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>apache-spark
+</pre></div>
+</div>
+<p>For more information, see the <a class="reference external" href="http://spark.apache.org/docs/latest/index.html">Spark docs</a>.</p>
+</section>
+<section id="get-and-build-the-code">
+<h3>Get and build the code<a class="headerlink" href="#get-and-build-the-code" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./gradlew<span class="w"> </span>build
+</pre></div>
+</div>
+</section>
+<section id="get-the-dataset">
+<h3>Get the dataset<a class="headerlink" href="#get-the-dataset" title="Link to this heading"></a></h3>
+<p>A sample unit test dataset of MOO has been prepared under directory data/moo.</p>
+</section>
+<section id="run-the-solver">
+<h3>Run the solver<a class="headerlink" href="#run-the-solver" title="Link to this heading"></a></h3>
+<p>The solver can be run locally with <code class="code docutils literal notranslate"><span class="pre">spark-submit</span></code>. Below is an example of how to run the solver with specified parameters. (<strong>Note:</strong> The name of the <code class="code docutils literal notranslate"><span class="pre">.jar</span></code> file on your machine might be slightly different from <code class="code docutils literal notranslate"><span class="pre">./dualip/build/libs/dualip_2.12.jar</span></code> due to differing version numbers. Please replace the filename with the one on your machine if necessary.)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">      </span><span class="nv">$SPARK_HOME</span>/bin/spark-submit<span class="w"> </span>--packages<span class="w"> </span>org.apache.spark:spark-avro_2.12:3.1.1<span class="w"> </span><span class="se">\</span>
+--class<span class="w"> </span>com.linkedin.dualip.solver.LPSolverDriver<span class="w"> </span>./dualip/build/libs/dualip_2.12.jar<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--driver.objectiveClass<span class="w"> </span>com.linkedin.dualip.problem.MooSolverDualObjectiveFunction<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--driver.solverOutputPath<span class="w"> </span>output/moo/<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--driver.gamma<span class="w"> </span>1E-6<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--driver.outputFormat<span class="w"> </span>json<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--driver.projectionType<span class="w"> </span>simplex<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--input.ACblocksPath<span class="w"> </span>data/moo/data.json<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--input.vectorBPath<span class="w"> </span>data/moo/budget.json<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--input.format<span class="w"> </span>json<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--optimizer.solverType<span class="w"> </span>LBFGSB<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--optimizer.dualTolerance<span class="w"> </span>1E-8<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--optimizer.slackTolerance<span class="w"> </span>5E-6<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--optimizer.maxIter<span class="w"> </span><span class="m">100</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="how-to-read-the-results-and-do-inference">
+<h2>How to read the results and do inference?<a class="headerlink" href="#how-to-read-the-results-and-do-inference" title="Link to this heading"></a></h2>
+<p>There are two scenarios when reading the results. First, we can use the optimal primal values directly as decision variables. This is useful for a static system or batch processing.</p>
+<p>Second, we can use the optimal dual values to recover primal. This is useful when the system is dynamic and there are new items coming in. We can get the primal decision variable
+<span class="math notranslate nohighlight">\(x_{ij}\)</span> without solving the extreme-scale optimization problem again. This allows us to work in a low-latency environment as required by most internet applications.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The above method for re-using the dual variable works as long as the score distribution of the new items
+matches that of the old items which were used to solve the MOO problem. To prevent staleness in practice, the optimization problem is re-solved at a regular cadence.</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Demo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="matching.html" class="btn btn-neutral float-right" title="A Matching Problem" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, LinkedIn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

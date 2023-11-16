@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="scala" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parameters &mdash; DuaLip 2.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=4671d03f"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Logging" href="logging.html" />
+    <link rel="prev" title="Input Format" href="format.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DuaLip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../solver/index.html">The DuaLip Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Interfaces</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="format.html">Input Format</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#solver-parameters">Solver Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spark-parameters">Spark Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tips.html">Tips for using DuaLip</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../demo/index.html">Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing/index.html">Citing DuaLip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgement/index.html">Acknowledgements</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DuaLip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Interfaces</a></li>
+      <li class="breadcrumb-item active">Parameters</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/interfaces/parameters.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="parameters">
+<h1>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h1>
+<section id="solver-parameters">
+<h2>Solver Parameters<a class="headerlink" href="#solver-parameters" title="Link to this heading"></a></h2>
+<p>The solver settings are displayed in the following table.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameters</p></th>
+<th class="head"><p>Is Required</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">driver.initialLambdaPath</span></code></p></td>
+<td><p>false</p></td>
+<td><p>N/A</p></td>
+<td><p>Filepath to initialize dual variables for algorithm restarts (optional).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">driver.gamma</span></code></p></td>
+<td><p>false</p></td>
+<td><p>1E-3</p></td>
+<td><p>Coefficient for quadratic objective regularizer, used by most objectives.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">driver.projectionType</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Type of projection used. Possible values are Simplex, SimplexInequality, BoxCut, BoxCutInequality and UnitBox.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">driver.boxCutUpperBound</span></code></p></td>
+<td><p>false</p></td>
+<td><p>1</p></td>
+<td><p>Upper bound for the box cut projection constraint (if used).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">driver.objectiveClass</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Class name of the objective function, one of MooSolverDualObjectiveFunction, MatchingSolverDualObjectiveFunction, ConstrainedMatchingSolverDualObjectiveFunction, ParallelMooSolverDualObjectiveFunction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">driver.outputFormat</span></code></p></td>
+<td><p>false</p></td>
+<td><p>AVRO</p></td>
+<td><p>The format of output, can be AVRO, JSON, CSV or ORC.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">driver.savePrimal</span></code></p></td>
+<td><p>false</p></td>
+<td><p>false</p></td>
+<td><p>Flag to save primal variable values at the solution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">driver.verbosity</span></code></p></td>
+<td><p>false</p></td>
+<td><p>1</p></td>
+<td><p>The levels of logging to be shown. We currently support 0 (concise logging) and 1 (log with increased verbosity).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">driver.solverOutputPath</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Directory path to save solution at.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">input.ACblocksPath</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Path of matrix A &amp; c encoded as data blocks.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">input.vectorBPath</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Path of vector b.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">input.format</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>The format of input data, e.g. AVRO, JSON, CSV or ORC.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">optimizer.maxIter</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>The maximum number of iterations the solver will run.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">optimizer.solverType</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>The type of optimizer, currently supported: AGD, LBFGS and LBFGSB.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">optimizer.designInequality</span></code></p></td>
+<td><p>false</p></td>
+<td><p>true</p></td>
+<td><p>True if Ax &lt;= b, false if Ax = b or have mixed constraints.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">optimizer.mixedDesignPivotNum</span></code></p></td>
+<td><p>false</p></td>
+<td><p>0</p></td>
+<td><p>The pivot number if we have mixed A_1x &lt;= b1 and A_2x = b2, i.e. how many inequality constraints come first.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">optimizer.dualTolerance</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Tolerance criteria for dual variable change.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">optimizer.slackTolerance</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Tolerance criteria for slack.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="spark-parameters">
+<h2>Spark Parameters<a class="headerlink" href="#spark-parameters" title="Link to this heading"></a></h2>
+<p>There are four regular spark parameters you can tune:</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">spark.driver.mem</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">spark.executor.mem</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">spark.executor.cores</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">spark.executor.num</span></code></p></li>
+</ul>
+<p>The most efficient spark parameters are dependent on the problem scale and structure and there is no one-size-fits-all
+configuration. The default parameters usually can achieve acceptable performance, but users can definitely try tuning them if needed.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="format.html" class="btn btn-neutral float-left" title="Input Format" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="logging.html" class="btn btn-neutral float-right" title="Logging" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, LinkedIn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

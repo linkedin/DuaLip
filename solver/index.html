@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="scala" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The DuaLip Solver &mdash; DuaLip 2.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=4671d03f"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Getting Started" href="../get_started/index.html" />
+    <link rel="prev" title="DuaLip: Dual Decomposition based Linear Program Solver" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DuaLip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The DuaLip Solver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#problem-statement">Problem Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#problem-solution">Problem Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-algorithm">The Algorithm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#constraint-sets-mathcal-c-i">Constraint Sets <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adaptive-smoothing-algorithm">Adaptive Smoothing Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stopping-criteria">Stopping Criteria</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#infeasible-problems">Infeasible problems</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../interfaces/index.html">Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo/index.html">Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing/index.html">Citing DuaLip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgement/index.html">Acknowledgements</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DuaLip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">The DuaLip Solver</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/solver/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="the-dualip-solver">
+<span id="solver"></span><h1>The DuaLip Solver<a class="headerlink" href="#the-dualip-solver" title="Link to this heading"></a></h1>
+<section id="problem-statement">
+<h2>Problem Statement<a class="headerlink" href="#problem-statement" title="Link to this heading"></a></h2>
+<p>In a typical recommender system problem, we denote users by <span class="math notranslate nohighlight">\(i = 1, \ldots ,I\)</span> and items by <span class="math notranslate nohighlight">\(k = 1, \ldots, K\)</span>. Let
+<span class="math notranslate nohighlight">\(x_{ik}\)</span> denote any association between user <span class="math notranslate nohighlight">\(i\)</span> and item <span class="math notranslate nohighlight">\(k\)</span>, and be the variable of interest. For example,
+<span class="math notranslate nohighlight">\(x_{ik}\)</span> can be the probability of displaying item <span class="math notranslate nohighlight">\(k\)</span> to user <span class="math notranslate nohighlight">\(i\)</span>. The vectorized version is denoted by
+<span class="math notranslate nohighlight">\(x = (x_1, ..., x_I)\)</span> where <span class="math notranslate nohighlight">\(x_i = (x_{i1}, ..., x_{iK})\)</span>.</p>
+<p>DuaLip solves Linear Programs (LPs) of the following form:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{ll}
+  \mbox{minimize} &amp; c^T x \\
+  \mbox{subject to} &amp; A x \leq b \\
+  &amp; x_i \in \mathcal{C}_i \;\; \text{for all}\; = 1,\ldots, I
+\end{array}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(A_{m \times n}\)</span> is the constraint matrix, <span class="math notranslate nohighlight">\(b_{m \times 1}\)</span> is the constraint vector and <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span> are uniformly
+compact polytopes. <span class="math notranslate nohighlight">\(x \in \mathbb{R}^n\)</span> is the vector of optimization variables, where <span class="math notranslate nohighlight">\(n = IK\)</span>.</p>
+</section>
+<section id="problem-solution">
+<span id="probsolution"></span><h2>Problem Solution<a class="headerlink" href="#problem-solution" title="Link to this heading"></a></h2>
+<p>We briefly outline the solution mechanism here. For more details, please see <a class="reference external" href="http://proceedings.mlr.press/v119/basu20a/basu20a.pdf">Basu et al. (2020)</a>.
+To solve the problem, we introduce the perturbed problem:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{ll}
+  \mbox{minimize} &amp; x^T c  + \frac{\gamma}{2}x^T x \\
+  \mbox{subject to} &amp; A x \leq b \\
+  &amp; x_i \in \mathcal{C}_i \;\; \text{for all}\; = 1,\ldots, I
+\end{array}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\gamma &gt; 0\)</span> controls the tradeoff between problem approximation and the smoothness of the dual objective function.
+To make the above problem amenable to first order methods, we consider the Lagrangian dual:</p>
+<div class="math notranslate nohighlight">
+\[g_{\gamma}(\lambda) = \min_{x \in \mathcal C} ~~ \left\{ c^T x + \frac{\gamma}{2} x^T x + \lambda^T(Ax-b) \right\},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{C} = \Pi_{i=1}^I \mathcal{C}_i\)</span>. Now, by strong duality, the optimum objective <span class="math notranslate nohighlight">\(g_{\gamma}^*\)</span> of the dual</p>
+<div class="math notranslate nohighlight">
+\[g_{\gamma}^*:=\max_{\lambda \geq 0} ~ g_{\gamma}(\lambda)\]</div>
+<p>is the minimum of the above problem. We can show that <span class="math notranslate nohighlight">\(\lambda \mapsto g_{\gamma}(\lambda)\)</span> is differentiable and the
+gradient is Lipschitz continuous. Moreover, by Danskin's Theorem the gradient can be explicitly expressed as,</p>
+<div class="math notranslate nohighlight">
+\[\nabla g_{\gamma}(\lambda) = A x_{\gamma}^*(\lambda) -b\]</div>
+<p>where,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}x_{\gamma}^*(\lambda) &amp;= \text{argmin}_{x \in \mathcal C} ~~ \left\{ c^T x + \frac{\gamma}{2} x^T x + \lambda^T(Ax-b) \right\}  \\
+&amp; = \big\{
+\Pi_{\mathcal{C}_i}[-\frac{1}{\gamma}({A_i}^T\lambda + c_i)]
+\big\}_{i=1}^I\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Pi_{\mathcal{C}_i}(\cdot)\)</span> is the Euclidean projection operator onto  <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span>, and, <span class="math notranslate nohighlight">\(A_i\)</span>, <span class="math notranslate nohighlight">\(c_i\)</span> are the
+parts of <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(c\)</span> corresponding to <span class="math notranslate nohighlight">\(x_i\)</span>. Based on this we use a first-order gradient method as the main optimizer to
+solve the problem. It can also be shown that the solution obeys certain bounds to the true solution <span class="math notranslate nohighlight">\(g_0(\lambda)\)</span> and
+in fact the exact solution of the LP can be obtained if <span class="math notranslate nohighlight">\(\gamma\)</span> is small enough.
+For more details, please refer to <a class="reference external" href="http://proceedings.mlr.press/v119/basu20a/basu20a.pdf">Basu et al. (2020)</a>.</p>
+</section>
+<section id="the-algorithm">
+<span id="algorithm"></span><h2>The Algorithm<a class="headerlink" href="#the-algorithm" title="Link to this heading"></a></h2>
+<p>The overall algorithm can now be written as:</p>
+<ol class="arabic simple">
+<li><p>Start with an initial <span class="math notranslate nohighlight">\(\lambda\)</span>.</p></li>
+<li><p>Get Primal: <span class="math notranslate nohighlight">\(x_{\gamma}^*(\lambda)\)</span>.</p></li>
+<li><p>Get Gradient: <span class="math notranslate nohighlight">\(Ax_{\gamma}^*(\lambda) - b\)</span>.</p></li>
+<li><p>Update <span class="math notranslate nohighlight">\(\lambda\)</span> via appropriate mechanisms.</p></li>
+<li><p>Continue till converge.</p></li>
+</ol>
+<p>We currently support three different mechanisms for doing this first-order optimization. Specifically, <a class="reference external" href="https://en.wikipedia.org/wiki/Proximal_gradient_method">Proximal Gradient Ascent</a>, <a class="reference external" href="https://www.ceremade.dauphine.fr/~carlier/FISTA">Accelerated Gradient Ascent</a>, and <a class="reference external" href="https://en.wikipedia.org/wiki/Limited-memory_BFGS">LBFGS-B</a>. For the details please see Appendix A of <a class="reference external" href="https://arxiv.org/abs/2103.05277">Ramanath et al. (2021)</a>.</p>
+<section id="constraint-sets-mathcal-c-i">
+<span id="constraints"></span><h3>Constraint Sets <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span><a class="headerlink" href="#constraint-sets-mathcal-c-i" title="Link to this heading"></a></h3>
+<p>In this current version of the solver we support a wide variety of constraints types <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span>,
+such as:</p>
+<ol class="arabic simple">
+<li><p>Unit Box: <span class="math notranslate nohighlight">\(\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : 0 \leq x_k \leq 1\big\}\)</span></p></li>
+<li><p>Simplex-E: <span class="math notranslate nohighlight">\(\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K = 1, \;\; x_k \geq 0\big\}\)</span></p></li>
+<li><p>Simplex-I: <span class="math notranslate nohighlight">\(\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K \leq 1, \;\; x_k \geq 0\big\}\)</span></p></li>
+<li><p>Box Cut-E: <span class="math notranslate nohighlight">\(\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K = d, \;\; 0 \leq x_k \leq 1\big\}\)</span></p></li>
+<li><p>Box Cut-I: <span class="math notranslate nohighlight">\(\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K \leq d, \;\; 0 \leq x_k \leq 1\big\}\)</span></p></li>
+</ol>
+<p>Here <span class="math notranslate nohighlight">\(E\)</span> and <span class="math notranslate nohighlight">\(I\)</span> stands for equality and inequality. Also note that choosing <span class="math notranslate nohighlight">\(d=1\)</span> the Box Cut reduces to the Simplex case.</p>
+<p>To execute step 2 of the overall algorithm, we need a projection operation on these constraint sets.
+In our solver, we have implemented highly efficient projection algorithms to make step 2 extremely fast. The different sets have
+different customized algorithms to make the overall system highly efficient. For more details on
+these projection algorithms please see Section 3 of <a class="reference external" href="https://arxiv.org/abs/2103.05277">Ramanath et al. (2021)</a>.</p>
+</section>
+<section id="adaptive-smoothing-algorithm">
+<span id="adaptive-smoothing"></span><h3>Adaptive Smoothing Algorithm<a class="headerlink" href="#adaptive-smoothing-algorithm" title="Link to this heading"></a></h3>
+<p>The smoothness of <span class="math notranslate nohighlight">\(g_\gamma\)</span> decreases as the number of constraints increases.
+A small <span class="math notranslate nohighlight">\(\gamma\)</span> makes the optimizer's convergence prohibitively slow, while a large <span class="math notranslate nohighlight">\(\gamma\)</span> reduces the accuracy of
+the solution. We define a practical criterion for sufficient convergence for a given <span class="math notranslate nohighlight">\(\gamma\)</span> and
+implement a stage-wise algorithm that automatically reduces <span class="math notranslate nohighlight">\(\gamma\)</span> when the criterion is met to
+prefer more accurate solutions. For details, please see Section 3 of <a class="reference external" href="http://proceedings.mlr.press/v119/basu20a/basu20a.pdf">Basu et al. (2020)</a>.</p>
+</section>
+<section id="stopping-criteria">
+<span id="convergence"></span><h3>Stopping Criteria<a class="headerlink" href="#stopping-criteria" title="Link to this heading"></a></h3>
+<p>Let <span class="math notranslate nohighlight">\(\lambda_\gamma = \arg \max_{\lambda\ge 0} g_\gamma(\lambda)\)</span> and
+<span class="math notranslate nohighlight">\(\tilde{\lambda}_\gamma\)</span> be an approximate solution after the optimizer has made sufficient progress to maximize <span class="math notranslate nohighlight">\(g_\gamma\)</span>.
+If the approximation error <span class="math notranslate nohighlight">\((g_0(\lambda_0) - g_0(\tilde{\lambda}_\gamma))\)</span> is <span class="math notranslate nohighlight">\(\epsilon\)</span> times smaller than the
+total opportunity <span class="math notranslate nohighlight">\((g_0(\lambda_0) - g_0(0))\)</span> then we declare sufficient convergence, i.e.,</p>
+<div class="math notranslate nohighlight">
+\[g_0(\lambda_0) - g_0(\tilde{\lambda}_\gamma) \le \epsilon \; (g_0(\lambda_0) - g_0(0)).\]</div>
+<p>The intuition behind this is as follows:</p>
+<ol class="arabic simple">
+<li><p>The criterion is defined in terms of <span class="math notranslate nohighlight">\(g_0\)</span> because it is the Lagrangian dual corresponding to the actual LP we want to solve and by strong duality, <span class="math notranslate nohighlight">\(g_0(\lambda_0)\)</span> is the optimal primal objective that can be attained.</p></li>
+<li><p>Since <span class="math notranslate nohighlight">\(\lambda=0\)</span> removes the effect of constraints on the Lagrangian, <span class="math notranslate nohighlight">\(g_0(0)\)</span> represents the maximum value of the primal objective. The total opportunity represents the value of objective &quot;lost&quot; to enforce the constraints <span class="math notranslate nohighlight">\(Ax \le b\)</span>.</p></li>
+<li><p>The approximation error (the left hand side of above) is due to two levels of approximation: (a) the error due to working with <span class="math notranslate nohighlight">\(\gamma &gt;0\)</span>, i.e., the difference between <span class="math notranslate nohighlight">\(\lambda_0\)</span> and <span class="math notranslate nohighlight">\(\lambda_\gamma\)</span>; and (b) the approximate solution of <span class="math notranslate nohighlight">\(\max_\lambda g_\gamma(\lambda)\)</span>, i.e., the difference between <span class="math notranslate nohighlight">\(\lambda_\gamma\)</span> and <span class="math notranslate nohighlight">\(\tilde{\lambda}_\gamma\)</span>.</p></li>
+</ol>
+</section>
+</section>
+<section id="infeasible-problems">
+<h2>Infeasible problems<a class="headerlink" href="#infeasible-problems" title="Link to this heading"></a></h2>
+<p>DuaLip is able to detect if the problem is primal infeasible. If the primal problem is infeasible,</p>
+<div class="math notranslate nohighlight">
+\[g_\gamma^* = \max_{\lambda\ge 0} g_\gamma(\lambda) = \infty.\]</div>
+<p>Furthermore, for any feasible <span class="math notranslate nohighlight">\(x\)</span>, by weak duality, we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}g_\gamma^* &amp; \leq \max_{x \in \mathcal{C} \; \text{and} \; x: Ax \leq b} ( c^T x + \frac{\gamma}{2} x^T x) \leq \max_{x \in \mathcal{C}} ( c^T x + \frac{\gamma}{2} x^T x) \\
+&amp; = \sum_{i = 1}^I \max_{x_i\in\mathcal{C}_i} \; ({c_i}^T x_i + \frac{\gamma}{2} {x_i}^T x_i)\end{split}\]</div>
+<p>where the second inequality follows from the fact that the max is taken over a larger set. Now, for each constraint type <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span>, it is easy to calculate a bound <span class="math notranslate nohighlight">\(B\)</span> such that</p>
+<div class="math notranslate nohighlight">
+\[\max_{x_i\in\mathcal{C}_i} \; ({c_i}^T x_i + \frac{\gamma}{2} {x_i}^T x_i) \leq B.\]</div>
+<p>If the primal is feasible, then strong optimality implies that <span class="math notranslate nohighlight">\({g_\gamma}^* \le IB\)</span>.
+Thus, if, during the optimization, <span class="math notranslate nohighlight">\(g_\gamma &gt; IB\)</span>, then it guarantees that the primal is infeasible.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="DuaLip: Dual Decomposition based Linear Program Solver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../get_started/index.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, LinkedIn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

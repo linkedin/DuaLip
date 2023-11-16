@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="scala" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting Started &mdash; DuaLip 2.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=4671d03f"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Interfaces" href="../interfaces/index.html" />
+    <link rel="prev" title="The DuaLip Solver" href="../solver/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DuaLip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../solver/index.html">The DuaLip Solver</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#building-the-library">Building the Library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-a-dualip-dependency-to-your-project">Add a DuaLip Dependency to Your Project</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gradle-example">Gradle Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-jar-file">Using the JAR File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage-examples">Usage Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../interfaces/index.html">Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo/index.html">Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing/index.html">Citing DuaLip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgement/index.html">Acknowledgements</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DuaLip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Getting Started</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/get_started/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
+<section id="building-the-library">
+<h2>Building the Library<a class="headerlink" href="#building-the-library" title="Link to this heading"></a></h2>
+<p>It is recommended to use Scala 2.12 and Spark 3.1.1. To build, run the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./gradlew<span class="w"> </span>build
+</pre></div>
+</div>
+<p>This will produce a JAR file in the <code class="code docutils literal notranslate"><span class="pre">./dualip/build/libs/</span></code> directory.</p>
+<p>Tests typically run with the <code class="code docutils literal notranslate"><span class="pre">test</span></code> task. If you want to force-run all tests, you can use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./gradlew<span class="w"> </span>cleanTest<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--no-build-cache
+</pre></div>
+</div>
+</section>
+<section id="add-a-dualip-dependency-to-your-project">
+<h2>Add a DuaLip Dependency to Your Project<a class="headerlink" href="#add-a-dualip-dependency-to-your-project" title="Link to this heading"></a></h2>
+<p>Please check <a class="reference external" href="https://linkedin.jfrog.io/artifactory/DuaLip/">Artifactory</a> for the latest artifact versions.</p>
+<section id="gradle-example">
+<h3>Gradle Example<a class="headerlink" href="#gradle-example" title="Link to this heading"></a></h3>
+<p>The artifacts are available in LinkedIn's Artifactory instance and in Maven Central, so you can specify either repository in the top-level build.gradle file.</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">repositories</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">mavenCentral</span><span class="p">()</span>
+<span class="w">    </span><span class="n">maven</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">url</span><span class="w"> </span><span class="s">&quot;https://linkedin.jfrog.io/artifactory/open-source/&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Add the DuaLip dependency to the module-level <code class="code docutils literal notranslate"><span class="pre">build.gradle</span></code> file. Here are some examples for multiple recent
+Spark/Scala version combinations:</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">compile</span><span class="w"> </span><span class="err">&#39;</span><span class="n">com</span><span class="p">.</span><span class="na">linkedin</span><span class="p">.</span><span class="na">dualip</span><span class="p">:</span><span class="n">dualip_3</span><span class="mf">.1.1_2.12</span><span class="p">:</span><span class="mf">2.4.8</span><span class="err">&#39;</span>
+<span class="p">}</span>
+
+<span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">compile</span><span class="w"> </span><span class="err">&#39;</span><span class="n">com</span><span class="p">.</span><span class="na">linkedin</span><span class="p">.</span><span class="na">dualip</span><span class="p">:</span><span class="n">dualip_3</span><span class="mf">.1.1_2.12</span><span class="p">:</span><span class="mf">2.4.6</span><span class="err">&#39;</span>
+<span class="p">}</span>
+
+<span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">compile</span><span class="w"> </span><span class="err">&#39;</span><span class="n">com</span><span class="p">.</span><span class="na">linkedin</span><span class="p">.</span><span class="na">dualip</span><span class="p">:</span><span class="n">dualip_3</span><span class="mf">.1.1_2.12</span><span class="p">:</span><span class="mf">2.4.2</span><span class="err">&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="using-the-jar-file">
+<h2>Using the JAR File<a class="headerlink" href="#using-the-jar-file" title="Link to this heading"></a></h2>
+<p>Depending on the mode of usage, the built JAR can be deployed as part of an offline data pipeline, depended
+upon to build jobs using its APIs, or added to the classpath of a Spark Jupyter notebook or a Spark Shell instance. For
+example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$SPARK_HOME</span>/bin/spark-shell<span class="w"> </span>--jars<span class="w"> </span>target/dualip_2.12.jar
+</pre></div>
+</div>
+</section>
+<section id="usage-examples">
+<h2>Usage Examples<a class="headerlink" href="#usage-examples" title="Link to this heading"></a></h2>
+<p>Currently the library supports two different solvers:</p>
+<p>1. <code class="code docutils literal notranslate"><span class="pre">MooSolver</span></code>: This solves multi-objective optimization problems, which include a
+few global or cohort-level constraints and are characterized by small number of rows
+in <span class="math notranslate nohighlight">\(A\)</span> (usually less than one hundred)</p>
+<p>2. <code class="code docutils literal notranslate"><span class="pre">MatchingSolver</span></code>: This solves matching problems, where we have a large number of
+per-item constraints. The number of rows of <span class="math notranslate nohighlight">\(A\)</span> here is quite large and can range up to
+1 million.</p>
+<p>Both the solvers support a wide range of constraints <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span> as seen <a class="reference external" href="../solver/index.html#constraints">here</a>
+as well as a wide variety of <a class="reference external" href="../solver/index.html#algorithm">first-order optimization methods</a>.</p>
+<p>There is a unified driver implementation <code class="code docutils literal notranslate"><span class="pre">com.linkedin.dualip.solver.LPSolverDriver</span></code> for
+both of these problems which serves as the primary entry point.</p>
+<p>We currently support a parallel version of the <code class="code docutils literal notranslate"><span class="pre">MooSolver</span></code>, which can solve many separate
+small Moo problems in parallel. The number of such small Moo problems can range up to tens of millions.</p>
+<p>Call <code class="code docutils literal notranslate"><span class="pre">com.linkedin.dualip.solver.ParallelLPSolverDriver</span></code> to leverage the extreme-scale parallelism
+power of our DuaLip solver.</p>
+<p>For detailed usage please see the <a class="reference internal" href="../interfaces/parameters.html#parameters"><span class="std std-ref">Parameters</span></a> and the <a class="reference internal" href="../demo/index.html#demo"><span class="std std-ref">Demo</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../solver/index.html" class="btn btn-neutral float-left" title="The DuaLip Solver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../interfaces/index.html" class="btn btn-neutral float-right" title="Interfaces" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, LinkedIn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
