@@ -8,7 +8,7 @@ import com.linkedin.dualip.projection.{BoxCutProjection, GreedyProjection, Simpl
 import com.linkedin.dualip.slate.{SecondPriceAuctionSlateComposer, SingleSlotComposer, Slate, SlateComposer}
 import com.linkedin.dualip.util.ProjectionType._
 import com.linkedin.dualip.util.{IOUtility, InputPathParamsParser, InputPaths}
-import com.linkedin.optimization.util.VectorOperations.toBSV
+import com.linkedin.dualip.util.VectorOperations.toBSV
 import com.twitter.algebird.{Max, Tuple5Semigroup}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.functions.{col, lit}

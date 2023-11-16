@@ -21,6 +21,7 @@ dependencies {
 
   testImplementation("org.apache.spark:spark-core_${scalaVersion}:${sparkVersion}")
   testImplementation("org.apache.spark:spark-sql_${scalaVersion}:${sparkVersion}")
+  testImplementation("org.scalatest:scalatest_${scalaVersion}:${sparkVersion}")
   testImplementation("org.testng:testng:6.10")
 }
 

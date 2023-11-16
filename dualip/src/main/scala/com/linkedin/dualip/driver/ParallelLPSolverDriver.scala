@@ -7,7 +7,7 @@ import com.linkedin.dualip.maximizer.{DualPrimalMaximizer, DualPrimalMaximizerLo
 import com.linkedin.dualip.objective.DualPrimalObjective
 import com.linkedin.dualip.problem.{MooSolverDualObjectiveFunction, ParallelMooSolverDualObjectiveFunction}
 import com.linkedin.dualip.util.{InputPathParamsParser, MapReduceArray}
-import com.linkedin.optimization.util.VectorOperations.toBSV
+import com.linkedin.dualip.util.VectorOperations.toBSV
 import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
 
 /**

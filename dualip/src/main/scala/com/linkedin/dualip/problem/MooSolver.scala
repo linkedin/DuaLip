@@ -7,7 +7,7 @@ import com.linkedin.dualip.objective.{DualPrimalObjective, DualPrimalObjectiveLo
 import com.linkedin.dualip.projection.{BoxCutProjection, Projection, SimplexProjection, UnitBoxProjection}
 import com.linkedin.dualip.util.ProjectionType._
 import com.linkedin.dualip.util._
-import com.linkedin.optimization.util.VectorOperations.toBSV
+import com.linkedin.dualip.util.VectorOperations.toBSV
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.functions.lit
