@@ -2,6 +2,26 @@
 
 Parameters
 =============
+The main interface for running the solver is :code:`run_solver()` function. It takes the following arguments:
+
+- **input_args**: Input arguments for the solver.
+- **solver_args**: Solver arguments for the solver.
+- **compute_args**: Compute arguments for the solver.
+- **objective_args**: Objective arguments for the solver.  
+- **mlflow_config**: MLflow configuration for the solver.
+
+Input Arguments
+---------------
+The input arguments are displayed in the following table.
+
+=====================================  =============  ==============  ==============================================================================================================
+Input Arguments                        Is Required    Default Value   Description
+=====================================  =============  ==============  ==============================================================================================================
+:code:`A`                              true           N/A             Tensor A.
+:code:`b`                              true           N/A             Tensor b.
+:code:`C`                              true           N/A             Tensor C.
+:code:`projection_maps`                true           N/A             Projection maps.
+=====================================  =============  ==============  ==============================================================================================================
 
 Solver Parameters 
 -----------------
@@ -35,3 +55,57 @@ Compute Arguments                      Is Required    Default Value   Descriptio
 
 The most efficient parameters are dependent on the problem scale and structure and there is no one-size-fits-all 
 configuration. The default parameters usually can achieve acceptable performance, but users can definitely try tuning them if needed.  
+
+
+Objective Arguments
+-------------------
+The objective arguments are displayed in the following table.
+
+=====================================  =============  ==============  ==============================================================================================================
+Objective Arguments                    Is Required    Default Value   Description
+=====================================  =============  ==============  ==============================================================================================================
+:code:`objective_type`                 true           N/A             Type of objective function.
+:code:`objective_params`               false          None            Parameters for the objective function.
+=====================================  =============  ==============  ==============================================================================================================
+
+MLflow Configuration
+--------------------
+The MLflow configuration is displayed in the following table.
+
+=====================================  =============  ==============  ==============================================================================================================
+MLflow Configuration                    Is Required    Default Value   Description
+=====================================  =============  ==============  ==============================================================================================================
+:code:`enabled`                          true           N/A             Whether to enable MLflow logging.
+:code:`tracking_uri`                     false          None            MLflow tracking URI.
+:code:`experiment_name`                  false          None            MLflow experiment name.
+:code:`run_name`                         false          None            MLflow run name.
+=====================================  =============  ==============  ==============================================================================================================
+
+The function :code:`run_solver()` returns a :code:`SolverResult` object.
+
+SolverResult
+------------
+The solver result is displayed in the following table.
+
+=====================================  =============  ==============  ==============================================================================================================
+Solver Result                          Is Required    Default Value   Description
+=====================================  =============  ==============  ==============================================================================================================
+:code:`dual_val`                       true           N/A             Dual variable value.
+:code:`dual_objective`                 true           N/A             Dual objective value.
+:code:`objective_result`               true           N/A             The result of one gradient call.
+:code:`dual_objective_log`             true           N/A             Log of dual objective values.
+:code:`step_size_log`                  true           N/A             Log of step sizes.
+=====================================  =============  ==============  ==============================================================================================================
+
+dual_objective_result is an object of the class :code:`ObjectiveResult` and it contains the following attributes:
+
+- :code:`dual_gradient`: Gradient of the dual objective function.
+- :code:`dual_objective`: Dual objective value.
+- :code:`reg_penalty`: Regularization penalty.
+- :code:`primal_objective`: Primal objective value.
+- :code:`primal_var`: Primal variable value.
+- :code:`dual_val_times_grad`: Dual variable times gradient.
+- :code:`max_pos_slack`: Maximum positive slack.
+- :code:`sum_pos_slack`: Sum of positive slack.
+
+
