@@ -6,8 +6,7 @@ For each problem, we answer the following questions:
 
 #. How to construct the input tensors and projection maps for the solver.
 #. How to execute the solver.
-#. How to read the results and do inference.
-#. How to use the solver in a distributed setting.
+#. How to interpret the results and do inference.
 #. How to define a new objective class for new applications. 
 
 The two specific examples are:

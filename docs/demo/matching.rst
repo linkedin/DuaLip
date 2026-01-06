@@ -129,7 +129,7 @@ The solver will output the following information:
 * The shape of the projection maps.
 
 
-How to read the results?
+How to interpret the results?
 ------------------------
 We can see that as the solver progresses, :code:`dual_obj` increases while :code:`max_pos_slack` and :code:`max_zero_slack` decrease.
 
@@ -155,23 +155,18 @@ We can see that as the solver progresses, :code:`dual_obj` increases while :code
 	iter:    10	dual_obj: -6.70900248e+05	cx: -6.73704610e+05	feasibility: 1.584054e+01	λ(Ax-b): -1.984704e+03	γ||x||^2/2: 4.789067e+03	max_pos_slack: 1.584054e+01	max_zero_slack: 1.676255e+00	abs_slack_sum: 4.087020e+04	time(sec): 3.596
 
 
-The solver converges after 413 iterations, while the combined number of iterations (including the
-internal iterations of LBFGS) is 1293. We also show the final dual and primal objectives, as well
-as the number of active constraints in the problem.
+The solver achieves a dual objective value of Y and a primal objective value of Z after X iterations.
+The primal-dual gap is W in the quadratic approximation of the objective function.
+The maximum positive slack is X and the absolute sum of the slack is Z.
+The time taken for the solver to run is A seconds.
 
 .. code:: text
 
 	iter:  1290	dual_obj: -6.28011839e+05	cx: -6.32627842e+05	feasibility: 1.289256e-02	λ(Ax-b): -5.876918e+00	γ||x||^2/2: 4.621880e+03	max_pos_slack: 1.813359e-02	max_zero_slack: 0.000000e+00	abs_slack_sum: 1.094879e+01	time(sec): 4.170
 	iter:  1291	dual_obj: -6.28011839e+05	cx: -6.32660904e+05	feasibility: 9.317112e-02	λ(Ax-b): 2.721294e+01	γ||x||^2/2: 4.621852e+03	max_pos_slack: 9.317112e-02	max_zero_slack: 0.000000e+00	abs_slack_sum: 1.918328e+01	time(sec): 3.758
 	iter:  1292	dual_obj: -6.28011839e+05	cx: -6.32660904e+05	feasibility: 9.317112e-02	λ(Ax-b): 2.721294e+01	γ||x||^2/2: 4.621852e+03	max_pos_slack: 9.317112e-02	max_zero_slack: 0.000000e+00	abs_slack_sum: 1.918328e+01	time(sec): 3.855
-	Total LBFGS iterations: 413
-	Status:Converged
-	Total number of iterations: 1293
 	Primal: -628012.671815458
 	Dual: -628011.8409963399
-	Number of Active Constraints: 2992
-
-The detailed log is given :ref:`here <Matching log>`.
 
 How to do inference?
 --------------------
