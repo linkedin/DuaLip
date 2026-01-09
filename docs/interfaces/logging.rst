@@ -65,47 +65,16 @@ If mlflow is not enabled or not configured, MLflow will use the default local co
 		log_metrics: bool = True
 		synchronous: bool = False
 
-
-Wrap your solver run with MLflow and log parameters, metrics, and artifacts:
+Example configuration to runninng locally:
 
 .. code:: python
 
-	import mlflow
-
-	# Example: organize all parameters you pass to DuaLip
-	params = {
-		"objectiveClass": "matching",
-		"gamma": 1e-3,
-		"solverType": "AGD",
-		"maxIter": 100,
-		# Add any other parameters you pass to DuaLip
-	}
-
-	with mlflow.start_run(run_name="dualip"):
-		# 1) Parameters
-		mlflow.log_params(params)
-
-		metrics = {
-			"iter": it,
-			"dual_obj": -5.5 + it * 1e-3,    # replace with real value
-			"cx": -5.0,                      # replace with real value
-			"feasibility": 0.02,             # replace with real value
-			"max_pos_slack": 0.01,           # replace with real value
-			"max_zero_slack": 0.0,           # replace with real value
-			"abs_slack_sum": 0.03,           # replace with real value
-			"time": 0.7,                     # seconds; replace with real value
-			"step": 0.1,                     # replace with real value
-		}
-			mlflow.log_metrics(metrics, step=it)
-
-		mlflow.log_metrics(
-			{
-				"total_iters": params["optimizer.maxIter"],
-				"primal": -5.44548,
-				"dual": -5.49999,
-				"num_active_constraints": 1,
-			}
-		)
+	mlflow_config = MLflowConfig(
+		enabled=True,
+		tracking_uri="http://localhost:5000",
+		experiment_name="DuaLip",
+		run_name="DuaLip",
+	)
 
 Tips
 ----
