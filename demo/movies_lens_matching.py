@@ -2,16 +2,16 @@ import argparse
 import json
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Tuple
 
 import numpy as np
 import pandas as pd
 import torch
 
-from lpsolver.config_utils import ComputeArgs, ObjectiveArgs, SolverArgs
-from lpsolver.objective_functions.dualip_matching import MatchingInputArgs
-from lpsolver.projections.base import create_projection_map
-from lpsolver.run_solver import run_solver
+from dualip.types import ComputeArgs, ObjectiveArgs, SolverArgs
+from dualip.objectives.matching import MatchingInputArgs
+from dualip.projections.base import create_projection_map
+from dualip.run_solver import run_solver
 
 @dataclass
 class MovielensMatchingConfig:
@@ -25,6 +25,7 @@ class MovielensMatchingConfig:
     min_movie_interactions: int = 1
     # Device for result tensors
     device: str = "cpu"
+
 
 
 def _build_index_maps(user_ids: Iterable[int], movie_ids: Iterable[int]) -> Tuple[Dict[int, int], Dict[int, int]]:
