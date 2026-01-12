@@ -256,13 +256,12 @@ def main():
 
     if args.run_solver:
         host_device = "cuda:0"
-        solver_args = SolverArgs.from_config({
-            "solver_type": "agd",
-            "gamma": args.gamma,
-            "max_iter": args.max_iter,
-            "initial_step_size": args.initial_step_size,
-            "max_step_size": 0.00001,
-        })
+        solver_args = SolverArgs(
+            gamma=args.gamma,
+            max_iter=args.max_iter,
+            initial_step_size=args.initial_step_size,
+            max_step_size=0.00001,
+        )
         compute_args = ComputeArgs(compute_device_num=1, host_device=host_device)
         objective_args = ObjectiveArgs(objective_type="matching")
         result = run_solver(
