@@ -1,0 +1,102 @@
+/* Tighter vertical spacing for lists */
+.wy-nav-content .rst-content ul,
+.wy-nav-content .rst-content ol {
+  margin-top: 0.1em !important;
+  margin-bottom: 0.5em !important;
+  padding-left: 0.8em !important;           /* reduce marker-to-text gap */
+  -webkit-padding-start: 0.8em !important;  /* WebKit */
+  list-style-position: outside !important;
+  margin-left: 0.4em !important;             /* shift bullets and text right slightly */
+}
+.wy-nav-content .rst-content li {
+  margin-top: 0.1em !important;
+  margin-bottom: 0 !important;
+  line-height: 1.15 !important;
+}
+.wy-nav-content .rst-content li > p {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Reduce gap between preceding text/headings and the first list */
+.wy-nav-content .rst-content p {
+  margin-bottom: 0.35em !important;
+}
+.wy-nav-content .rst-content p + ul,
+.wy-nav-content .rst-content p + ol {
+  margin-top: 0.1em !important;
+}
+.wy-nav-content .rst-content h1,
+.wy-nav-content .rst-content h2,
+.wy-nav-content .rst-content h3,
+.wy-nav-content .rst-content h4,
+.wy-nav-content .rst-content h5,
+.wy-nav-content .rst-content h6 {
+  margin-bottom: 0.35em !important;
+}
+.wy-nav-content .rst-content h1 + ul,
+.wy-nav-content .rst-content h2 + ul,
+.wy-nav-content .rst-content h3 + ul,
+.wy-nav-content .rst-content h4 + ul,
+.wy-nav-content .rst-content h5 + ul,
+.wy-nav-content .rst-content h6 + ul,
+.wy-nav-content .rst-content h1 + ol,
+.wy-nav-content .rst-content h2 + ol,
+.wy-nav-content .rst-content h3 + ol,
+.wy-nav-content .rst-content h4 + ol,
+.wy-nav-content .rst-content h5 + ol,
+.wy-nav-content .rst-content h6 + ol {
+  margin-top: 0.1em !important;
+}
+
+/* Restore bullets/numbers specifically for docutils "simple" lists */
+.wy-nav-content .rst-content ul.simple {
+  list-style: disc !important;
+}
+.wy-nav-content .rst-content ol.simple {
+  list-style: decimal !important;
+}
+.wy-nav-content .rst-content ul.simple > li,
+.wy-nav-content .rst-content ol.simple > li {
+  display: list-item !important;
+  list-style: inherit !important;
+}
+
+/* custom titles (non-section) */
+.wy-nav-content .rst-content .custom-title {
+  font-weight: 700;
+  font-size: 150%;
+  margin-top: 0.5em !important;
+  margin-bottom: 0.1em !important;
+  padding-left: 0 !important;
+  border-bottom: 2px solid #e0e0e0 !important;
+}
+
+/* Glossary formatting */
+.wy-nav-content .rst-content dl.glossary.glossary-features > dt {
+  margin-top: 0.3em;
+  font-weight: 600;
+}
+.wy-nav-content .rst-content dl.glossary.glossary-features > dd {
+  margin-left: 0.8em;
+  margin-bottom: 0.2em;
+}
+
+/* Ensure glossary term titles are black and unboxed */
+.wy-nav-content .rst-content dl.glossary.glossary-features > dt {
+  color: #000 !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+.wy-nav-content .rst-content dl.glossary.glossary-features > dt a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+.wy-nav-content .rst-content dl.glossary.glossary-features > dt a:hover,
+.wy-nav-content .rst-content dl.glossary.glossary-features > dt a:focus {
+  color: inherit !important;
+  text-decoration: underline;
+}
