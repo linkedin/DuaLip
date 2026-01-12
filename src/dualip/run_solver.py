@@ -133,7 +133,8 @@ def run_solver(
 
         solver_result = solver.maximize(objective, initial_dual)
 
-        if objective.use_jacobi_precondition:
+        use_jacobi_precondition = getattr(objective, "use_jacobi_precondition", None)
+        if use_jacobi_precondition:
             dual_val = solver_result.dual_val
             dual_grad = solver_result.objective_result.dual_gradient
 
