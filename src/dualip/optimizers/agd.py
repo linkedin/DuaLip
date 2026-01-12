@@ -1,4 +1,5 @@
 import math
+from typing import Callable, Optional
 
 import torch
 
@@ -19,6 +20,48 @@ def project_on_nn_cone(y: torch.Tensor, equality_mask: torch.Tensor | None = Non
         return projected
 
 
+def format_objective_result_summary(iteration: int, objective_result: ObjectiveResult) -> str:
+    """
+    Build a one-line summary string describing the objective result for a given iteration.
+    """
+    try:
+        grad_norm_val = float(objective_result.dual_gradient.norm().item())
+        grad_norm_str = f"dual_grad_norm={grad_norm_val}"
+    except Exception:
+        grad_norm_str = "dual_grad_norm=<unprintable>"
+
+    def _fmt(name, val):
+        try:
+            if val is None:
+                return None
+            if isinstance(val, torch.Tensor):
+                if val.numel() == 1:
+                    return f"{name}={val.item()}"
+                else:
+                    return f"{name}.shape={tuple(val.shape)}"
+            return f"{name}={val}"
+        except Exception:
+            return f"{name}=<unprintable>"
+
+    parts = [
+        f"iter={iteration}",
+        _fmt("dual_objective", objective_result.dual_objective),
+        grad_norm_str,
+    ]
+    opt_fields = [
+        ("reg_penalty", getattr(objective_result, "reg_penalty", None)),
+        ("primal_objective", getattr(objective_result, "primal_objective", None)),
+        ("primal_var", getattr(objective_result, "primal_var", None)),
+        ("dual_val_times_grad", getattr(objective_result, "dual_val_times_grad", None)),
+        ("max_pos_slack", getattr(objective_result, "max_pos_slack", None)),
+        ("sum_pos_slack", getattr(objective_result, "sum_pos_slack", None)),
+    ]
+    for name, val in opt_fields:
+        if val is not None:
+            parts.append(_fmt(name, val))
+    return " | ".join([p for p in parts if p is not None])
+
+
 class AcceleratedGradientDescent:
     def __init__(
         self,
@@ -29,6 +72,7 @@ class AcceleratedGradientDescent:
         gamma_decay_type: str = None,
         gamma_decay_params: dict = {},
         save_primal: bool = False,
+        iteration_callback: Optional[Callable[[int, ObjectiveResult], None]] = None,
     ):
 
         self.initial_step_size = initial_step_size
@@ -40,6 +84,10 @@ class AcceleratedGradientDescent:
         self.gamma_decay_type = gamma_decay_type
         self.gamma_decay_params = gamma_decay_params
         self.save_primal = save_primal
+        # Default behavior: print summary line each iteration; can be overridden by passing a callback
+        self.iteration_callback: Callable[[int, ObjectiveResult], None] = (
+            iteration_callback if iteration_callback is not None else self._default_iteration_callback
+        )
 
     def _compute_beta_seq(self, max_iter: int) -> torch.Tensor:
         t_seq = torch.zeros(max_iter + 2)
@@ -56,6 +104,16 @@ class AcceleratedGradientDescent:
                 self.gamma = self.gamma * self.gamma_decay_params["decay_factor"]
         else:
             raise ValueError(f"Unsupported gamma decay type: {self.gamma_decay_type}")
+
+    def _default_iteration_callback(self, iteration: int, objective_result: ObjectiveResult) -> None:
+        """
+        Default iteration callback that prints a one-line summary.
+        """
+        try:
+            print(format_objective_result_summary(iteration, objective_result))
+        except Exception:
+            # Ensure optimizer never crashes due to logging/printing
+            pass
 
     def maximize(self, f: BaseObjective, initial_value: torch.Tensor) -> SolverResult:
         """
@@ -90,6 +148,9 @@ class AcceleratedGradientDescent:
                 )
             else:
                 objective_result: ObjectiveResult = f.calculate(dual_val=x, **gamma_params)
+
+            # Invoke decoupled iteration callback (prints by default; can be overridden)
+            self.iteration_callback(i, objective_result)
 
             dual_obj = objective_result.dual_objective.cpu().item()
             dual_obj_log.append(dual_obj)
