@@ -121,7 +121,7 @@ def prepare_movielens_matching(config: MovielensMatchingConfig) -> Tuple[Matchin
     - A[j, i] = 1 for observed (user i, movie j)
     - c[j, i] = -(scale * rating + shift)
     - projection_map: per-user simplex or simplex_eq with z = 1
-    - b_vec[j] = capacity (constant or proportional to movie rating counts)
+    - b_vec[j] = budget
 
     Returns:
         (input_args, user_id_to_col, row_to_movie_id)
@@ -217,7 +217,7 @@ def _load_snapshot(
 def main():
     parser = argparse.ArgumentParser(description="Build matching inputs from MovieLens ratings for dualip_matching.")
     parser.add_argument("--ratings_csv_path", type=str, required=True)
-    parser.add_argument("--per_movie_capacity", type=float, default=1.0)
+    parser.add_argument("--per_movie_capacity", type=float, default=30.0)
     parser.add_argument("--rating_scale", type=float, default=1.0)
     parser.add_argument("--rating_shift", type=float, default=0.0)
     parser.add_argument("--min_user_interactions", type=int, default=1)
@@ -226,7 +226,8 @@ def main():
     parser.add_argument("--run_solver", action="store_true")
     parser.add_argument("--gamma", type=float, default=0.1)
     parser.add_argument("--max_iter", type=int, default=10000)
-    parser.add_argument("--initial_step_size", type=float, default=1e-5)
+    parser.add_argument("--initial_step_size", type=float, default=0.00000001)
+    parser.add_argument("--max_step_size", type=float, default=0.000001)
     parser.add_argument("--out_prefix", type=str, default=None, help="If set, save a snapshot of A/c/b and mappings")
     parser.add_argument(
         "--in_prefix",
@@ -255,12 +256,12 @@ def main():
         _save_snapshot(input_args, args.out_prefix, user_map, row_to_movie)
 
     if args.run_solver:
-        host_device = "cuda:0"
+        host_device = args.device
         solver_args = SolverArgs(
             gamma=args.gamma,
             max_iter=args.max_iter,
             initial_step_size=args.initial_step_size,
-            max_step_size=0.00001,
+            max_step_size=args.max_step_size,
         )
         compute_args = ComputeArgs(compute_device_num=1, host_device=host_device)
         objective_args = ObjectiveArgs(objective_type="matching")
