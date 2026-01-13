@@ -11,24 +11,33 @@ How to use MLflow with DuaLip
 -----------------------------
 DuaLip can be used alongside MLflow to record parameters, per-iteration metrics, and final results. At a high level:
 
-- **Log run parameters** (what you passed to the solver): By default, the solver logs "max_iter", "initial_step_size", "max_step_size", "gamma", "gamma_decay_type".
+- **Log run parameters** (what you passed to the solver): By default, the solver logs max_iter, initial_step_size, gamma etc.
 - **Log per-iteration metrics** (how optimization is progressing): custom metrics such as feasibility, step size, timing, etc.
-- **Log objective result**: the result of the solver including dual objective, primal objective, regularization penalty, max positive slack, sum positive slack, etc.
+- **Log objective result**: the result of the solver including dual objective, primal objective, etc.
+
+See tables below for the variables that are logged by default.
 
 What gets logged
 ----------------
-The following metrics are commonly tracked each iteration:
 
 ================================  ====================================================================================
-Variables                         Description
+Solver Variables                  Description
 ================================  ====================================================================================
-:code:`iter`                      Iteration number (used as MLflow :code:`step`).
-:code:`dual_obj`                  Dual objective value (including regularization term).
-:code:`cx`                        Primal objective value without regularization, i.e. :math:`c^\top x`.
-:math:`\lambda(Ax-b)`             :math:`\lambda^\top (Ax - b)`.
-:math:`\frac{\gamma}{2}||x||^2`   Regularization term.
-:code:`max_pos_slack`             :math:`\max_{j: \lambda_j \neq 0} | (Ax-b)_j | / (1 + |b_j|)` (ineq. constraints).
-:code:`sum_pos_slack`             Sum of constraint violations.
+:code:`max_iter`                  Maximum number of iterations.
+:code:`gamma`                     Ridge regularization parameter.
+:code:`gamma_decay_type`          Type of gamma decay.
+:code:`initial_step_size`         Initial step size.
+:code:`max_step_size`             Maximum step size.
+================================  ====================================================================================
+
+================================  ====================================================================================
+Objective Result                  Description
+================================  ====================================================================================
+:code:`dual_objective`            Dual objective value.
+:code:`primal_objective`          Primal objective value.
+:code:`regularization_penalty`    Regularization penalty.
+:code:`max_positive_slack`        Maximum positive slack.
+:code:`sum_positive_slack`        Sum of positive slack.
 ================================  ====================================================================================
 
 Quick start
