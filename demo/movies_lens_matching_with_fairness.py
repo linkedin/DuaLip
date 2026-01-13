@@ -26,6 +26,7 @@ class MovielensMatchingWithFairnessConfig:
     min_movie_interactions: int = 1
     # Fairness
     group_ratio: float = 0.2
+    tolerance: float = 0.1
     # Device for result tensors
     device: str = "cpu"
 
