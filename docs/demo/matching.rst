@@ -122,11 +122,10 @@ The solver can be run locally with the following command:
 This will save the input tensors and projection maps to the directory specified by :code:`--out_prefix`.
 It will also run the solver and save the results to the directory specified by :code:`--out_prefix`.
 
-The solver will output the following information:
-
-* The dual objective value.
+The solver will print the following information:
+* The objective result at each iteration.
+* The final dual objective value.
 * The shape of the input tensors.
-* The shape of the projection maps.
 
 
 How to interpret the results?
@@ -168,4 +167,4 @@ Second, we can use the optimal dual values to recover primal. This is useful whe
 
 .. note::
 	The above method for re-using the dual variable works as long as the score distribution of the new items
-	matches that of the old items which were used to solve the MOO problem. To prevent staleness in practice, the optimization problem is re-solved at a regular cadence.
+	matches that of the old items which were used to solve the matching problem. To prevent staleness in practice, the optimization problem is re-solved at a regular cadence.

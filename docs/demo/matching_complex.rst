@@ -1,3 +1,4 @@
+.. _matching_complex:
 A Matching Problem with Fairness Constraints
 ============================================
 Buidling on the problem formulation descrived in :doc:`matching`, we now wish to consider a matching probelem with fairness constraints. We assume the base matching formulation, data layout,
