@@ -135,38 +135,29 @@ We can see that as the solver progresses, :code:`dual_obj` increases while :code
 
 .. code:: text
 
-	------------------------------------------------------------------------
-	             Dual Decomposition based Linear Program Solver
-	------------------------------------------------------------------------
-
-	Optimizer: AGD solver
-	primalUpperBound: -1.64155850e+05, maxIter: 500, dualTolerance: 1.0E-8 slackTolerance: 5.0E-6
-
-	iter:     0	dual_obj: -6.86709416e+05	cx: -6.87890000e+05	feasibility: 9.650435e+01	λ(Ax-b): 0.000000e+00	γ||x||^2/2: 1.180584e+03	max_pos_slack: -Infinity	max_zero_slack: 9.650435e+01	abs_slack_sum: 8.828194e+04	time(sec): 8.987
-	iter:     1	dual_obj: -6.86709416e+05	cx: -6.87890000e+05	feasibility: 9.650435e+01	λ(Ax-b): 0.000000e+00	γ||x||^2/2: 1.180584e+03	max_pos_slack: -Infinity	max_zero_slack: 9.650435e+01	abs_slack_sum: 8.828194e+04	time(sec): 6.738
-	iter:     2	dual_obj: -3.26194182e+06	cx: -6.19067400e+05	feasibility: 3.907679e+01	λ(Ax-b): -2.646088e+06	γ||x||^2/2: 3.213506e+03	max_pos_slack: 1.680045e+01	max_zero_slack: 3.907679e+01	abs_slack_sum: 6.284022e+04	time(sec): 4.228
-	iter:     3	dual_obj: -1.44149679e+06	cx: -6.24132300e+05	feasibility: 3.448183e+01	λ(Ax-b): -8.206471e+05	γ||x||^2/2: 3.282595e+03	max_pos_slack: 2.642451e+01	max_zero_slack: 3.448183e+01	abs_slack_sum: 6.233273e+04	time(sec): 4.558
-	iter:     4	dual_obj: -8.82622744e+05	cx: -6.39467479e+05	feasibility: 3.030013e+01	λ(Ax-b): -2.466456e+05	γ||x||^2/2: 3.490308e+03	max_pos_slack: 2.471272e+01	max_zero_slack: 3.030013e+01	abs_slack_sum: 6.188493e+04	time(sec): 4.206
-	iter:     5	dual_obj: -7.22368086e+05	cx: -6.58265033e+05	feasibility: 2.397677e+01	λ(Ax-b): -6.780186e+04	γ||x||^2/2: 3.698804e+03	max_pos_slack: 2.397677e+01	max_zero_slack: 2.053982e+01	abs_slack_sum: 6.032372e+04	time(sec): 4.321
-	iter:     6	dual_obj: -6.82631528e+05	cx: -6.72533898e+05	feasibility: 1.847038e+01	λ(Ax-b): -1.381724e+04	γ||x||^2/2: 3.719608e+03	max_pos_slack: 1.847038e+01	max_zero_slack: 8.919135e+00	abs_slack_sum: 5.726833e+04	time(sec): 4.120
-	iter:     7	dual_obj: -6.82631528e+05	cx: -6.72533898e+05	feasibility: 1.847038e+01	λ(Ax-b): -1.381724e+04	γ||x||^2/2: 3.719608e+03	max_pos_slack: 1.847038e+01	max_zero_slack: 8.919135e+00	abs_slack_sum: 5.726833e+04	time(sec): 4.442
-	iter:     8	dual_obj: -6.82631528e+05	cx: -6.72533898e+05	feasibility: 1.847038e+01	λ(Ax-b): -1.381724e+04	γ||x||^2/2: 3.719608e+03	max_pos_slack: 1.847038e+01	max_zero_slack: 8.919135e+00	abs_slack_sum: 5.726833e+04	time(sec): 4.235
-	iter:     9	dual_obj: -6.70900248e+05	cx: -6.73704610e+05	feasibility: 1.584054e+01	λ(Ax-b): -1.984704e+03	γ||x||^2/2: 4.789067e+03	max_pos_slack: 1.584054e+01	max_zero_slack: 1.676255e+00	abs_slack_sum: 4.087020e+04	time(sec): 3.694
-	iter:    10	dual_obj: -6.70900248e+05	cx: -6.73704610e+05	feasibility: 1.584054e+01	λ(Ax-b): -1.984704e+03	γ||x||^2/2: 4.789067e+03	max_pos_slack: 1.584054e+01	max_zero_slack: 1.676255e+00	abs_slack_sum: 4.087020e+04	time(sec): 3.596
-
-
-The solver achieves a dual objective value of Y and a primal objective value of Z after X iterations.
-The primal-dual gap is W in the quadratic approximation of the objective function.
-The maximum positive slack is X and the absolute sum of the slack is Z.
-The time taken for the solver to run is A seconds.
+  iter: 1    dual_objective: -686709.1875   dual_grad_norm: 8696.43359375     reg_penalty: 1180.583251953125    dual_val_times_grad: 0.0                  max_pos_slack: 2991.600341796875   sum_pos_slack: 88280.8671875
+  iter: 2    dual_objective: -686591.625    dual_grad_norm: 8688.6513671875   reg_penalty: 1180.541259765625    dual_val_times_grad: 0.5346085429191589   max_pos_slack: 2983.8203125        sum_pos_slack: 88250.578125
+  iter: 3    dual_objective: -686577.875    dual_grad_norm: 8679.375          reg_penalty: 1180.548583984375    dual_val_times_grad: 1.2171449661254883   max_pos_slack: 2974.052490234375   sum_pos_slack: 88231.953125
+  iter: 4    dual_objective: -686572.75     dual_grad_norm: 8668.126953125    reg_penalty: 1180.55810546875     dual_val_times_grad: 2.0419816970825195   max_pos_slack: 2962.280029296875   sum_pos_slack: 88210.203125
+  iter: 5    dual_objective: -686594.6875   dual_grad_norm: 8655.1201171875   reg_penalty: 1180.5743408203125   dual_val_times_grad: 3.0046846866607666   max_pos_slack: 2948.519775390625   sum_pos_slack: 88188.765625
+  iter: 6    dual_objective: -686581.5      dual_grad_norm: 8640.044921875    reg_penalty: 1180.58251953125     dual_val_times_grad: 4.101046562194824    max_pos_slack: 2932.73046875       sum_pos_slack: 88158.2265625
+  iter: 7    dual_objective: -686603.3125   dual_grad_norm: 8623.3701171875   reg_penalty: 1180.601806640625    dual_val_times_grad: 5.327372074127197    max_pos_slack: 2915.07739          sum_pos_slack: 88129.34375
+  iter: 8    dual_objective: -686617.6875   dual_grad_norm: 8604.8583984375   reg_penalty: 1180.6212158203125   dual_val_times_grad: 6.679593086242676    max_pos_slack: 2895.616943359375   sum_pos_slack: 88095.171875
+  iter: 9    dual_objective: -686609.0      dual_grad_norm: 8584.591796875    reg_penalty: 1180.648193359375    dual_val_times_grad: 8.153701782226562    max_pos_slack: 2874.402587890625   sum_pos_slack: 88054.6875
+  iter: 10   dual_objective: -686623.4375   dual_grad_norm: 8562.7861328125   reg_penalty: 1180.6798095703125   dual_val_times_grad: 9.74583911895752     max_pos_slack: 2851.467041015625   sum_pos_slack: 88013.890625
+  iter: 11   dual_objective: -686624.5625   dual_grad_norm: 8539.47265625     reg_penalty: 1180.7239990234375   dual_val_times_grad: 11.451858520507812   max_pos_slack: 2827.134765625      sum_pos_slack: 87968.296875
 
 .. code:: text
 
-	iter:  1290	dual_obj: -6.28011839e+05	cx: -6.32627842e+05	feasibility: 1.289256e-02	λ(Ax-b): -5.876918e+00	γ||x||^2/2: 4.621880e+03	max_pos_slack: 1.813359e-02	max_zero_slack: 0.000000e+00	abs_slack_sum: 1.094879e+01	time(sec): 4.170
-	iter:  1291	dual_obj: -6.28011839e+05	cx: -6.32660904e+05	feasibility: 9.317112e-02	λ(Ax-b): 2.721294e+01	γ||x||^2/2: 4.621852e+03	max_pos_slack: 9.317112e-02	max_zero_slack: 0.000000e+00	abs_slack_sum: 1.918328e+01	time(sec): 3.758
-	iter:  1292	dual_obj: -6.28011839e+05	cx: -6.32660904e+05	feasibility: 9.317112e-02	λ(Ax-b): 2.721294e+01	γ||x||^2/2: 4.621852e+03	max_pos_slack: 9.317112e-02	max_zero_slack: 0.000000e+00	abs_slack_sum: 1.918328e+01	time(sec): 3.855
-	Primal: -628012.671815458
-	Dual: -628011.8409963399
+  iter: 9998    dual_objective: -628012.8125   dual_grad_norm: 4406.33837890625   reg_penalty: 4623.5439453125    dual_val_times_grad: 16.16229248046875    max_pos_slack: 1.8836631774902344   sum_pos_slack: 171.60943603515625
+  iter: 9999    dual_objective: -628012.875    dual_grad_norm: 4406.33837890625   reg_penalty: 4623.54638671875   dual_val_times_grad: 15.531607627868652   max_pos_slack: 1.88861083984375     sum_pos_slack: 171.57188415527344
+  iter: 10000   dual_objective: -628012.875    dual_grad_norm: 4406.33837890625   reg_penalty: 4623.54931640625   dual_val_times_grad: 16.019495010375977   max_pos_slack: 1.8933353424072266   sum_pos_slack: 171.66769409179688
+
+  Dual objective: -628012.875
+  A shape: (26744, 138493) C shape: (26744, 138493) b shape: (26744,)
+
+The solver achieves a dual objective value of -628012.875 after 10000 iterations.
+The maximum positive slack is 1.8933353424072266 and the sum of positive slack is 171.66769409179688.
 
 How to do inference?
 --------------------
