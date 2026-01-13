@@ -1,3 +1,5 @@
+.. _supported_lps:
+
 Supported LPs
 ==============
 DuaLip can be used to solve a wide variety of linear programs arising in web applications, including item matching, ranking, and related optimization problems. 
@@ -20,15 +22,14 @@ We assume that the constraint matrix :math:`A` has a block-diagonal structure,
 The constraint vector :math:`b` is dense and usually encodes capacity or budget limits,
 such as the maximum number of users that can be matched to a given item.
 
-This structured sparsity enables efficient parallelization: each block can be processed
-independently, sparse layouts reduce memory footprint, and projection operations can be
-batched to fully utilize GPU throughput.
+This structured and unstructured sparsity of :math:`A` and :math:`C` enables efficient parallelization over GPU hardware, significantly reducing memory footprint and improving computational efficiency at scale. 
+Projection operations can also be batched to fully utilize GPU throughput.
 
 Note that in the case of a matching problem, parallelism is already supported and triggered when choosing the number of devices to exceed one. 
 However, in the case of custom objective functions, the user needs to implement the parallelism themselves.
 
 .. _probsolution:
 
-The base formulation can be naturally extended to accommodate more complex constraints and objective functions. 
-See the :ref:`A Matching Optimization Problem with Complex Constraints <matching_complex>` section for more details.
+Finally, the base matching problem formulation can be naturally extended to accommodate more complex constraints and objective functions. 
+See the :ref:`A Matching Problem with Fairness Constraints <demo>` section for more details.
 

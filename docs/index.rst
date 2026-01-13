@@ -11,9 +11,9 @@ DuaLip is an extreme-scale Linear Program (LP) solver based on Pytorch. It solve
   \end{array}
 
 where :math:`x = (x_1, ..., x_I)` is the full vector of optimization variables, :math:`x_i` is the vector of optimization
-variables associated with one :math:`i`, and :math:`A,b,c` and :math:`C_i` are user-supplied data.
+variables associated with one :math:`i` (e.g., user :math:`i`), and :math:`A,b,c` and :math:`C_i` are problem-specific data.
 
-It is a distributed solver that solves a perturbation of the LP problem at scale via gradient-based algorithms on the smooth dual of the perturbed LP with computational guarantees. DuaLip can easily scale to problems in trillions of variables. Specifically, it offeres serveral features to make it suitable for extreme-scale LP problems:
+Dualip solves a ridge-regularized (perturbed) LP by applying gradient-based methods to the resulting smooth dual, with provable computational guarantees. It can easily scale to problems in trillions of variables thanks to its parallelized implementation and multi-GPU support. Dualip offeres serveral features to make it suitable for extreme-scale LP problems:
 
 .. rst-class:: glossary-features
    :sorted:
@@ -32,7 +32,7 @@ It is a distributed solver that solves a perturbation of the LP problem at scale
   The modular design allows for easy extension to new constraint families and formulations as well as switching between different optimization algorithms for the Maximizer without modifying the core solver logic.
   
   Efficient
-    We further enhance the underlying solver by incorporating Jacobi-style preconditioning of the constraint matrix, primal variable scaling, and adaptive smoothing that progressively decays the regularization parameter to improve convergence rate and robustness in large-scale, real-world workloads.  
+    We enhance the underlying solver by incorporating Jacobi-style preconditioning of the constraint matrix and adaptive smoothing that progressively decays the regularization parameter to improve convergence rate and robustness in large-scale, real-world workloads.  
   
   Extensive Logging
     We provide extensive MLFlow logs to help users understand whether the solver has converged to a good approximate solution. For more details, please see :ref:`here <logging>`.

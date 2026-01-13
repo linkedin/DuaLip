@@ -31,9 +31,9 @@ The solver settings are displayed in the following table.
 Solevr Arguments                       Is Required    Default Value   Description
 =====================================  =============  ==============  ==============================================================================================================
 :code:`gamma`                          false          1E-3            Ridge regularization parameter.
-:code:`max_iter`                       false          100             Maximum number of iterations.
-:code:`initial_step_size`              false          None            Initial step size for the solver.
-:code:`max_step_size`                  false          1           	  Upper bound for the solver's step size.
+:code:`max_iter`                       false          10000           Maximum number of iterations.
+:code:`initial_step_size`              false          1e-5            Initial step size for the solver.
+:code:`max_step_size`                  false          0.1             Upper bound for the solver's step size.
 :code:`save_primal`                    false          false           Flag to save primal variable values at the solution.
 :code:`initial_dual_path`              false          None            Filepath to initialize dual variables for algorithm restarts (optional).
 :code:`gamma_decay_type`               false          None            Type of gamma decay. We currently support "none" and "step".
@@ -87,15 +87,15 @@ SolverResult
 ------------
 The solver result is displayed in the following table.
 
-=====================================  =============  ==============  ==============================================================================================================
-Solver Result                          Is Required    Default Value   Description
-=====================================  =============  ==============  ==============================================================================================================
-:code:`dual_val`                       true           N/A             Dual variable value.
-:code:`dual_objective`                 true           N/A             Dual objective value.
-:code:`objective_result`               true           N/A             The result of one gradient call.
-:code:`dual_objective_log`             true           N/A             Log of dual objective values.
-:code:`step_size_log`                  true           N/A             Log of step sizes.
-=====================================  =============  ==============  ==============================================================================================================
+=====================================  ==============  ==============================================================================================================
+Solver Result                          Default Value   Description
+=====================================  ==============  ==============================================================================================================
+:code:`dual_val`                       N/A             Dual variable value.
+:code:`dual_objective`                 N/A             Dual objective value.
+:code:`objective_result`               N/A             The result of one gradient call.
+:code:`dual_objective_log`             N/A             Log of dual objective values.
+:code:`step_size_log`                  N/A             Log of step sizes.
+=====================================  ==============  ==============================================================================================================
 
 dual_objective_result is an object of the class :code:`ObjectiveResult` and it contains the following attributes:
 

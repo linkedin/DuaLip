@@ -6,7 +6,7 @@ The vector :math:`b`, however, is represented as a dense vector.
 
 The CSC sparse format exploits both structured (e.g., block-diagonal or triangular) and unstructured sparsity patterns in the :math:`A` and :math:`C` matrices, significantly reducing memory footprint and improving computational efficiency at scale.
 
-In addition, users must specify the constraint sets :math:`\mathcal{C}_i` for each user in the form of **projection maps**. Projection maps are dictionaries that associate a unique constraint identifier (key) with a data structure describing the indices belonging to that constraint set, along with the parameters defining the constraint itself.
+In addition, users must specify the constraint sets :math:`\mathcal{C}_i` for each user in the form of **projection maps**. Projection maps are dictionaries that associate a unique constraint identifier (key) with a data structure describing the indices belonging to that constraint set, along with the parameters defining the constraint :math:`\mathcal{C}_i`.
 
 For example, a projection map for a closed simplex constraint may be defined as follows:
 

@@ -85,13 +85,12 @@ The overall algorithm can now be written as:
 4. Update :math:`\lambda` via appropriate mechanisms.
 5. Continue till converge.
    
-We currently support `Accelerated Gradient Ascent
-<https://www.ceremade.dauphine.fr/~carlier/FISTA>` as the Maximizer though the solver is easily extensible to other optimization algorithms.
+We currently support `Accelerated Gradient Ascent <https://www.ceremade.dauphine.fr/~carlier/FISTA>`_ as the maximizer though the solver is easily extensible to other optimization algorithms.
 
 .. _constraints:
 
 Constraint Sets :math:`\mathcal{C}_i`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------
 In this current version of the solver we support a wide variety of constraints types :math:`\mathcal{C}_i`, 
 such as:
 
@@ -110,10 +109,26 @@ different customized algorithms to make the overall system highly efficient. For
 these projection algorithms please see Section 3 of `Ramanath et al. (2021)
 <https://arxiv.org/abs/2103.05277>`_.
 
-.. _adaptive_smoothing:
 
-Adaptive Smoothing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The smoothness of :math:`g_\gamma` decreases as the number of constraints increases. 
-A small :math:`\gamma` makes the optimizer's convergence prohibitively slow, while a large :math:`\gamma` reduces the accuracy of 
-the solution. The solver allows for a basic adaptive smoothing where the :math:`\gamma` is reduced by a under-defined factor at specified intervals.
+.. .. _adaptive_smoothing:
+
+.. Adaptive Smoothing
+.. ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. The smoothness of :math:`g_\gamma` decreases as the number of constraints increases. 
+.. A small :math:`\gamma` makes the optimizer's convergence prohibitively slow, while a large :math:`\gamma` reduces the accuracy of 
+.. the solution. The solver allows for a basic adaptive smoothing where the :math:`\gamma` is reduced by a under-defined factor at specified intervals.
+
+
+Data Sharding (Multi-GPU)
+-------------------------------------
+
+For large matching problems, DuaLip can distribute computation across multiple GPUs by sharding the input data along the column dimension of the constraint matrix. When ``compute_device_num > 1``, the solver builds a distributed objective that wraps a single‑GPU objective on each device and coordinates reductions on a host device.
+
+- Sharding of inputs: Matrices ``A`` and ``c`` are partitioned into roughly equal contiguous blocks across the available compute devices (e.g., ``cuda:0``, ``cuda:1``, ...). This balances work by splitting the number of columns as evenly as possible. Each shard is then moved to its target device. The per‑device projection map is derived from the global projection map by remapping global column indices to local indices for that shard. Only projections that touch columns present on the device are kept.
+- Per‑iteration execution: The current dual vector :math:`\lambda` is transferred to each compute device. Each device computes its local dual gradient contribution, local dual objective component, and regularization penalty using the single‑GPU matching objective on its shard. Partial results are first accumulated on the host device, then synchronized and summed across processes using NCCL all‑reduce. The final distributed gradient subtracts :math:`b` and is used by the optimizer exactly as in the single‑GPU case.
+
+This design keeps projection logic local to each shard, minimizes inter‑GPU communication to a small number of vector/tensor reductions per iteration, and scales naturally with the number of GPUs. 
+
+Implementation Note
+-------------------
+As we will discuss in the :ref:`Supported LPs <supported_lps>` section, currently the distributed objective is implemented for matching problems where the constraint matrix is a block-diagonal matrix. In this case, the inputs must be CSC‑format sparse tensors. Sharding operates on columns to align with how projections are applied per column group. For custom objective functions, the user needs to implement the parallelism themselves.
