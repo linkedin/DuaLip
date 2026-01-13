@@ -158,6 +158,10 @@ def prepare_movielens_matching_with_fairness(config: MovielensMatchingWithFairne
         per_movie_capacity=config.per_movie_capacity,
         device=config.device,
     )
+
+    # For fairness constraints
+    b_vec = torch.cat((b_vec, b_vec.new_tensor([config.tolerance, config.tolerance])), dim=0)
+
     print(f"b_vec shape: {tuple(b_vec.shape)}")
     projection_map = create_projection_map("simplex", {"z": 1}, num_indices=len(user_id_to_col))
 
