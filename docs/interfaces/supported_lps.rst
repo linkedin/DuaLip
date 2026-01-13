@@ -31,5 +31,5 @@ However, in the case of custom objective functions, the user needs to implement 
 .. _probsolution:
 
 Finally, the base matching problem formulation can be naturally extended to accommodate more complex constraints and objective functions. 
-See the :ref:`A Matching Problem with Fairness Constraints <demo>` section for more details.
+See the :ref:`A Matching Problem with Fairness Constraints <matching_complex>` section for more details.
 
