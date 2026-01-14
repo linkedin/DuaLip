@@ -8,10 +8,11 @@ import numpy as np
 import pandas as pd
 import torch
 
-from dualip.types import ComputeArgs, ObjectiveArgs, SolverArgs
 from dualip.objectives.matching import MatchingInputArgs
 from dualip.projections.base import create_projection_map
 from dualip.run_solver import run_solver
+from dualip.types import ComputeArgs, ObjectiveArgs, SolverArgs
+
 
 @dataclass
 class MovielensMatchingConfig:
@@ -25,7 +26,6 @@ class MovielensMatchingConfig:
     min_movie_interactions: int = 1
     # Device for result tensors
     device: str = "cpu"
-
 
 
 def _build_index_maps(user_ids: Iterable[int], movie_ids: Iterable[int]) -> Tuple[Dict[int, int], Dict[int, int]]:
@@ -114,7 +114,9 @@ def _ratings_to_c_and_a(
     return C, A
 
 
-def prepare_movielens_matching(config: MovielensMatchingConfig) -> Tuple[MatchingInputArgs, Dict[str, int], Dict[int, int]]:
+def prepare_movielens_matching(
+    config: MovielensMatchingConfig,
+) -> Tuple[MatchingInputArgs, Dict[str, int], Dict[int, int]]:
     """
     Convert MovieLens ratings to MatchingInputArgs consumable by dualip_matching.
     Columns (users) i, rows (movies) j.
@@ -272,10 +274,24 @@ def main():
             objective_args=objective_args,
         )
         print("Dual objective:", result.dual_objective)
-        print("A shape:", tuple(input_args.A.shape), "C shape:", tuple(input_args.c.shape), "b shape:", tuple(input_args.b_vec.shape))
+        print(
+            "A shape:",
+            tuple(input_args.A.shape),
+            "C shape:",
+            tuple(input_args.c.shape),
+            "b shape:",
+            tuple(input_args.b_vec.shape),
+        )
     else:
         print("Prepared matching inputs.")
-        print("A shape:", tuple(input_args.A.shape), "C shape:", tuple(input_args.c.shape), "b shape:", tuple(input_args.b_vec.shape))
+        print(
+            "A shape:",
+            tuple(input_args.A.shape),
+            "C shape:",
+            tuple(input_args.c.shape),
+            "b shape:",
+            tuple(input_args.b_vec.shape),
+        )
 
 
 if __name__ == "__main__":
