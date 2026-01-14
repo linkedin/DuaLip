@@ -44,6 +44,7 @@ We also thank the following individuals and teams for their support through deta
 - `Ankan Saha <https://www.linkedin.com/in/ankans/>`_
 - `Souvik Ghosh <https://www.linkedin.com/in/souvix/>`_
 - `Shenyinying (Ruby) Tu <https://www.linkedin.com/in/shenyinying-ruby-tu-02b79042/>`_
+- `Yuan Gao <https://www.linkedin.com/in/gaoyuanuw/>`_
 - `Deepak Kumar <https://www.linkedin.com/in/ddeepakkumar/>`_
 - `Lingjie Weng <https://www.linkedin.com/in/lingjieweng/>`_
 - `Shipeng Yu <https://www.linkedin.com/in/shipengyu/>`_
