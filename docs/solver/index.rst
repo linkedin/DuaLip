@@ -97,10 +97,10 @@ such as:
 1. Unit Box: :math:`\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : 0 \leq x_k \leq 1\big\}`
 2. Simplex-E: :math:`\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K = 1, \;\; x_k \geq 0\big\}`
 3. Simplex-I: :math:`\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K \leq 1, \;\; x_k \geq 0\big\}`
-4. Box Cut-E: :math:`\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K = d, \;\; 0 \leq x_k \leq 1\big\}`
-5. Box Cut-I: :math:`\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K \leq d, \;\; 0 \leq x_k \leq 1\big\}`
+4. r-Simplex-E: :math:`\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K = r, \;\; x_k \geq 0\big\}`
+5. r-Simplex-I: :math:`\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K \leq r, \;\; x_k \geq 0\big\}`
 
-Here :math:`E` and :math:`I` stands for equality and inequality. Also note that choosing :math:`d=1` the Box Cut reduces to the Simplex case. 
+Here :math:`E` and :math:`I` stands for equality and inequality.
 
 
 To execute step 2 of the overall algorithm, we need a projection operation on these constraint sets.

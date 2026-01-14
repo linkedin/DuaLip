@@ -13,7 +13,7 @@ DuaLip is an extreme-scale Linear Program (LP) solver based on Pytorch. It solve
 where :math:`x = (x_1, ..., x_I)` is the full vector of optimization variables, :math:`x_i` is the vector of optimization
 variables associated with one :math:`i` (e.g., user :math:`i`), and :math:`A,b,c` and :math:`C_i` are problem-specific data.
 
-Dualip solves a ridge-regularized (perturbed) LP by applying gradient-based methods to the resulting smooth dual, with provable computational guarantees. It can easily scale to problems in trillions of variables thanks to its parallelized implementation and multi-GPU support. Dualip offeres serveral features to make it suitable for extreme-scale LP problems:
+DuaLip solves a ridge-regularized (perturbed) LP by applying gradient-based methods to the resulting smooth dual, with provable computational guarantees. It can easily scale to problems in trillions of variables thanks to its parallelized implementation and multi-GPU support. DuaLip offers several features to make it suitable for extreme-scale LP problems:
 
 .. rst-class:: glossary-features
    :sorted:
