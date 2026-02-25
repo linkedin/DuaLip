@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dualip"
-version = "5.0.0"
+version = "5.0.1"
 description = "Extreme-scale linear programming with a first-order projected dual-ascent solver and a modular API for problem-specific components."
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE" }
