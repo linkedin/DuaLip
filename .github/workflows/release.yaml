@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   ci:
@@ -15,6 +16,10 @@ jobs:
   bump-and-tag:
     needs: ci
     runs-on: ubuntu-latest
+    # Skip if this push is from a version bump PR merge
+    if: >-
+      !contains(github.event.head_commit.message, 'Bump version to') &&
+      !contains(github.event.head_commit.message, 'version-bump-')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,23 +46,34 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Bump patch version
+      - name: Tag current version
         if: steps.check.outputs.skip == 'false'
-        id: bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "v${{ steps.current.outputs.version }}"
+          git push origin "v${{ steps.current.outputs.version }}"
+
+      - name: Bump patch version and create PR
+        if: steps.check.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           current="${{ steps.current.outputs.version }}"
           IFS='.' read -r major minor patch <<< "$current"
           new_patch=$((patch + 1))
           new_version="${major}.${minor}.${new_patch}"
-          echo "version=$new_version" >> "$GITHUB_OUTPUT"
+
           sed -i "s/^version = \"$current\"/version = \"$new_version\"/" pyproject.toml
 
-      - name: Commit and tag
-        if: steps.check.outputs.skip == 'false'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          branch="version-bump-${new_version}"
+          git checkout -b "$branch"
           git add pyproject.toml
-          git commit -m "Bump version to ${{ steps.bump.outputs.version }} [skip ci]"
-          git tag "v${{ steps.bump.outputs.version }}"
-          git push origin master --tags
+          git commit -m "Bump version to ${new_version}"
+          git push origin "$branch"
+
+          gh pr create \
+            --title "Bump version to ${new_version}" \
+            --body "Automated version bump from ${current} to ${new_version}." \
+            --base master \
+            --head "$branch"
