@@ -117,7 +117,7 @@ The solver can be run locally with the following command:
 
 .. code:: bash
 
-  python demo/movies_lens_matching.py --out_prefix data/movielens/ --run_solver --ratings_csv_path data/ml-20m/data/ratings.csv
+  python examples/movielens_matching/movies_lens_matching.py --out_prefix data/movielens/ --run_solver --ratings_csv_path data/ml-20m/data/ratings.csv
 
 This will save the input tensors and projection maps to the directory specified by :code:`--out_prefix`.
 It will also run the solver and save the results to the directory specified by :code:`--out_prefix`.
