@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Matching Problem &mdash; DuaLip  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=66161cb2" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="A Matching Problem with Fairness Constraints" href="matching_complex.html" />
+    <link rel="prev" title="Demo" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DuaLip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../solver/index.html">The DuaLip Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../interfaces/index.html">Solver Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/index.html">Installation Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Demo</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">A Matching Problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#an-example-problem-movie-recommendations">An example problem: Movie recommendations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-frame-the-problem-mathematically">How to frame the problem mathematically?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-formulate-the-training-data">How to formulate the training data?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-execute-the-solver">How to execute the solver?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#get-the-dataset">Get the dataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-the-solver">Run the solver</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-interpret-the-results">How to interpret the results?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-do-inference">How to do inference?</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="matching_complex.html">A Matching Problem with Fairness Constraints</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../citing/index.html">Citing DuaLip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgement/index.html">Acknowledgements</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DuaLip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Demo</a></li>
+      <li class="breadcrumb-item active">A Matching Problem</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/demo/matching.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="a-matching-problem">
+<h1>A Matching Problem<a class="headerlink" href="#a-matching-problem" title="Link to this heading"></a></h1>
+<p>Large-scale matching problems arise naturally in two-sided marketplaces with creators and consumers, where each item is associated with a budget and the objective is to maximize utility subject to budget constraints.
+Examples include ad marketplaces, where impressions must be allocated across campaigns without exceeding campaign budgets, and job marketplaces, where paid job impressions are distributed to maximize applies under similar constraints.
+We use a simple example to illustrate how such matching problems can be formulated and solved using DuaLip.</p>
+<section id="an-example-problem-movie-recommendations">
+<h2>An example problem: Movie recommendations<a class="headerlink" href="#an-example-problem-movie-recommendations" title="Link to this heading"></a></h2>
+<p>One example of a matching problem is movie recommendations. We want to recommend movies to users in a way that maximizes the total expected ratings, but without recommending any one movie too many times.
+We will use the <a class="reference external" href="https://grouplens.org/datasets/movielens/">“MovieLens dataset”</a> (<a class="reference external" href="https://dl.acm.org/doi/10.1145^2/2827872">Harper et. al. 2015</a>), which contains user rating of movies, for this example. (Similar problems have been framed in <a class="reference external" href="https://dl.acm.org/doi/10.14778^2/2536360.2536362">Makari et. al. (2013)</a>.</p>
+</section>
+<section id="how-to-frame-the-problem-mathematically">
+<h2>How to frame the problem mathematically?<a class="headerlink" href="#how-to-frame-the-problem-mathematically" title="Link to this heading"></a></h2>
+<p>To frame this problem mathematically, define the following quantities:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(x_{ik}\)</span>: Probability of recommmending movie <span class="math notranslate nohighlight">\(k\)</span> to user <span class="math notranslate nohighlight">\(i\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(c_{ik}\)</span>: Movie rating of movie <span class="math notranslate nohighlight">\(k\)</span> by user <span class="math notranslate nohighlight">\(i\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(b_{k}\)</span>: Maximum number of times movie <span class="math notranslate nohighlight">\(k\)</span> can be recommended.</p></li>
+</ul>
+<p>The optimization problem can be written as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{ll}
+  \mbox{Maximize} &amp; \sum_{i,k} x_{ik} c_{ik} \\
+  \mbox{subject to} &amp; \sum_i x_{ik} \leq b_k \;\; \text{for all}\;\; k = 1,\ldots, K \\
+  &amp; \sum_{k} x_{ik} \leq 1, \;\; \text{and} \;\; 0 \leq x_{i,k} \leq 1 \;\; \text{for all}\; i,k
+\end{array}\end{split}\]</div>
+<p>We can further frame this in the vector matrix notation by writing <span class="math notranslate nohighlight">\(x,b,c\)</span> as the vectorized versions of <span class="math notranslate nohighlight">\(x_{ik},b_k,c_{ik}\)</span>
+respectively, e.g., <span class="math notranslate nohighlight">\(x_i = (x_{i,1}, \ldots, x_{i,K})\)</span>. With this notation and changing the maximization to a
+minimization problem, we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{ll}
+  \mbox{Minimize} &amp; - x^T c \\
+  \mbox{subject to} &amp; Ax \leq b \\
+  &amp; x_i \in \mathcal{C}_i \;\; \text{for all}\; i
+\end{array}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span> is the closed simplex defined as</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K \leq 1, \;\; x_k \geq 0\big\}\]</div>
+<p>and <span class="math notranslate nohighlight">\(A_{K \times IK}\)</span> is the matrix that encodes the <span class="math notranslate nohighlight">\(K\)</span> movie limit constraints.</p>
+</section>
+<section id="how-to-formulate-the-training-data">
+<h2>How to formulate the training data?<a class="headerlink" href="#how-to-formulate-the-training-data" title="Link to this heading"></a></h2>
+<p>Let’s consider a simple dataset. We have 4 users and 3 movies, each with their given rating.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>UserID</p></th>
+<th class="head"><p>MovieId</p></th>
+<th class="head"><p>Rating</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>3</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>2</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>3</p></td>
+<td><p>NA</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>NA</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>3</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>NA</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>1</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>2</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>3</p></td>
+<td><p>3</p></td>
+</tr>
+</tbody>
+</table>
+<p>The matrix A (dense) will be</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A =
+\begin{bmatrix}
+  1 &amp;0 &amp;0 &amp;0 &amp;0 &amp;0 &amp;0 &amp;0 &amp;0 &amp;1 &amp;0 &amp;0 \\
+  0 &amp;1 &amp;0 &amp;0 &amp;1 &amp;0 &amp;0 &amp;1 &amp;0 &amp;0 &amp;1 &amp;0 \\
+  0 &amp;0 &amp;0 &amp;0 &amp;0 &amp;1 &amp;0 &amp;0 &amp;1 &amp;0 &amp;0 &amp;1 \\
+\end{bmatrix}\end{split}\]</div>
+<p>and the matrix C (dense) will be</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}C =
+\begin{bmatrix}
+  3 &amp;0 &amp;0   &amp;0 &amp;0 &amp;0   &amp;0 &amp;0 &amp;0    &amp;2 &amp;0 &amp;0 \\
+  0 &amp;4 &amp;0   &amp;0 &amp;1 &amp;1   &amp;0 &amp;2 &amp;0    &amp;0 &amp;4 &amp;0 \\
+  0 &amp;0 &amp;0   &amp;0 &amp;0 &amp;2   &amp;2 &amp;0 &amp;1    &amp;0 &amp;0 &amp;3 \\
+\end{bmatrix}\end{split}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that in many matching problems, the connections are very sparse, i.e. users only rate a small percentage of movies.
+If user i does not rate movie k (corresponding to NAs in the “Rating” column), the corresponding entry in A should be 0 because it will not contribute to the objective value.
+Thus, the input tensor A is constructed by only including the non-zero entries.
+We thus store A and C in CSC sparse format that saves memory and improves computational efficiency by allowing efficient access to columns of A and C.</p>
+</div>
+<p>The vector b (dense) will be (1, 1, 1).</p>
+</section>
+<section id="how-to-execute-the-solver">
+<h2>How to execute the solver?<a class="headerlink" href="#how-to-execute-the-solver" title="Link to this heading"></a></h2>
+<p>To run the solver, ensure that PyTorch with CUDA support is installed and properly configured.
+Then, follow the instructions to install the solver. See <span class="xref std std-ref">Installation</span> for more details.</p>
+<section id="get-the-dataset">
+<h3>Get the dataset<a class="headerlink" href="#get-the-dataset" title="Link to this heading"></a></h3>
+<p>Run the code below to download the 20M <a class="reference external" href="https://grouplens.org/datasets/movielens/">MovieLens dataset</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-O<span class="w"> </span>https://files.grouplens.org/datasets/movielens/ml-20m.zip
+unzip<span class="w"> </span>ml-20m.zip
+mkdir<span class="w"> </span>data/ml-20m/data
+mv<span class="w"> </span>ml-20m/ratings.csv<span class="w"> </span>data/ml-20m/data
+</pre></div>
+</div>
+</section>
+<section id="run-the-solver">
+<h3>Run the solver<a class="headerlink" href="#run-the-solver" title="Link to this heading"></a></h3>
+<p>The solver can be run locally with the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>examples/movielens_matching/movies_lens_matching.py<span class="w"> </span>--out_prefix<span class="w"> </span>data/movielens/<span class="w"> </span>--run_solver<span class="w"> </span>--ratings_csv_path<span class="w"> </span>data/ml-20m/data/ratings.csv
+</pre></div>
+</div>
+<p>This will save the input tensors and projection maps to the directory specified by <code class="code docutils literal notranslate"><span class="pre">--out_prefix</span></code>.
+It will also run the solver and save the results to the directory specified by <code class="code docutils literal notranslate"><span class="pre">--out_prefix</span></code>.</p>
+<p>The solver will print the following information:
+* The objective result at each iteration.
+* The final dual objective value.
+* The shape of the input tensors.</p>
+</section>
+</section>
+<section id="how-to-interpret-the-results">
+<h2>How to interpret the results?<a class="headerlink" href="#how-to-interpret-the-results" title="Link to this heading"></a></h2>
+<p>We can see that as the solver progresses, <code class="code docutils literal notranslate"><span class="pre">dual_obj</span></code> increases while <code class="code docutils literal notranslate"><span class="pre">max_pos_slack</span></code> and <code class="code docutils literal notranslate"><span class="pre">max_zero_slack</span></code> decrease.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>iter: 1    dual_objective: -686709.1875   dual_grad_norm: 8696.43359375     reg_penalty: 1180.583251953125    dual_val_times_grad: 0.0                  max_pos_slack: 2991.600341796875   sum_pos_slack: 88280.8671875
+iter: 2    dual_objective: -686591.625    dual_grad_norm: 8688.6513671875   reg_penalty: 1180.541259765625    dual_val_times_grad: 0.5346085429191589   max_pos_slack: 2983.8203125        sum_pos_slack: 88250.578125
+iter: 3    dual_objective: -686577.875    dual_grad_norm: 8679.375          reg_penalty: 1180.548583984375    dual_val_times_grad: 1.2171449661254883   max_pos_slack: 2974.052490234375   sum_pos_slack: 88231.953125
+iter: 4    dual_objective: -686572.75     dual_grad_norm: 8668.126953125    reg_penalty: 1180.55810546875     dual_val_times_grad: 2.0419816970825195   max_pos_slack: 2962.280029296875   sum_pos_slack: 88210.203125
+iter: 5    dual_objective: -686594.6875   dual_grad_norm: 8655.1201171875   reg_penalty: 1180.5743408203125   dual_val_times_grad: 3.0046846866607666   max_pos_slack: 2948.519775390625   sum_pos_slack: 88188.765625
+iter: 6    dual_objective: -686581.5      dual_grad_norm: 8640.044921875    reg_penalty: 1180.58251953125     dual_val_times_grad: 4.101046562194824    max_pos_slack: 2932.73046875       sum_pos_slack: 88158.2265625
+iter: 7    dual_objective: -686603.3125   dual_grad_norm: 8623.3701171875   reg_penalty: 1180.601806640625    dual_val_times_grad: 5.327372074127197    max_pos_slack: 2915.07739          sum_pos_slack: 88129.34375
+iter: 8    dual_objective: -686617.6875   dual_grad_norm: 8604.8583984375   reg_penalty: 1180.6212158203125   dual_val_times_grad: 6.679593086242676    max_pos_slack: 2895.616943359375   sum_pos_slack: 88095.171875
+iter: 9    dual_objective: -686609.0      dual_grad_norm: 8584.591796875    reg_penalty: 1180.648193359375    dual_val_times_grad: 8.153701782226562    max_pos_slack: 2874.402587890625   sum_pos_slack: 88054.6875
+iter: 10   dual_objective: -686623.4375   dual_grad_norm: 8562.7861328125   reg_penalty: 1180.6798095703125   dual_val_times_grad: 9.74583911895752     max_pos_slack: 2851.467041015625   sum_pos_slack: 88013.890625
+iter: 11   dual_objective: -686624.5625   dual_grad_norm: 8539.47265625     reg_penalty: 1180.7239990234375   dual_val_times_grad: 11.451858520507812   max_pos_slack: 2827.134765625      sum_pos_slack: 87968.296875
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>iter: 9998    dual_objective: -628012.8125   dual_grad_norm: 4406.33837890625   reg_penalty: 4623.5439453125    dual_val_times_grad: 16.16229248046875    max_pos_slack: 1.8836631774902344   sum_pos_slack: 171.60943603515625
+iter: 9999    dual_objective: -628012.875    dual_grad_norm: 4406.33837890625   reg_penalty: 4623.54638671875   dual_val_times_grad: 15.531607627868652   max_pos_slack: 1.88861083984375     sum_pos_slack: 171.57188415527344
+iter: 10000   dual_objective: -628012.875    dual_grad_norm: 4406.33837890625   reg_penalty: 4623.54931640625   dual_val_times_grad: 16.019495010375977   max_pos_slack: 1.8933353424072266   sum_pos_slack: 171.66769409179688
+
+Dual objective: -628012.875
+A shape: (26744, 138493) C shape: (26744, 138493) b shape: (26744,)
+</pre></div>
+</div>
+<p>The solver achieves a dual objective value of -628012.875 after 10000 iterations.
+The maximum positive slack is 1.8933353424072266 and the sum of positive slack is 171.66769409179688.</p>
+</section>
+<section id="how-to-do-inference">
+<h2>How to do inference?<a class="headerlink" href="#how-to-do-inference" title="Link to this heading"></a></h2>
+<p>There are two scenarios when reading the results. First, we can use the optimal primal values directly as decision variables. This is useful for a static system or batch processing.</p>
+<p>Second, we can use the optimal dual values to recover primal. This is useful when the system is dynamic and there are new items coming in. We can get the primal decision variable
+<span class="math notranslate nohighlight">\(x_{ij}\)</span> without solving the extreme-scale optimization problem again. This allows us to work in a low-latency environment as required by most internet applications.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The above method for re-using the dual variable works as long as the score distribution of the new items
+matches that of the old items which were used to solve the matching problem. To prevent staleness in practice, the optimization problem is re-solved at a regular cadence.</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Demo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="matching_complex.html" class="btn btn-neutral float-right" title="A Matching Problem with Fairness Constraints" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, LinkedIn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

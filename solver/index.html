@@ -1,0 +1,216 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The DuaLip Solver &mdash; DuaLip  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=66161cb2" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Solver Interface" href="../interfaces/index.html" />
+    <link rel="prev" title="DuaLip: Dual Decomposition-based LP Solver" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DuaLip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The DuaLip Solver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#problem-statement">Problem Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#problem-solution">Problem Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-algorithm">The Algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#constraint-sets-mathcal-c-i">Constraint Sets <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-sharding-multi-gpu">Data Sharding (Multi-GPU)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#implementation-note">Implementation Note</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../interfaces/index.html">Solver Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/index.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo/index.html">Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing/index.html">Citing DuaLip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgement/index.html">Acknowledgements</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DuaLip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">The DuaLip Solver</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/solver/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="the-dualip-solver">
+<span id="solver"></span><h1>The DuaLip Solver<a class="headerlink" href="#the-dualip-solver" title="Link to this heading"></a></h1>
+<section id="problem-statement">
+<h2>Problem Statement<a class="headerlink" href="#problem-statement" title="Link to this heading"></a></h2>
+<p>In a typical recommender system problem, we denote users by <span class="math notranslate nohighlight">\(i = 1, \ldots ,I\)</span> and items by <span class="math notranslate nohighlight">\(k = 1, \ldots, K\)</span>. Let
+<span class="math notranslate nohighlight">\(x_{ik}\)</span> denote any association between user <span class="math notranslate nohighlight">\(i\)</span> and item <span class="math notranslate nohighlight">\(k\)</span>, and be the variable of interest. For example,
+<span class="math notranslate nohighlight">\(x_{ik}\)</span> can be the probability of displaying item <span class="math notranslate nohighlight">\(k\)</span> to user <span class="math notranslate nohighlight">\(i\)</span>. The vectorized version is denoted by
+<span class="math notranslate nohighlight">\(x = (x_1, ..., x_I)\)</span> where <span class="math notranslate nohighlight">\(x_i = (x_{i1}, ..., x_{iK})\)</span>.</p>
+<p>DuaLip solves Linear Programs (LPs) of the following form:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{ll}
+  \mbox{minimize} &amp; c^T x \\
+  \mbox{subject to} &amp; A x \leq b \\
+  &amp; x_i \in \mathcal{C}_i \;\; \text{for all}\; = 1,\ldots, I
+\end{array}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(A_{m \times n}\)</span> is the constraint matrix, <span class="math notranslate nohighlight">\(b_{m \times 1}\)</span> is the constraint vector and <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span> are uniformly
+compact polytopes. <span class="math notranslate nohighlight">\(x \in \mathbb{R}^n\)</span> is the vector of optimization variables, where <span class="math notranslate nohighlight">\(n = IK\)</span>.</p>
+</section>
+<section id="problem-solution">
+<span id="probsolution"></span><h2>Problem Solution<a class="headerlink" href="#problem-solution" title="Link to this heading"></a></h2>
+<p>We briefly outline the solution mechanism here. For more details, please see <a class="reference external" href="http://proceedings.mlr.press/v119/basu20a/basu20a.pdf">Basu et al. (2020)</a>.
+To solve the problem, we introduce the perturbed problem:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{ll}
+  \mbox{minimize} &amp; x^T c  + \frac{\gamma}{2}x^T x \\
+  \mbox{subject to} &amp; A x \leq b \\
+  &amp; x_i \in \mathcal{C}_i \;\; \text{for all}\; = 1,\ldots, I
+\end{array}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\gamma &gt; 0\)</span> controls the tradeoff between problem approximation and the smoothness of the dual objective function.
+To make the above problem amenable to first order methods, we consider the Lagrangian dual:</p>
+<div class="math notranslate nohighlight">
+\[g_{\gamma}(\lambda) = \min_{x \in \mathcal C} ~~ \left\{ c^T x + \frac{\gamma}{2} x^T x + \lambda^T(Ax-b) \right\},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{C} = \Pi_{i=1}^I \mathcal{C}_i\)</span>. Now, by strong duality, the optimum objective <span class="math notranslate nohighlight">\(g_{\gamma}^*\)</span> of the dual</p>
+<div class="math notranslate nohighlight">
+\[g_{\gamma}^*:=\max_{\lambda \geq 0} ~ g_{\gamma}(\lambda)\]</div>
+<p>is the minimum of the above problem. We can show that <span class="math notranslate nohighlight">\(\lambda \mapsto g_{\gamma}(\lambda)\)</span> is differentiable and the
+gradient is Lipschitz continuous. Moreover, by Danskin’s Theorem the gradient can be explicitly expressed as,</p>
+<div class="math notranslate nohighlight">
+\[\nabla g_{\gamma}(\lambda) = A x_{\gamma}^*(\lambda) -b\]</div>
+<p>where,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}x_{\gamma}^*(\lambda) &amp;= \text{argmin}_{x \in \mathcal C} ~~ \left\{ c^T x + \frac{\gamma}{2} x^T x + \lambda^T(Ax-b) \right\}  \\
+&amp; = \big\{
+\Pi_{\mathcal{C}_i}[-\frac{1}{\gamma}({A_i}^T\lambda + c_i)]
+\big\}_{i=1}^I\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Pi_{\mathcal{C}_i}(\cdot)\)</span> is the Euclidean projection operator onto  <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span>, and, <span class="math notranslate nohighlight">\(A_i\)</span>, <span class="math notranslate nohighlight">\(c_i\)</span> are the
+parts of <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(c\)</span> corresponding to <span class="math notranslate nohighlight">\(x_i\)</span>. Based on this we use a first-order gradient method as the main optimizer to
+solve the problem. It can also be shown that the solution obeys certain bounds to the true solution <span class="math notranslate nohighlight">\(g_0(\lambda)\)</span> and
+in fact the exact solution of the LP can be obtained if <span class="math notranslate nohighlight">\(\gamma\)</span> is small enough.
+For more details, please refer to <a class="reference external" href="http://proceedings.mlr.press/v119/basu20a/basu20a.pdf">Basu et al. (2020)</a>.</p>
+</section>
+<section id="the-algorithm">
+<span id="algorithm"></span><h2>The Algorithm<a class="headerlink" href="#the-algorithm" title="Link to this heading"></a></h2>
+<p>The overall algorithm can now be written as:</p>
+<ol class="arabic simple">
+<li><p>Start with an initial <span class="math notranslate nohighlight">\(\lambda\)</span>.</p></li>
+<li><p>Get Primal: <span class="math notranslate nohighlight">\(x_{\gamma}^*(\lambda)\)</span>.</p></li>
+<li><p>Get Gradient: <span class="math notranslate nohighlight">\(Ax_{\gamma}^*(\lambda) - b\)</span>.</p></li>
+<li><p>Update <span class="math notranslate nohighlight">\(\lambda\)</span> via appropriate mechanisms.</p></li>
+<li><p>Continue till converge.</p></li>
+</ol>
+<p>We currently support <a class="reference external" href="https://www.ceremade.dauphine.fr/~carlier/FISTA">Accelerated Gradient Ascent</a> as the maximizer though the solver is easily extensible to other optimization algorithms.</p>
+</section>
+<section id="constraint-sets-mathcal-c-i">
+<span id="constraints"></span><h2>Constraint Sets <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span><a class="headerlink" href="#constraint-sets-mathcal-c-i" title="Link to this heading"></a></h2>
+<p>In this current version of the solver we support a wide variety of constraints types <span class="math notranslate nohighlight">\(\mathcal{C}_i\)</span>,
+such as:</p>
+<ol class="arabic simple">
+<li><p>Unit Box: <span class="math notranslate nohighlight">\(\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : 0 \leq x_k \leq 1\big\}\)</span></p></li>
+<li><p>Simplex-E: <span class="math notranslate nohighlight">\(\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K = 1, \;\; x_k \geq 0\big\}\)</span></p></li>
+<li><p>Simplex-I: <span class="math notranslate nohighlight">\(\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K \leq 1, \;\; x_k \geq 0\big\}\)</span></p></li>
+<li><p>r-Simplex-E: <span class="math notranslate nohighlight">\(\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K = r, \;\; x_k \geq 0\big\}\)</span></p></li>
+<li><p>r-Simplex-I: <span class="math notranslate nohighlight">\(\mathcal{C}_i = \big\{ x \in \mathbb{R}^K : x_1 + ... + x_K \leq r, \;\; x_k \geq 0\big\}\)</span></p></li>
+</ol>
+<p>Here <span class="math notranslate nohighlight">\(E\)</span> and <span class="math notranslate nohighlight">\(I\)</span> stands for equality and inequality.</p>
+<p>To execute step 2 of the overall algorithm, we need a projection operation on these constraint sets.
+In our solver, we have implemented highly efficient projection algorithms to make step 2 extremely fast. The different sets have
+different customized algorithms to make the overall system highly efficient. For more details on
+these projection algorithms please see Section 3 of <a class="reference external" href="https://arxiv.org/abs/2103.05277">Ramanath et al. (2021)</a>.</p>
+</section>
+<section id="data-sharding-multi-gpu">
+<h2>Data Sharding (Multi-GPU)<a class="headerlink" href="#data-sharding-multi-gpu" title="Link to this heading"></a></h2>
+<p>For large matching problems, DuaLip can distribute computation across multiple GPUs by sharding the input data along the column dimension of the constraint matrix. When <code class="docutils literal notranslate"><span class="pre">compute_device_num</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, the solver builds a distributed objective that wraps a single‑GPU objective on each device and coordinates reductions on a host device.</p>
+<ul class="simple">
+<li><p>Sharding of inputs: Matrices <code class="docutils literal notranslate"><span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">c</span></code> are partitioned into roughly equal contiguous blocks across the available compute devices (e.g., <code class="docutils literal notranslate"><span class="pre">cuda:0</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda:1</span></code>, …). This balances work by splitting the number of columns as evenly as possible. Each shard is then moved to its target device. The per‑device projection map is derived from the global projection map by remapping global column indices to local indices for that shard. Only projections that touch columns present on the device are kept.</p></li>
+<li><p>Per‑iteration execution: The current dual vector <span class="math notranslate nohighlight">\(\lambda\)</span> is transferred to each compute device. Each device computes its local dual gradient contribution, local dual objective component, and regularization penalty using the single‑GPU matching objective on its shard. Partial results are first accumulated on the host device, then synchronized and summed across processes using NCCL all‑reduce. The final distributed gradient subtracts <span class="math notranslate nohighlight">\(b\)</span> and is used by the optimizer exactly as in the single‑GPU case.</p></li>
+</ul>
+<p>This design keeps projection logic local to each shard, minimizes inter‑GPU communication to a small number of vector/tensor reductions per iteration, and scales naturally with the number of GPUs.</p>
+</section>
+<section id="implementation-note">
+<h2>Implementation Note<a class="headerlink" href="#implementation-note" title="Link to this heading"></a></h2>
+<p>As we will discuss in the <a class="reference internal" href="../interfaces/supported_lps.html#supported-lps"><span class="std std-ref">Supported LPs</span></a> section, currently the distributed objective is implemented for matching problems where the constraint matrix is a block-diagonal matrix. In this case, the inputs must be CSC‑format sparse tensors. Sharding operates on columns to align with how projections are applied per column group. For custom objective functions, the user needs to implement the parallelism themselves.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="DuaLip: Dual Decomposition-based LP Solver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../interfaces/index.html" class="btn btn-neutral float-right" title="Solver Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, LinkedIn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,146 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supported LPs &mdash; DuaLip  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=66161cb2" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Input Format" href="format.html" />
+    <link rel="prev" title="Solver Interface" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DuaLip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../solver/index.html">The DuaLip Solver</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Solver Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Supported LPs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="format.html">Input Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tips.html">Tips for using DuaLip</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/index.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo/index.html">Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing/index.html">Citing DuaLip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgement/index.html">Acknowledgements</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DuaLip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Solver Interface</a></li>
+      <li class="breadcrumb-item active">Supported LPs</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/interfaces/supported_lps.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="supported-lps">
+<span id="id1"></span><h1>Supported LPs<a class="headerlink" href="#supported-lps" title="Link to this heading"></a></h1>
+<p>DuaLip can be used to solve a wide variety of linear programs arising in web applications, including item matching, ranking, and related optimization problems.
+Motivated by the breadth of real-world use cases that can be formulated as <strong>matching problems</strong>, DuaLip provides efficient and scalable implementations tailored specifically to this class of workloads.</p>
+<p>The canonical matching problem aims to assign item <span class="math notranslate nohighlight">\(j\)</span> to user <span class="math notranslate nohighlight">\(i\)</span> with probability
+<span class="math notranslate nohighlight">\(x_{ij}\)</span> in order to maximize the total return, revenue, or profit.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{ll}
+  \text{minimize}   &amp; c^\top x \\
+  \text{subject to} &amp; A x \le b \\
+                    &amp; x_i \in \mathcal{C}_i \quad \text{for all } i = 1, \ldots, I
+\end{array}\end{split}\]</div>
+<p>We assume that the constraint matrix <span class="math notranslate nohighlight">\(A\)</span> has a block-diagonal structure,
+<span class="math notranslate nohighlight">\(A = \mathrm{diag}(A_1, \ldots, A_I)\)</span>, where each block
+<span class="math notranslate nohighlight">\(A_i \in \mathbb{R}^{K \times K}\)</span>. These diagonal blocks are typically very sparse.
+The constraint vector <span class="math notranslate nohighlight">\(b\)</span> is dense and usually encodes capacity or budget limits,
+such as the maximum number of users that can be matched to a given item.</p>
+<p>This structured and unstructured sparsity of <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(C\)</span> enables efficient parallelization over GPU hardware, significantly reducing memory footprint and improving computational efficiency at scale.
+Projection operations can also be batched to fully utilize GPU throughput.</p>
+<p>Note that in the case of a matching problem, parallelism is already supported and triggered when choosing the number of devices to exceed one.
+However, in the case of custom objective functions, the user needs to implement the parallelism themselves.</p>
+<p id="probsolution">Finally, the base matching problem formulation can be naturally extended to accommodate more complex constraints and objective functions.
+See the <a class="reference internal" href="../demo/matching_complex.html#matching-complex"><span class="std std-ref">A Matching Problem with Fairness Constraints</span></a> section for more details.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Solver Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="format.html" class="btn btn-neutral float-right" title="Input Format" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, LinkedIn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
