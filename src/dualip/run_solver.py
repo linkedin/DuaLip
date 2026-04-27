@@ -4,10 +4,7 @@ from typing import Optional
 import torch
 
 from dualip.objectives.base import BaseInputArgs
-from dualip.objectives.matching import (
-    MatchingSolverDualObjectiveFunction,
-    MatchingSolverDualObjectiveFunctionDistributed,
-)
+from dualip.objectives.matching import MatchingSolverDualObjectiveFunction
 from dualip.objectives.miplib import MIPLIB2017ObjectiveFunction
 from dualip.optimizers.agd import AcceleratedGradientDescent, SolverResult
 from dualip.types import ComputeArgs, ObjectiveArgs, SolverArgs
@@ -45,27 +42,25 @@ def build_objective(
     input_args: BaseInputArgs, solver_args: SolverArgs, compute_args: ComputeArgs, objective_args: ObjectiveArgs
 ):
     objective = None
-    host_device = compute_args.host_device
     compute_device_num = compute_args.compute_device_num
 
     objective_type = objective_args.objective_type
     objective_kwargs = objective_args.objective_kwargs
 
+    if compute_device_num != 1:
+        raise NotImplementedError(
+            "run_solver currently supports compute_device_num=1 only. "
+            "For multi-GPU / multi-node usage, launch with torchrun and construct "
+            "MatchingSolverDualObjectiveFunctionDistributed directly on each rank "
+            "with its local data partition. See tests/distributed/test_matching_distributed.py "
+            "for the expected pattern."
+        )
+
     if objective_type == "miplib2017":
         objective_kwargs = objective_kwargs or {}
         objective = MIPLIB2017ObjectiveFunction(miplib_input_args=input_args, **objective_kwargs)
     elif objective_type == "matching":
-        if compute_device_num == 1:
-            objective = MatchingSolverDualObjectiveFunction(matching_input_args=input_args, gamma=solver_args.gamma)
-        else:
-            compute_devices = [f"cuda:{i}" for i in range(compute_args.compute_device_num)]
-            objective = MatchingSolverDualObjectiveFunctionDistributed(
-                matching_input_args=input_args,
-                gamma=solver_args.gamma,
-                host_device=host_device,
-                compute_devices=compute_devices,
-            )
-
+        objective = MatchingSolverDualObjectiveFunction(matching_input_args=input_args, gamma=solver_args.gamma)
     else:
         raise ValueError(f"Objective type {objective_type} not supported")
     return objective
