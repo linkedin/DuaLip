@@ -5,11 +5,7 @@ import pytest
 import torch
 import torch.distributed as dist
 
-from dualip.preprocessing.precondition import (
-    dist_jacobi_precondition,
-    jacobi_invert_precondition,
-    jacobi_precondition,
-)
+from dualip.preprocessing.precondition import dist_jacobi_precondition, jacobi_invert_precondition, jacobi_precondition
 from dualip.utils.sparse_utils import split_csc_by_cols
 
 ccol_indices = [0, 2, 3, 5, 8, 10, 12, 15, 16]
