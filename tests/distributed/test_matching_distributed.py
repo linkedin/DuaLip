@@ -175,7 +175,7 @@ def test_simplex_solver_inequality_distributed(init_distributed):
 
     initial_dual = 0.1 * torch.ones(5, device=device)
 
-    solver = AcceleratedGradientDescent(max_iter=30, gamma=gamma)
+    solver = AcceleratedGradientDescent(max_iter=30)
     solver_result = solver.maximize(f, initial_dual, rank=rank)
 
     # Only rank 0 checks results

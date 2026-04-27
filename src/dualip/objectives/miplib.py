@@ -34,8 +34,10 @@ class MIPLIB2017ObjectiveFunction(BaseObjective):
     def __init__(
         self,
         miplib_input_args: MIPLIBInputArgs,
+        gamma: float = 1.0,
         use_jacobi_precondition: bool = False,
     ):
+        self.gamma = gamma
         self.A = miplib_input_args.A
         # Store CSR and CSC versions of A for efficient computations if needed
         self.A_csr = self.A.to_sparse_csr() if self.A.is_sparse else self.A
@@ -57,13 +59,15 @@ class MIPLIB2017ObjectiveFunction(BaseObjective):
         else:
             self.row_norms = None
 
-    def calculate(self, dual_val: torch.Tensor, gamma: float, save_primal: bool = False, **kwargs) -> ObjectiveResult:
+    def set_gamma(self, gamma: float) -> None:
+        self.gamma = gamma
+
+    def calculate(self, dual_val: torch.Tensor, save_primal: bool = False, **kwargs) -> ObjectiveResult:
         """
         Compute dual gradient, objective, and reg penalty.
 
         Args:
             dual_val: current dual variables
-            gamma: regularization parameter
             save_primal: if True, save the primal variable
 
         Returns:
@@ -73,7 +77,7 @@ class MIPLIB2017ObjectiveFunction(BaseObjective):
         if self.row_norms is not None:
             dual_val = 1 / self.row_norms * dual_val
 
-        z = -1.0 / gamma * (self.A.T @ dual_val + self.c)
+        z = -1.0 / self.gamma * (self.A.T @ dual_val + self.c)
 
         # Apply projection on z based on projection_map
         projected_sol = z.clone()
@@ -94,7 +98,7 @@ class MIPLIB2017ObjectiveFunction(BaseObjective):
         else:
             dual_gradient = self.A_csr @ projected_sol - self.b_vec
 
-        reg_penalty = gamma / 2.0 * torch.norm(projected_sol) ** 2
+        reg_penalty = self.gamma / 2.0 * torch.norm(projected_sol) ** 2
 
         dual_obj = self.c @ projected_sol + reg_penalty + dual_val @ (self.A_csr @ projected_sol - self.b_vec)
         primal_obj = self.c @ projected_sol
