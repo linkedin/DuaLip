@@ -39,11 +39,7 @@ def _interval_schedule(itr: int, gamma: float, p: dict) -> float:
 
 # Maps decay_type -> fn(itr, gamma, params) -> new_gamma
 _SCHEDULES: dict[str, Callable[[int, float, dict], float]] = {
-    "step": lambda itr, gamma, p: (
-        gamma * p["decay_factor"]
-        if itr % p["decay_steps"] == 0
-        else gamma
-    ),
+    "step": lambda itr, gamma, p: (gamma * p["decay_factor"] if itr % p["decay_steps"] == 0 else gamma),
     "interval": _interval_schedule,
 }
 

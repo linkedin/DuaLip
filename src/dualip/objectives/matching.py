@@ -106,9 +106,7 @@ class MatchingSolverDualObjectiveFunction(BaseObjective):
         self.gamma = gamma
         self.c_rescaled = -1.0 / gamma * self.c
 
-    def calculate(
-        self, dual_val: torch.Tensor, save_primal: bool = False, **kwargs
-    ) -> ObjectiveResult:
+    def calculate(self, dual_val: torch.Tensor, save_primal: bool = False, **kwargs) -> ObjectiveResult:
         """
         Compute dual gradient, objective, and reg penalty.
 

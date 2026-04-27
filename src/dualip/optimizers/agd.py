@@ -145,9 +145,7 @@ class AcceleratedGradientDescent:
 
             # ALL ranks participate in calculate (for distributed objectives)
             if i == self.max_iter and self.save_primal:
-                objective_result: ObjectiveResult = f.calculate(
-                    dual_val=x, save_primal=self.save_primal, rank=rank
-                )
+                objective_result: ObjectiveResult = f.calculate(dual_val=x, save_primal=self.save_primal, rank=rank)
             else:
                 objective_result: ObjectiveResult = f.calculate(dual_val=x, rank=rank)
 
