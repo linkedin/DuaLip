@@ -111,9 +111,7 @@ class TestApplyFToColumns:
 
     def test_identity_function(self):
         """F = identity should return the same matrix."""
-        M_dense = torch.tensor(
-            [[1.0, 0.0, 3.0], [0.0, 2.0, 0.0], [4.0, 0.0, 5.0]]
-        )
+        M_dense = torch.tensor([[1.0, 0.0, 3.0], [0.0, 2.0, 0.0], [4.0, 0.0, 5.0]])
         M_sparse = M_dense.to_sparse_csc()
         buckets = [torch.arange(M_dense.shape[1])]
 
@@ -122,9 +120,7 @@ class TestApplyFToColumns:
 
     def test_scaling_function(self):
         """F = 2x should double all values."""
-        M_dense = torch.tensor(
-            [[1.0, 0.0, 3.0], [0.0, 2.0, 0.0], [4.0, 0.0, 5.0]]
-        )
+        M_dense = torch.tensor([[1.0, 0.0, 3.0], [0.0, 2.0, 0.0], [4.0, 0.0, 5.0]])
         M_sparse = M_dense.to_sparse_csc()
         buckets = [torch.arange(M_dense.shape[1])]
 
@@ -141,14 +137,14 @@ class TestApplyFToColumns:
             ]
         )
         M_sparse = M_dense.to_sparse_csc()
-        f = lambda x: x * 0.5
+
+        def f(x):
+            return x * 0.5
 
         expected = M_dense * 0.5
 
         single = apply_F_to_columns(M_sparse, f, [torch.arange(5)])
-        multi = apply_F_to_columns(
-            M_sparse, f, [torch.tensor([0, 2, 4]), torch.tensor([1, 3])]
-        )
+        multi = apply_F_to_columns(M_sparse, f, [torch.tensor([0, 2, 4]), torch.tensor([1, 3])])
 
         assert torch.allclose(single.to_dense(), expected)
         assert torch.allclose(multi.to_dense(), expected)
@@ -164,7 +160,10 @@ class TestApplyFToColumns:
             ]
         )
         M_sparse = M_dense.to_sparse_csc()
-        f = lambda x: x ** 2
+
+        def f(x):
+            return x**2
+
         buckets = [torch.arange(3)]
 
         result = apply_F_to_columns(M_sparse, f, buckets)
@@ -173,9 +172,7 @@ class TestApplyFToColumns:
 
     def test_output_tensor(self):
         """Writing into a pre-allocated output tensor."""
-        M_dense = torch.tensor(
-            [[1.0, 0.0, 3.0], [0.0, 2.0, 0.0], [4.0, 0.0, 5.0]]
-        )
+        M_dense = torch.tensor([[1.0, 0.0, 3.0], [0.0, 2.0, 0.0], [4.0, 0.0, 5.0]])
         M_sparse = M_dense.to_sparse_csc()
         output = M_sparse.clone()
         buckets = [torch.arange(3)]
@@ -194,11 +191,12 @@ class TestApplyFToColumns:
 
     def test_clamp_projection(self):
         """Column-wise clamp to [0, inf) (ReLU-like) preserves sparsity pattern."""
-        M_dense = torch.tensor(
-            [[1.0, 0.0, -3.0], [0.0, -2.0, 0.0], [-4.0, 0.0, 5.0]]
-        )
+        M_dense = torch.tensor([[1.0, 0.0, -3.0], [0.0, -2.0, 0.0], [-4.0, 0.0, 5.0]])
         M_sparse = M_dense.to_sparse_csc()
-        f = lambda x: x.clamp(min=0)
+
+        def f(x):
+            return x.clamp(min=0)
+
         buckets = [torch.arange(3)]
 
         result = apply_F_to_columns(M_sparse, f, buckets)
