@@ -196,22 +196,15 @@ def apply_F_to_columns(
         # This is the highest number of non-zeroes of columns in the bucket
         L = int(lengths.max().item())
 
-        # fixed prefix/flat-index logic:
-        prefix = torch.cat(
-            [
-                torch.tensor([0], device=device, dtype=lengths.dtype),
-                torch.cumsum(lengths[:-1], dim=0),
-            ]
-        )
-
-        prefix_rep = prefix.repeat_interleave(lengths)  # shape (total,)
-        idx_in_col = torch.arange(total, device=device) - prefix_rep
-        offs = starts.repeat_interleave(lengths)
-        flat_indices = offs + idx_in_col
+        # Compute cols_rep once, then derive all other indices via indexing
+        # (avoids 2 extra repeat_interleave calls and a torch.cat)
+        cols_rep = torch.arange(K, device=device).repeat_interleave(lengths)  # (total,)
+        prefix = lengths.cumsum(0) - lengths  # shape (K,), avoids torch.cat
+        idx_in_col = torch.arange(total, device=device) - prefix[cols_rep]
+        flat_indices = starts[cols_rep] + idx_in_col
 
         # 2) build padded [L × K] block
         block = torch.zeros((L, K), device=device, dtype=dtype)
-        cols_rep = torch.arange(K, device=device).repeat_interleave(lengths)  # (total,)
         block[idx_in_col, cols_rep] = vals[flat_indices]
 
         # 3) apply the batched projection
