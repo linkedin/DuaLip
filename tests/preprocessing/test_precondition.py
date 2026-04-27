@@ -106,6 +106,7 @@ def test_invert_precondition(norms_path):
 # Distributed Jacobi preconditioner tests
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.skipif("RANK" in os.environ, reason="Only runs in non-distributed (no torchrun) context")
 def test_dist_jacobi_precondition_raises_without_dist():
     """dist_jacobi_precondition must raise when torch.distributed is not initialized."""
@@ -138,10 +139,7 @@ def test_dist_jacobi_precondition():
         expected_row_norms = A_full.to_dense().norm(2, dim=1)
 
         n_cols = A_full.size(1)
-        split_sizes = [
-            n_cols // world_size + (1 if i < n_cols % world_size else 0)
-            for i in range(world_size)
-        ]
+        split_sizes = [n_cols // world_size + (1 if i < n_cols % world_size else 0) for i in range(world_size)]
         a_splits = split_csc_by_cols(A_full, split_sizes)
 
         A_local = a_splits[rank].to(device)
@@ -152,20 +150,16 @@ def test_dist_jacobi_precondition():
 
         row_norms = dist_jacobi_precondition(A_local, b_local)
 
-        assert torch.allclose(row_norms, expected_row_norms, atol=1e-5), (
-            f"Rank {rank}: row norms mismatch"
-        )
+        assert torch.allclose(row_norms, expected_row_norms, atol=1e-5), f"Rank {rank}: row norms mismatch"
 
         expected_vals = original_vals / expected_row_norms[original_row_idx.to(torch.long)]
-        assert torch.allclose(A_local.values(), expected_vals, atol=1e-5), (
-            f"Rank {rank}: A_local values not scaled correctly"
-        )
+        assert torch.allclose(
+            A_local.values(), expected_vals, atol=1e-5
+        ), f"Rank {rank}: A_local values not scaled correctly"
 
         if rank == 0:
             expected_b = b_full / expected_row_norms
-            assert torch.allclose(b_local, expected_b, atol=1e-5), (
-                "Rank 0: b not scaled correctly"
-            )
+            assert torch.allclose(b_local, expected_b, atol=1e-5), "Rank 0: b not scaled correctly"
 
     finally:
         if dist.is_initialized():
@@ -191,10 +185,7 @@ def test_dist_jacobi_precondition_saves_norms(tmp_path):
 
         A_full = A_test.to(device)
         n_cols = A_full.size(1)
-        split_sizes = [
-            n_cols // world_size + (1 if i < n_cols % world_size else 0)
-            for i in range(world_size)
-        ]
+        split_sizes = [n_cols // world_size + (1 if i < n_cols % world_size else 0) for i in range(world_size)]
         a_splits = split_csc_by_cols(A_full, split_sizes)
         A_local = a_splits[rank].to(device)
         b_local = b_test.to(device).clone() if rank == 0 else None
@@ -204,9 +195,7 @@ def test_dist_jacobi_precondition_saves_norms(tmp_path):
         if rank == 0:
             assert Path(norms_path).exists(), "Rank 0 did not save the norm file"
             saved = torch.load(norms_path, map_location=device)
-            assert torch.allclose(saved, row_norms, atol=1e-5), (
-                "Saved norms differ from returned row norms"
-            )
+            assert torch.allclose(saved, row_norms, atol=1e-5), "Saved norms differ from returned row norms"
 
     finally:
         if dist.is_initialized():
