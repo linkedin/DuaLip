@@ -64,26 +64,26 @@ def format_objective_result_summary(iteration: int, objective_result: ObjectiveR
 
 
 class AcceleratedGradientDescent:
+    """
+    Accelerated Gradient Descent optimizer (pure dual update).
+
+    Gamma scheduling is handled externally via step_callback passed to maximize().
+    See GammaScheduler for the built-in step / interval decay implementations.
+    """
+
     def __init__(
         self,
         max_iter: int,
-        gamma: float,
         initial_step_size: float = 1e-5,
         max_step_size: float = 0.1,
-        gamma_decay_type: str = None,
-        gamma_decay_params: dict = {},
         save_primal: bool = False,
         iteration_callback: Optional[Callable[[int, ObjectiveResult], None]] = None,
     ):
-
         self.initial_step_size = initial_step_size
         self.max_step_size = max_step_size
         self.max_iter = max_iter
         self.beta_seq = self._compute_beta_seq(self.max_iter)
         self.streams = None
-        self.gamma = gamma
-        self.gamma_decay_type = gamma_decay_type
-        self.gamma_decay_params = gamma_decay_params
         self.save_primal = save_primal
         # Default behavior: print summary line each iteration; can be overridden by passing a callback
         self.iteration_callback: Callable[[int, ObjectiveResult], None] = (
@@ -99,15 +99,6 @@ class AcceleratedGradientDescent:
             beta_seq[i] = (1 - t_seq[i + 1]) / t_seq[i + 2]
         return beta_seq
 
-    def _update_gamma(self, itr: int, step_size: float):
-        if self.gamma_decay_type == "step":
-            if itr % self.gamma_decay_params["decay_steps"] == 0:
-                decay_factor = self.gamma_decay_params["decay_factor"]
-                self.gamma = self.gamma * decay_factor
-                self.max_step_size = step_size * decay_factor
-        else:
-            raise ValueError(f"Unsupported gamma decay type: {self.gamma_decay_type}")
-
     def _default_iteration_callback(self, iteration: int, objective_result: ObjectiveResult) -> None:
         """
         Default iteration callback that prints a one-line summary.
@@ -118,23 +109,26 @@ class AcceleratedGradientDescent:
             # Ensure optimizer never crashes due to logging/printing
             pass
 
-    def maximize(self, f: BaseObjective, initial_value: torch.Tensor, rank: int = 0) -> SolverResult:
+    def maximize(
+        self,
+        f: BaseObjective,
+        initial_value: torch.Tensor,
+        rank: int = 0,
+        step_callback: Optional[Callable[[int], None]] = None,
+    ) -> SolverResult:
         """
-        Maximizes the dual-primal objective function f.
-        f must provide a method:
-          - f.calculate(x) returning an object with attributes:
-              * dual_gradient (torch.Tensor)
-              * dual_objective (float)
-              * dual_val (torch.Tensor)
+        Maximizes the dual objective f.
 
         Args:
-            f: The objective function to maximize
-            initial_value: Initial dual variable values
-            rank: Process rank for distributed training (default: 0 for single-GPU)
+            f: objective implementing BaseObjective.calculate(dual_val, save_primal).
+                Objectives that use a regularization parameter own it internally;
+                update it externally via f.set_gamma().
+            initial_value: starting dual variable
+            rank: distributed rank (0 = primary)
+            step_callback: optional callable(itr) -> None, called after each iteration.
+                Use this to drive gamma scheduling via GammaScheduler.
 
-        Returns a tuple: (final solution, final result, dual_obj_log, step_size_log),
-        where dual_obj_log is the list of dual objective values recorded at each iteration
-        and step_size_log is the list of the dynamic step size.
+        Returns a SolverResult with the final dual / objective and per-iteration logs.
         """
         grad_history = []
         dual_history = []
@@ -149,15 +143,13 @@ class AcceleratedGradientDescent:
         i = 1
         while i <= self.max_iter:
 
-            gamma_params = {"gamma": self.gamma} if self.gamma is not None else {}
-
             # ALL ranks participate in calculate (for distributed objectives)
             if i == self.max_iter and self.save_primal:
                 objective_result: ObjectiveResult = f.calculate(
-                    dual_val=x, **gamma_params, save_primal=self.save_primal, rank=rank
+                    dual_val=x, save_primal=self.save_primal, rank=rank
                 )
             else:
-                objective_result: ObjectiveResult = f.calculate(dual_val=x, **gamma_params, rank=rank)
+                objective_result: ObjectiveResult = f.calculate(dual_val=x, rank=rank)
 
             # Only rank 0 performs optimizer updates
             if rank == 0:
@@ -183,17 +175,16 @@ class AcceleratedGradientDescent:
                 # Accelerated update.
                 x = (y_new * (1.0 - self.beta_seq[i - 1])) + (y * self.beta_seq[i - 1])
                 y = y_new
-                if self.gamma is not None and self.gamma_decay_type is not None:
-                    self._update_gamma(i, step_size)
+
+                # Drive external scheduling (e.g. gamma decay via GammaScheduler)
+                if step_callback is not None:
+                    step_callback(i)
 
                 # Log iteration metrics (will check MLflow state internally)
                 iteration_metrics = {
                     "step_size": step_size,
                     "dual_objective": dual_obj,
                 }
-
-                if self.gamma is not None:
-                    iteration_metrics["gamma"] = self.gamma
 
                 log_metrics(iteration_metrics, step=i)
 

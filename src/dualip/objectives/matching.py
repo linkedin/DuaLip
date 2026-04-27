@@ -6,6 +6,7 @@ import torch.distributed as dist
 
 from dualip.objectives.base import BaseInputArgs, BaseObjective, ObjectiveResult
 from dualip.projections.base import ProjectionEntry, project
+from dualip.utils.objective_utils import calc_grad
 from dualip.utils.sparse_utils import apply_F_to_columns, elementwise_csc, left_multiply_sparse, row_sums_csc
 
 
@@ -20,18 +21,6 @@ class MatchingInputArgs(BaseInputArgs):
     projection_map: dict[str, ProjectionEntry]
     b_vec: torch.Tensor
     equality_mask: torch.Tensor = None
-
-
-def calc_grad(
-    dual_grad: torch.Tensor,
-    dual_obj: torch.Tensor,
-    dual_val: torch.Tensor,
-    b_vec: torch.Tensor,
-    reg_penalty: torch.Tensor,
-) -> tuple[torch.Tensor, torch.Tensor]:
-    dual_grad = dual_grad - b_vec
-    dual_obj = dual_obj + reg_penalty + torch.dot(dual_val, dual_grad)
-    return dual_grad, dual_obj
 
 
 class MatchingSolverDualObjectiveFunction(BaseObjective):
@@ -113,25 +102,23 @@ class MatchingSolverDualObjectiveFunction(BaseObjective):
                 buckets.append(bucket)
         return buckets
 
+    def set_gamma(self, gamma: float) -> None:
+        self.gamma = gamma
+        self.c_rescaled = -1.0 / gamma * self.c
+
     def calculate(
-        self, dual_val: torch.Tensor, gamma: float = None, save_primal: bool = False, **kwargs
+        self, dual_val: torch.Tensor, save_primal: bool = False, **kwargs
     ) -> ObjectiveResult:
         """
         Compute dual gradient, objective, and reg penalty.
 
         Args:
             dual_val: current dual variables
-            gamma: regularization parameter
             save_primal: if True, save the primal variable
 
         Returns:
             ObjectiveResult
         """
-        if gamma is not None and gamma != self.gamma:
-            self.gamma = gamma
-            # Recompute c_rescaled when gamma changes
-            self.c_rescaled = -1.0 / gamma * self.c
-
         # -dual_val/gamma
         scaled = -1.0 / self.gamma * dual_val
 
@@ -244,12 +231,16 @@ class MatchingSolverDualObjectiveFunctionDistributed(BaseObjective):
         # Create single-GPU objective with local data
         self.local_objective = MatchingSolverDualObjectiveFunction(local_matching_input_args, gamma, batching)
 
+    def set_gamma(self, gamma: float) -> None:
+        self.gamma = gamma
+        self.local_objective.set_gamma(gamma)
+
     def calculate(
         self,
         dual_val: torch.Tensor,
-        gamma: float = None,
         save_primal: bool = False,
         rank: int = 0,
+        **kwargs,
     ) -> ObjectiveResult:
         """Compute and reduce gradients/objectives across all GPUs."""
         if save_primal:
@@ -258,7 +249,7 @@ class MatchingSolverDualObjectiveFunctionDistributed(BaseObjective):
         # dual_val is on cuda:rank (each rank has it on its own device)
         # local_objective data is also on cuda:rank
         # Compute local partition
-        objective_result = self.local_objective.calculate(dual_val, gamma, save_primal=False)
+        objective_result = self.local_objective.calculate(dual_val, save_primal=False)
 
         # Keep results on local device (cuda:rank) for NCCL reduce
         # NCCL expects each rank to have tensor on its own GPU
