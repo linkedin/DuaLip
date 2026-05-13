@@ -1,0 +1,373 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parameters &mdash; DuaLip  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=66161cb2" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Logging" href="logging.html" />
+    <link rel="prev" title="Input Format" href="format.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DuaLip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../solver/index.html">The DuaLip Solver</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Solver Interface</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="supported_lps.html">Supported LPs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="format.html">Input Format</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#input-arguments">Input Arguments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#solver-parameters">Solver Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compute-parameters">Compute Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#objective-arguments">Objective Arguments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mlflow-configuration">MLflow Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#solverresult">SolverResult</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tips.html">Tips for using DuaLip</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/index.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo/index.html">Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing/index.html">Citing DuaLip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgement/index.html">Acknowledgements</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DuaLip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Solver Interface</a></li>
+      <li class="breadcrumb-item active">Parameters</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/interfaces/parameters.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="parameters">
+<h1>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h1>
+<p>The main interface for running the solver is <code class="code docutils literal notranslate"><span class="pre">run_solver()</span></code> function. It takes the following arguments:</p>
+<ul class="simple">
+<li><p><strong>input_args</strong>: Input arguments for the solver.</p></li>
+<li><p><strong>solver_args</strong>: Solver arguments for the solver.</p></li>
+<li><p><strong>compute_args</strong>: Compute arguments for the solver.</p></li>
+<li><p><strong>objective_args</strong>: Objective arguments for the solver.</p></li>
+<li><p><strong>mlflow_config</strong>: MLflow configuration for the solver.</p></li>
+</ul>
+<section id="input-arguments">
+<h2>Input Arguments<a class="headerlink" href="#input-arguments" title="Link to this heading"></a></h2>
+<p>The input arguments are displayed in the following table.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Input Arguments</p></th>
+<th class="head"><p>Is Required</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">A</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Tensor A.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">b</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Tensor b.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">C</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Tensor C.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">projection_maps</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Projection maps.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="solver-parameters">
+<h2>Solver Parameters<a class="headerlink" href="#solver-parameters" title="Link to this heading"></a></h2>
+<p>The solver settings are displayed in the following table.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Solevr Arguments</p></th>
+<th class="head"><p>Is Required</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">gamma</span></code></p></td>
+<td><p>false</p></td>
+<td><p>1E-3</p></td>
+<td><p>Ridge regularization parameter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+<td><p>false</p></td>
+<td><p>10000</p></td>
+<td><p>Maximum number of iterations.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">initial_step_size</span></code></p></td>
+<td><p>false</p></td>
+<td><p>1e-5</p></td>
+<td><p>Initial step size for the solver.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">max_step_size</span></code></p></td>
+<td><p>false</p></td>
+<td><p>0.1</p></td>
+<td><p>Upper bound for the solver’s step size.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">save_primal</span></code></p></td>
+<td><p>false</p></td>
+<td><p>false</p></td>
+<td><p>Flag to save primal variable values at the solution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">initial_dual_path</span></code></p></td>
+<td><p>false</p></td>
+<td><p>None</p></td>
+<td><p>Filepath to initialize dual variables for algorithm restarts (optional).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">gamma_decay_type</span></code></p></td>
+<td><p>false</p></td>
+<td><p>None</p></td>
+<td><p>Type of gamma decay. We currently support “none” and “step”.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">gamma_decay_params</span></code></p></td>
+<td><p>false</p></td>
+<td><p>None</p></td>
+<td><p>Parameters for gamma decay. For “step” type gamme decay, “decay_steps” and “decay_rate” are the tunable parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">decay_steps</span></code></p></td>
+<td><p>false</p></td>
+<td><p>None</p></td>
+<td><p>Number of steps before decaying gamma. This is only applicable when “step” type gamma decay is used.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">decay_rate</span></code></p></td>
+<td><p>false</p></td>
+<td><p>None</p></td>
+<td><p>Rate of gamma decay. This is only applicable when “step” type gamma decay is used.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="compute-parameters">
+<h2>Compute Parameters<a class="headerlink" href="#compute-parameters" title="Link to this heading"></a></h2>
+<p>The compute settings are displayed in the following table.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Compute Arguments</p></th>
+<th class="head"><p>Is Required</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">host_device</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Host device to compute the gradients. Choose from ‘cuda:0’ or ‘cpu’ with cuda:0 used when cuda is available.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">compute_device_num</span></code></p></td>
+<td><p>false</p></td>
+<td><p>1</p></td>
+<td><p>Number of compute devices to use for gradient computation.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The most efficient parameters are dependent on the problem scale and structure and there is no one-size-fits-all
+configuration. The default parameters usually can achieve acceptable performance, but users can definitely try tuning them if needed.</p>
+</section>
+<section id="objective-arguments">
+<h2>Objective Arguments<a class="headerlink" href="#objective-arguments" title="Link to this heading"></a></h2>
+<p>The objective arguments are displayed in the following table.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Objective Arguments</p></th>
+<th class="head"><p>Is Required</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">objective_type</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Type of objective function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">objective_params</span></code></p></td>
+<td><p>false</p></td>
+<td><p>None</p></td>
+<td><p>Parameters for the objective function.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mlflow-configuration">
+<h2>MLflow Configuration<a class="headerlink" href="#mlflow-configuration" title="Link to this heading"></a></h2>
+<p>The MLflow configuration is displayed in the following table.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>MLflow Configuration</p></th>
+<th class="head"><p>Is Required</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">enabled</span></code></p></td>
+<td><p>true</p></td>
+<td><p>N/A</p></td>
+<td><p>Whether to enable MLflow logging.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">tracking_uri</span></code></p></td>
+<td><p>false</p></td>
+<td><p>None</p></td>
+<td><p>MLflow tracking URI.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">experiment_name</span></code></p></td>
+<td><p>false</p></td>
+<td><p>None</p></td>
+<td><p>MLflow experiment name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">run_name</span></code></p></td>
+<td><p>false</p></td>
+<td><p>None</p></td>
+<td><p>MLflow run name.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The function <code class="code docutils literal notranslate"><span class="pre">run_solver()</span></code> returns a <code class="code docutils literal notranslate"><span class="pre">SolverResult</span></code> object.</p>
+</section>
+<section id="solverresult">
+<h2>SolverResult<a class="headerlink" href="#solverresult" title="Link to this heading"></a></h2>
+<p>The solver result is displayed in the following table.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Solver Result</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">dual_val</span></code></p></td>
+<td><p>N/A</p></td>
+<td><p>Dual variable value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">dual_objective</span></code></p></td>
+<td><p>N/A</p></td>
+<td><p>Dual objective value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">objective_result</span></code></p></td>
+<td><p>N/A</p></td>
+<td><p>The result of one gradient call.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">dual_objective_log</span></code></p></td>
+<td><p>N/A</p></td>
+<td><p>Log of dual objective values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">step_size_log</span></code></p></td>
+<td><p>N/A</p></td>
+<td><p>Log of step sizes.</p></td>
+</tr>
+</tbody>
+</table>
+<p>dual_objective_result is an object of the class <code class="code docutils literal notranslate"><span class="pre">ObjectiveResult</span></code> and it contains the following attributes:</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">dual_gradient</span></code>: Gradient of the dual objective function.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">dual_objective</span></code>: Dual objective value.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">reg_penalty</span></code>: Regularization penalty.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">primal_objective</span></code>: Primal objective value.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">primal_var</span></code>: Primal variable value.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">dual_val_times_grad</span></code>: Dual variable times gradient.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">max_pos_slack</span></code>: Maximum positive slack.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">sum_pos_slack</span></code>: Sum of positive slack.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="format.html" class="btn btn-neutral float-left" title="Input Format" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="logging.html" class="btn btn-neutral float-right" title="Logging" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, LinkedIn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
