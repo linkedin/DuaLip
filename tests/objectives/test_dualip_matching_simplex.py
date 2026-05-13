@@ -122,7 +122,7 @@ def test_simplex_solver_inequality():
 
     initial_dual = 0.1 * torch.ones(5, device=HOST_DEVICE)
 
-    solver = AcceleratedGradientDescent(max_iter=30, gamma=gamma)
+    solver = AcceleratedGradientDescent(max_iter=30)
 
     solver_result = solver.maximize(objective, initial_dual)
 

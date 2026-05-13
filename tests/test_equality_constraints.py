@@ -47,9 +47,10 @@ def test_solver_with_equality_constraint():
     )
     objective = MIPLIB2017ObjectiveFunction(
         miplib_input_args=input_args,
+        gamma=gamma,
     )
 
-    solver = AcceleratedGradientDescent(max_iter=1000, gamma=gamma)
+    solver = AcceleratedGradientDescent(max_iter=1000)
     solver_result = solver.maximize(objective, initial_dual)
 
     # Verify the solution is correct within tolerance

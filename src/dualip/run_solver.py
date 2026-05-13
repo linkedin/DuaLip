@@ -3,6 +3,7 @@ from typing import Optional
 
 import torch
 
+from dualip.gamma_scheduler import GammaScheduler
 from dualip.objectives.base import BaseInputArgs
 from dualip.objectives.matching import (
     MatchingSolverDualObjectiveFunction,
@@ -53,7 +54,9 @@ def build_objective(
 
     if objective_type == "miplib2017":
         objective_kwargs = objective_kwargs or {}
-        objective = MIPLIB2017ObjectiveFunction(miplib_input_args=input_args, **objective_kwargs)
+        objective = MIPLIB2017ObjectiveFunction(
+            miplib_input_args=input_args, gamma=solver_args.gamma, **objective_kwargs
+        )
     elif objective_type == "matching":
         if compute_device_num == 1:
             objective = MatchingSolverDualObjectiveFunction(matching_input_args=input_args, gamma=solver_args.gamma)
@@ -117,9 +120,6 @@ def run_solver(
             initial_step_size=solver_args.initial_step_size,
             max_iter=solver_args.max_iter,
             max_step_size=solver_args.max_step_size,
-            gamma=solver_args.gamma,
-            gamma_decay_type=solver_args.gamma_decay_type,
-            gamma_decay_params=solver_args.gamma_decay_params,
             save_primal=solver_args.save_primal,
         )
 
@@ -131,7 +131,18 @@ def run_solver(
         )
         initial_dual = initial_dual.to(host_device)
 
-        solver_result = solver.maximize(objective, initial_dual)
+        # Wire up gamma scheduling when configured
+        step_callback = None
+        if solver_args.gamma_decay_type is not None:
+            scheduler = GammaScheduler(
+                objective=objective,
+                initial_gamma=solver_args.gamma,
+                decay_type=solver_args.gamma_decay_type,
+                decay_params=solver_args.gamma_decay_params or {},
+            )
+            step_callback = scheduler.step
+
+        solver_result = solver.maximize(objective, initial_dual, step_callback=step_callback)
 
         use_jacobi_precondition = getattr(objective, "use_jacobi_precondition", None)
         if use_jacobi_precondition:

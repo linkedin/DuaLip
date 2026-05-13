@@ -52,7 +52,7 @@ def test_quadratic_1d_function():
     default_step_size = 1e-5
 
     # Test with the default initial_step_size.
-    solver_default = AcceleratedGradientDescent(max_iter=1, gamma=None)
+    solver_default = AcceleratedGradientDescent(max_iter=1)
     solver_default_result = solver_default.maximize(Quadratic1DObjective(), torch.tensor([0.0], device=HOST_DEVICE))
     assert abs(solver_default_result.dual_val[0] - (initial_gradient * default_step_size)) < 1e-10, (
         f"Test fails for default initialStepSize: expected {initial_gradient * default_step_size}, "
@@ -61,7 +61,7 @@ def test_quadratic_1d_function():
 
     # Test with a new initial_step_size.
     new_step_size = 0.1
-    solver_new_step_size = AcceleratedGradientDescent(max_iter=1, gamma=None, initial_step_size=new_step_size)
+    solver_new_step_size = AcceleratedGradientDescent(max_iter=1, initial_step_size=new_step_size)
     solver_new_step_size_result = solver_new_step_size.maximize(
         Quadratic1DObjective(), torch.tensor([0.0], device=HOST_DEVICE)
     )
@@ -85,7 +85,7 @@ def test_simple_objective_dual_value():
     # With a very small step, the dual objective value will increase slightly toward the optimum f(3,0) = -25.
     default_step_size = 1e-5
 
-    solver = AcceleratedGradientDescent(max_iter=30, gamma=None, initial_step_size=default_step_size)
+    solver = AcceleratedGradientDescent(max_iter=30, initial_step_size=default_step_size)
     solver_result = solver.maximize(SimpleObjective(), torch.tensor([0.0, 0.0], device=HOST_DEVICE))
     for i, (dual, step) in enumerate(zip(solver_result.dual_objective_log[:25], solver_result.step_size_log[:25])):
         print(f"Iteration: {i + 1}.  Dual: {dual}.   Step: {step}")

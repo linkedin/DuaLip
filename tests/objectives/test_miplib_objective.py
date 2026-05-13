@@ -112,12 +112,9 @@ def test_miplib_general_convergence_criteria_III():
         b_vec=b,
         equality_mask=equality_mask,
     )
-    objective = MIPLIB2017ObjectiveFunction(miplib_input_args=input_args)
+    objective = MIPLIB2017ObjectiveFunction(miplib_input_args=input_args, gamma=0.001)
     solver = AcceleratedGradientDescent(
         max_iter=500,
-        gamma=0.001,
-        gamma_decay_type=None,
-        gamma_decay_params=None,
         save_primal=True,
     )
     initial_dual = torch.zeros(2)
@@ -148,14 +145,11 @@ def test_miplib_convergence_with_one_sided_x_bound_I():
         b_vec=b,
         equality_mask=equality_mask,
     )
-    objective = MIPLIB2017ObjectiveFunction(miplib_input_args=input_args)
+    objective = MIPLIB2017ObjectiveFunction(miplib_input_args=input_args, gamma=0.001)
     solver = AcceleratedGradientDescent(
         initial_step_size=1e-6,
         max_step_size=1e-5,
         max_iter=10000,
-        gamma=0.001,
-        gamma_decay_type=None,
-        gamma_decay_params=None,
         save_primal=True,
     )
     initial_dual = torch.zeros(2)
@@ -186,14 +180,11 @@ def test_miplib_convergence_with_one_sided_x_bound_II():
         b_vec=b,
         equality_mask=equality_mask,
     )
-    objective = MIPLIB2017ObjectiveFunction(miplib_input_args=input_args)
+    objective = MIPLIB2017ObjectiveFunction(miplib_input_args=input_args, gamma=0.001)
     solver = AcceleratedGradientDescent(
         initial_step_size=1e-6,
         max_step_size=1e-5,
         max_iter=10000,
-        gamma=0.001,
-        gamma_decay_type=None,
-        gamma_decay_params=None,
         save_primal=True,
     )
     initial_dual = torch.zeros(2)

@@ -11,7 +11,7 @@ class SolverArgs:
     gamma: float = 1e-3
     max_step_size: float = 0.1
     initial_dual_path: Optional[str] = None
-    gamma_decay_type: Optional[Literal["step"]] = None
+    gamma_decay_type: Optional[Literal["step", "interval"]] = None
     gamma_decay_params: Optional[dict] = None
     save_primal: bool = False
 

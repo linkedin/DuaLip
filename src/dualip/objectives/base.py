@@ -24,3 +24,7 @@ class BaseObjective(ABC):
     @abstractmethod
     def calculate(self) -> ObjectiveResult:
         pass
+
+    def set_gamma(self, gamma: float) -> None:
+        """Update the regularization parameter. Override in subclasses that use gamma."""
+        pass
