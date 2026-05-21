@@ -1,9 +1,32 @@
 from collections import defaultdict
+from dataclasses import fields
 
 import torch
 
+from dualip.objectives.base import BaseInputArgs
 from dualip.projections.base import ProjectionEntry
 from dualip.utils.sparse_utils import split_csc_by_cols
+
+
+def transfer_tensors_to_device(input_args: BaseInputArgs, device: str):
+    """
+    Transfer all tensor fields in input_args to the specified device.
+
+    Args:
+        input_args: The input arguments dataclass.
+        device: The target device (e.g., 'cuda:0', 'cpu').
+
+    Returns:
+        A new instance of the same dataclass with all tensors transferred to device.
+    """
+    field_values = {}
+    for field in fields(input_args):
+        value = getattr(input_args, field.name)
+        if isinstance(value, torch.Tensor):
+            field_values[field.name] = value.to(device)
+        else:
+            field_values[field.name] = value
+    return type(input_args)(**field_values)
 
 
 def global_to_local_projection_map(global_map: dict[str, ProjectionEntry], local_cols: list[int]) -> dict[str, dict]:

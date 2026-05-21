@@ -1,4 +1,3 @@
-from dataclasses import fields
 from typing import Optional
 
 import torch
@@ -11,34 +10,8 @@ from dualip.objectives.matching import (
 from dualip.objectives.miplib import MIPLIB2017ObjectiveFunction
 from dualip.optimizers.agd import AcceleratedGradientDescent, SolverResult
 from dualip.types import ComputeArgs, ObjectiveArgs, SolverArgs
+from dualip.utils.dist_utils import transfer_tensors_to_device
 from dualip.utils.mlflow_utils import MLflowConfig, log_hyperparameters, mlflow_run_context
-
-
-def transfer_tensors_to_device(input_args: BaseInputArgs, device: str):
-    """
-    Transfer all tensor fields in input_args to the specified device.
-
-    Args:
-        input_args: The input arguments object
-        device: The target device (e.g., 'cuda:0', 'cpu')
-
-    Returns:
-        A new instance of input_args with all tensors transferred to device
-    """
-    # Get all field names from the dataclass
-    field_names = [field.name for field in fields(input_args)]
-
-    # Create a dictionary of field values with tensors transferred to device
-    field_values = {}
-    for field_name in field_names:
-        value = getattr(input_args, field_name)
-        if isinstance(value, torch.Tensor):
-            field_values[field_name] = value.to(device)
-        else:
-            field_values[field_name] = value
-
-    # Create a new instance of the same class with transferred tensors
-    return type(input_args)(**field_values)
 
 
 def build_objective(
